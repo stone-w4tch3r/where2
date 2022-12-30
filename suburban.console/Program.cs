@@ -22,7 +22,7 @@ public static class Program
     {
         try
         {
-            var endpoint = new YApiEndpoint();
+            var endpoint = new AllStationsApiEndpoint();
             var stationsListDto = await _httpClientContext.RunEndpoint(endpoint).ConfigureAwait(false);
             Console.WriteLine(stationsListDto);
         }
