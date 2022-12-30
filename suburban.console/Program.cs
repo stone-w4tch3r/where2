@@ -14,7 +14,7 @@ public static class Program
     static Program()
     {
         _networkManager = new WindowsNetworkManager();
-        _nativeHttpClient = new WindowsHttpClient(_networkManager);
+        _nativeHttpClient = new NativeHttpClient(_networkManager);
         _httpClientContext = new HttpClientContext(_nativeHttpClient);
     }
 
@@ -22,8 +22,9 @@ public static class Program
     {
         try
         {
-            YApiEndpoint endpoint = new();
-            var orders = await _httpClientContext.RunEndpoint(endpoint).ConfigureAwait(false);
+            var endpoint = new YApiEndpoint();
+            var stationsListDto = await _httpClientContext.RunEndpoint(endpoint).ConfigureAwait(false);
+            Console.WriteLine(stationsListDto);
         }
         catch (NetworkException e)
         {
