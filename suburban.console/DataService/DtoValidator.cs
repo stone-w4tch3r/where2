@@ -1,5 +1,6 @@
 using suburban.console.DataService.DTOs;
-using suburban.console.Records;
+using suburban.console.DataTypes;
+using suburban.console.DataTypes.Enums;
 using suburban.essentials;
 
 namespace suburban.console.DataService;
@@ -34,13 +35,48 @@ public class DtoValidator : IDtoValidator
             dto.Title ?? throw new NullReferenceException(nameof(StationDto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             dto.Direction,
-            dto.StationType, 
+            ConvertStationType(dto.StationType), 
             dto.Longitude,
-            dto.TransportType,
+            ConvertTransportType(dto.TransportType),
             dto.Latitude);
 
     private static Codes Convert(CodesDto dto) =>
         new(
             dto.YandexCode,
             dto.EsrCode);
+
+    private static StationType ConvertStationType(string? stationType) =>
+        stationType switch
+        {
+            "station" => StationType.Station,
+            "platform" => StationType.Platform,
+            "stop" => StationType.Stop,
+            "checkpoint" => StationType.Checkpoint,
+            "post" => StationType.Post,
+            "crossing" => StationType.Crossing,
+            "overtaking_point" => StationType.OvertakingPoint,
+            "train_station" => StationType.TrainStation,
+            "airport" => StationType.Airport,
+            "bus_station" => StationType.BusStation,
+            "bus_stop" => StationType.BusStop,
+            "unknown" => StationType.Unknown,
+            "port" => StationType.Port,
+            "port_point" => StationType.PortPoint,
+            "wharf" => StationType.Wharf,
+            "river_port" => StationType.RiverPort,
+            "marine_station" => StationType.MarineStation,  
+            _ => throw new ArgumentOutOfRangeException(stationType)
+        };
+    
+    private static TransportType ConvertTransportType(string? transportType) =>
+        transportType switch
+        {
+            "plane" => TransportType.Plane,
+            "train" => TransportType.Train,
+            "suburban" => TransportType.Suburban,
+            "bus" => TransportType.Bus,
+            "water" => TransportType.Water,
+            "helicopter" => TransportType.Helicopter,
+            _ => throw new ArgumentOutOfRangeException(transportType)
+        };
 }

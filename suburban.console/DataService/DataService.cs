@@ -3,13 +3,12 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Arbus.Network;
 using Arbus.Network.Implementations;
-using suburban.console.Records;
+using suburban.console.DataTypes;
 
 namespace suburban.console.DataService;
 
 public class DataService
 {
-    
     public async Task<StationsRoot> GetData()
     {
         var fileInfo = new FileInfo("stations.json");

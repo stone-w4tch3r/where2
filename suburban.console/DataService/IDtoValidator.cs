@@ -1,5 +1,5 @@
 using suburban.console.DataService.DTOs;
-using suburban.console.Records;
+using suburban.console.DataTypes;
 
 namespace suburban.console.DataService;
 

@@ -1,3 +1,3 @@
-namespace suburban.console.Records;
+namespace suburban.console.DataTypes;
 
 public record Codes(string? YandexCode, string? EsrCode);

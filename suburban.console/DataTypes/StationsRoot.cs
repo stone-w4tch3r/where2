@@ -1,4 +1,4 @@
-namespace suburban.console.Records;
+namespace suburban.console.DataTypes;
 
 public record StationsRoot(Country Country)
 {
