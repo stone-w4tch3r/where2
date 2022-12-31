@@ -1,9 +1,9 @@
 using Arbus.Network.Abstractions;
-using suburban.console.DTOs;
+using suburban.console.DataWorker.DTOs;
 
-namespace suburban.console;
+namespace suburban.console.DataWorker;
 
-public class AllStationsApiEndpoint : ApiEndpoint<StationsListDto>
+public class AllStationsApiEndpoint : ApiEndpoint<StationsRootDto>
 {
     private const string ApiKeyPathPart = "/?apikey=741883ec-2d53-4830-aa83-fa17b38c1f66";
     public override string Path => "https://api.rasp.yandex.net/v3.0/stations_list" + ApiKeyPathPart;

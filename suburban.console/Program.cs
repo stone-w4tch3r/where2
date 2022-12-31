@@ -2,6 +2,7 @@
 using Arbus.Network.Abstractions;
 using Arbus.Network.Exceptions;
 using Arbus.Network.Implementations;
+using suburban.console.DataWorker;
 
 namespace suburban.console;
 

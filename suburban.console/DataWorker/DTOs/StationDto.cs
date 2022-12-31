@@ -2,20 +2,20 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace suburban.console.DTOs;
+namespace suburban.console.DataWorker.DTOs;
 
 public record StationDto(
     string? Direction,
     CodesDto? Codes,
     string? StationType,
     string? Title,
-    [property: JsonConverter(typeof(MyConverter))]
+    [property: JsonConverter(typeof(NullableDoubleConverter))]
     double? Longitude,
     string? TransportType,
-    [property: JsonConverter(typeof(MyConverter))]
+    [property: JsonConverter(typeof(NullableDoubleConverter))]
     double? Latitude);
 
-public class MyConverter : JsonConverter<double?>
+public class NullableDoubleConverter : JsonConverter<double?>
 {
     public override double? Read(ref Utf8JsonReader reader, Type _, JsonSerializerOptions __)
     {

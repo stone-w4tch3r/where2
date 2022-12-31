@@ -12,4 +12,8 @@
       <PackageReference Include="Arbus.Network" Version="4.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj" />
+    </ItemGroup>
+
 </Project>
