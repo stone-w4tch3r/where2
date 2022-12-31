@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace suburban.console.DataWorker.DTOs;
+namespace suburban.console.DataService.DTOs;
 
 public record StationDto(
     string? Direction,

@@ -1,7 +1,7 @@
-using suburban.console.DataWorker.DTOs;
+using suburban.console.DataService.DTOs;
 using suburban.console.Records;
 
-namespace suburban.console.DataWorker;
+namespace suburban.console.DataService;
 
 public interface IDtoValidator
 {

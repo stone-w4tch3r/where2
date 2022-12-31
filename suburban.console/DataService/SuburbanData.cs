@@ -1,6 +1,6 @@
-using suburban.console.DataWorker.DTOs;
+using suburban.console.DataService.DTOs;
 
-namespace suburban.console.DataWorker;
+namespace suburban.console.DataService;
 
 public record SuburbanData
 {

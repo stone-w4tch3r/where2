@@ -1,8 +1,8 @@
-using suburban.console.DataWorker.DTOs;
+using suburban.console.DataService.DTOs;
 using suburban.console.Records;
 using suburban.essentials;
 
-namespace suburban.console.DataWorker;
+namespace suburban.console.DataService;
 
 public class DtoValidator : IDtoValidator
 {
@@ -33,14 +33,14 @@ public class DtoValidator : IDtoValidator
         new(
             dto.Title ?? throw new NullReferenceException(nameof(StationDto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-            dto.Direction ?? throw new NullReferenceException(nameof(StationDto.Direction)),
-            dto.StationType ?? throw new NullReferenceException(nameof(StationDto.StationType)), 
-            dto.Longitude ?? throw new NullReferenceException(nameof(StationDto.Longitude)),
-            dto.TransportType ?? throw new NullReferenceException(nameof(StationDto.TransportType)), 
-            dto.Latitude ?? throw new NullReferenceException(nameof(StationDto.Latitude)));
+            dto.Direction,
+            dto.StationType, 
+            dto.Longitude,
+            dto.TransportType,
+            dto.Latitude);
 
     private static Codes Convert(CodesDto dto) =>
         new(
-            dto.YandexCode ?? throw new NullReferenceException(nameof(CodesDto.YandexCode)),
+            dto.YandexCode,
             dto.EsrCode);
 }

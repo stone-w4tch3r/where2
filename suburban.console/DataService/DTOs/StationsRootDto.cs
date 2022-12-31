@@ -1,3 +1,3 @@
-namespace suburban.console.DataWorker.DTOs;
+namespace suburban.console.DataService.DTOs;
 
 public record StationsRootDto(IEnumerable<CountryDto>? Countries);
