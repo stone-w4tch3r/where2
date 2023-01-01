@@ -1,10 +1,10 @@
 using System.Data;
+using System.Diagnostics.Tracing;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Arbus.Network;
 using Arbus.Network.Abstractions;
 using Arbus.Network.Implementations;
-using suburban.console.DataService.DTOs;
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 using suburban.essentials;
@@ -15,33 +15,40 @@ public class DataService
 {
     public async Task<StationsRoot> GetData() =>
         (await GetStations(
-            new("stations.json"),
-            new(),
+            new FileInfo("stations.json"),
+            new YandexFetcher(),
             new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager()))
         ).ConfigureAwait(false))
-        .Map(
-            stationsRoot => stationsRoot with
-            {
-                Country = stationsRoot.Country with
-                {
-                    Regions = stationsRoot.Country.Regions.Select(region => region with
-                    {
-                        Settlements =
-                        region.Settlements.Select(settlement => settlement with
-                        {
-                            Stations = settlement.Stations
-                                .Where(station =>
-                                    station.TransportType is TransportType.Suburban
-                                    || station.TransportType is TransportType.Train)
-                        }) //.Where(settlement => settlement.Stations.Any())
-                    }) //.Where(x => x.Settlements.Any())
-                }
-            });
+        .Map(FilterTrainOnlyStations)
+        .Tap(LogFilteredStations);
 
-    private async Task<StationsRoot> GetStations(FileInfo fileInfo, YandexFetcher fetcher, IHttpClientContext context)
+    private static StationsRoot FilterTrainOnlyStations(StationsRoot stationsRoot) =>
+        stationsRoot with
+        {
+            Country = stationsRoot.Country with
+            {
+                Regions = stationsRoot.Country.Regions.Select(region => region with
+                {
+                    Settlements =
+                    region.Settlements.Select(settlement => settlement with
+                    {
+                        Stations = settlement.Stations
+                            .Where(station => station.TransportType is TransportType.Suburban or TransportType.Train)
+                    }).Where(settlement => settlement.Stations.Any())
+                }).Where(x => x.Settlements.Any())
+            }
+        };
+    
+    private static async void LogFilteredStations(StationsRoot x)
     {
-        var savedStations = default(StationsRoot);
-        // var savedStations = await ProcessLoadingFromFile(fileInfo).ConfigureAwait(false);
+        if (Settings.EventLogLevel == EventLevel.Verbose)
+            await SaveToFile(x, new FileInfo("stationsFiltered.json")).ConfigureAwait(false);
+    }
+
+    private async Task<StationsRoot> GetStations(FileSystemInfo fileInfo, IYandexFetcher fetcher, IHttpClientContext context)
+    {
+        // var savedStations = default(StationsRoot);
+        var savedStations = await ProcessLoadingFromFile(fileInfo).ConfigureAwait(false);
 
         if (savedStations is not null)
             Console.WriteLine($"Data found: [CreationTime: {savedStations.CreationTime}]");
@@ -65,14 +72,13 @@ public class DataService
         var validator = new DtoValidator();
         var stations = validator.Validate(fetchedStationsDto);
         Console.WriteLine("Data fetched");
-#if DEBUG
-        await SaveToFile(fetchedStationsDto, new ("fetchedDto.json")).ConfigureAwait(false);
-#endif
+        if(Settings.EventLogLevel == EventLevel.Verbose)
+            await SaveToFile(fetchedStationsDto, new FileInfo("fetchedDto.json")).ConfigureAwait(false);
         await SaveToFile(stations, fileInfo).ConfigureAwait(false);
         return stations;
     }
 
-    private async Task<StationsRoot?> ProcessLoadingFromFile(FileInfo fileInfo)
+    private static async Task<StationsRoot?> ProcessLoadingFromFile(FileSystemInfo fileInfo)
     {
         if (!fileInfo.Exists)
             return null;
@@ -88,7 +94,7 @@ public class DataService
         }
     }
 
-    private static async Task SaveToFile(object data, FileInfo fileInfo)
+    private static async Task SaveToFile(object data, FileSystemInfo fileInfo)
     {
         var options = new JsonSerializerOptions
         {
@@ -100,7 +106,7 @@ public class DataService
         await JsonSerializer.SerializeAsync(stream, data, options).ConfigureAwait(false);
     }
 
-    private static async Task<StationsRoot> LoadFromFile(FileInfo file)
+    private static async Task<StationsRoot> LoadFromFile(FileSystemInfo file)
     {
         await using var stream = File.OpenRead(file.FullName);
         return await JsonSerializer.DeserializeAsync<StationsRoot>(stream).ConfigureAwait(false)

@@ -4,7 +4,7 @@ using suburban.console.DataService.DTOs;
 
 namespace suburban.console.DataService;
 
-public class YandexFetcher
+public class YandexFetcher : IYandexFetcher
 {
     public async Task<StationsRootDto?> FetchAllStations(IHttpClientContext context)
     {
