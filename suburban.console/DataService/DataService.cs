@@ -45,11 +45,10 @@ public class DataService
             await SaveToFile(x, new FileInfo("stationsFiltered.json")).ConfigureAwait(false);
     }
 
-    private async Task<StationsRoot> GetStations(FileSystemInfo fileInfo, IYandexFetcher fetcher, IHttpClientContext context)
+    private static async Task<StationsRoot> GetStations(FileSystemInfo fileInfo, IYandexFetcher fetcher, IHttpClientContext context)
     {
         // var savedStations = default(StationsRoot);
         var savedStations = await ProcessLoadingFromFile(fileInfo).ConfigureAwait(false);
-
         if (savedStations is not null)
             Console.WriteLine($"Data found: [CreationTime: {savedStations.CreationTime}]");
 
@@ -68,12 +67,12 @@ public class DataService
             Console.WriteLine("Failed to fetch data, loading from file");
             return savedStations;
         }
-
-        var validator = new DtoValidator();
-        var stations = validator.Validate(fetchedStationsDto);
         Console.WriteLine("Data fetched");
         if(Settings.EventLogLevel == EventLevel.Verbose)
             await SaveToFile(fetchedStationsDto, new FileInfo("fetchedDto.json")).ConfigureAwait(false);
+
+        var validator = new DtoValidator();
+        var stations = validator.Validate(fetchedStationsDto);
         await SaveToFile(stations, fileInfo).ConfigureAwait(false);
         return stations;
     }
