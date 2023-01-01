@@ -7,10 +7,12 @@ namespace suburban.console.DataService.DTOs;
 public record StationDto(
     string? Direction,
     CodesDto? Codes,
+    [property: JsonPropertyName("station_type")]
     string? StationType,
     string? Title,
     [property: JsonConverter(typeof(NullableDoubleConverter))]
     double? Longitude,
+    [property: JsonPropertyName("transport_type")]
     string? TransportType,
     [property: JsonConverter(typeof(NullableDoubleConverter))]
     double? Latitude);
@@ -31,5 +33,5 @@ public class NullableDoubleConverter : JsonConverter<double?>
     }
 
     public override void Write(Utf8JsonWriter writer, double? value, JsonSerializerOptions options) =>
-        throw new NotImplementedException();
+        JsonSerializer.Serialize(writer, value, options);
 }

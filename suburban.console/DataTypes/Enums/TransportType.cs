@@ -7,5 +7,7 @@ public enum TransportType
     Suburban,
     Bus,
     Water,
-    Helicopter
+    Helicopter,
+    NullOrEmpty,
+    Sea
 }

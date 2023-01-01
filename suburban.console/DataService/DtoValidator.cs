@@ -35,7 +35,7 @@ public class DtoValidator : IDtoValidator
             dto.Title ?? throw new NullReferenceException(nameof(StationDto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             dto.Direction,
-            ConvertStationType(dto.StationType), 
+            ConvertStationType(dto.StationType),
             dto.Longitude,
             ConvertTransportType(dto.TransportType),
             dto.Latitude);
@@ -64,8 +64,10 @@ public class DtoValidator : IDtoValidator
             "port_point" => StationType.PortPoint,
             "wharf" => StationType.Wharf,
             "river_port" => StationType.RiverPort,
-            "marine_station" => StationType.MarineStation,  
-            _ => throw new ArgumentOutOfRangeException(stationType)
+            "marine_station" => StationType.MarineStation, 
+            "" => StationType.NullOrEmpty,
+            null => StationType.NullOrEmpty,
+            _ => throw new ArgumentOutOfRangeException($"<{stationType}>")
         };
     
     private static TransportType ConvertTransportType(string? transportType) =>
@@ -77,6 +79,9 @@ public class DtoValidator : IDtoValidator
             "bus" => TransportType.Bus,
             "water" => TransportType.Water,
             "helicopter" => TransportType.Helicopter,
-            _ => throw new ArgumentOutOfRangeException(transportType)
+            "sea" => TransportType.Sea,
+            "" => TransportType.NullOrEmpty,
+            null => TransportType.NullOrEmpty,
+            _ => throw new ArgumentOutOfRangeException($"<{transportType}>")
         };
 }

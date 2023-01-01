@@ -11,4 +11,10 @@ public static class FunctionalExtensions
     }
     
     public static TOut Map<TOut, TIn>(this TIn source, Func<TIn, TOut> func) => func(source);
+    
+    public static T Tap<T>(this T source, Action<T> action)
+    {
+        action(source);
+        return source;
+    }
 }

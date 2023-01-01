@@ -18,5 +18,6 @@ public enum StationType
     PortPoint,
     Wharf,
     RiverPort,
-    MarineStation
+    MarineStation,
+    NullOrEmpty
 }
