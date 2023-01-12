@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj" />
+      <ProjectReference Include="..\suburban.shared\suburban.shared.csproj" />
     </ItemGroup>
 
 </Project>
