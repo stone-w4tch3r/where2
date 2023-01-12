@@ -5,7 +5,7 @@ namespace suburban.console.HelperServices;
 
 public class FileService : IFileService
 {
-    public async Task<T?> LoadFromFile<T>(FileSystemInfo fileInfo) where T : class
+    public async Task<T?> LoadFromFile<T>(FileInfo fileInfo) where T : class
     {
         if (!fileInfo.Exists)
             return null;
@@ -20,7 +20,8 @@ public class FileService : IFileService
             return null;
         }
     }
-    public async Task SaveToFile(object data, FileSystemInfo fileInfo)
+
+    public async Task SaveToFile(object data, FileInfo fileInfo)
     {
         var options = new JsonSerializerOptions
         {

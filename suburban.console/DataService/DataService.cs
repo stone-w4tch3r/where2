@@ -1,7 +1,4 @@
 using System.Data;
-using Arbus.Network;
-using Arbus.Network.Abstractions;
-using Arbus.Network.Implementations;
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 using suburban.console.Extensions;
@@ -13,41 +10,40 @@ namespace suburban.console.DataService;
 
 public class DataService
 {
-    public async Task<StationsRoot> GetData() =>
-        (await GetStations(
-            new FileInfo("stations.json"),
-            new YandexFetcher(),
-            new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
-            new DtoValidator(),
-            new FileService()
-        ).ConfigureAwait(false))
-        .Map(FilterTrainOnlyStations)
-        .Tap(async x =>
-            await new FileService().SaveToFile(x, new FileInfo("stationsFiltered.json")).ConfigureAwait(false));
+    private readonly IFileService _fileService;
+    private readonly IYandexFetcher _yandexFetcher;
 
-    private static async Task<StationsRoot> GetStations(
-        FileSystemInfo fileInfo,
-        IYandexFetcher fetcher,
-        IHttpClientContext context,
-        IDtoValidator dtoValidator,
-        IFileService fileService) =>
-        await (await fileService.LoadFromFile<StationsRoot>(fileInfo).ConfigureAwait(false))
+    public DataService(IYandexFetcher yandexFetcher, IFileService fileService)
+    {
+        _yandexFetcher = yandexFetcher;
+        _fileService = fileService;
+    }
+
+    public async Task<StationsRoot> GetData(
+        FileInfo fileInfo) =>
+        (await GetStations(fileInfo).ConfigureAwait(false))
+        .Map(FilterTrainOnlyStations)
+        .LogToFile(FileResources.Debug.FilteredStationsRoot, _fileService);
+
+    private async Task<StationsRoot> GetStations(
+        FileInfo fileInfo)
+    {
+        return await (await _fileService.LoadFromFile<StationsRoot>(fileInfo).ConfigureAwait(false))
             .Map(async stationsRoot =>
                 stationsRoot is { }
                 && true.Log(StringResources.Debug.StationsRootLoadedFromCache, stationsRoot.CreationTime)
                 && stationsRoot.CreationTime > DateTime.Now.AddDays(-1)
-                    ? stationsRoot
-                        .Log(StringResources.Debug.DataIsActual)
-                    : await fetcher.FetchAllStations(context).ConfigureAwait(false) is { } fetchedStationsRootDto 
-                      && true.LogToFile(fetchedStationsRootDto, FileResources.Debug.FetchedStationsRootDto, fileService)
-                        ? dtoValidator
-                            .Validate(fetchedStationsRootDto)
-                            .Tap(async stations =>
-                                await fileService.SaveToFile(stations, fileInfo).ConfigureAwait(false))
-                        : stationsRoot
-                          ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
+                    ? stationsRoot.Log(StringResources.Debug.DataIsActual)
+                    : await _yandexFetcher.TryFetchAllStations().ConfigureAwait(false)
+                        is { IsSuccess: true } fetchedStations
+                        ? fetchedStations.Value!.Tap(SaveLoadedStationsToFile)
+                        : stationsRoot ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
             .ConfigureAwait(false);
-    
+
+        async void SaveLoadedStationsToFile(StationsRoot stations) =>
+            await _fileService.SaveToFile(stations, fileInfo).ConfigureAwait(false);
+    }
+
     private static StationsRoot FilterTrainOnlyStations(StationsRoot stationsRoot) =>
         stationsRoot with
         {
