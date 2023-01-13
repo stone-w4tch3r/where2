@@ -12,4 +12,4 @@ public record Station(
     double? Longitude,
     [property: JsonConverter(typeof(JsonStringEnumConverter))]
     TransportType TransportType,
-    double? Latitude);
+    double? Latitude) : IDataType;
