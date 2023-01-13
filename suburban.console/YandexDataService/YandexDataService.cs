@@ -6,14 +6,14 @@ using suburban.console.HelperServices;
 using suburban.essentials;
 using suburban.shared;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
-public class DataService
+public class YandexDataService
 {
     private readonly IFileService _fileService;
     private readonly IYandexFetcher _yandexFetcher;
 
-    public DataService(IYandexFetcher yandexFetcher, IFileService fileService)
+    public YandexDataService(IYandexFetcher yandexFetcher, IFileService fileService)
     {
         _yandexFetcher = yandexFetcher;
         _fileService = fileService;

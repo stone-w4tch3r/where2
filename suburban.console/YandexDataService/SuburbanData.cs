@@ -1,6 +1,6 @@
-using suburban.console.DataService.DTOs;
+using suburban.console.YandexDataService.DTOs;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
 public record SuburbanData
 {

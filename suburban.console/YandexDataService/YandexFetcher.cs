@@ -1,14 +1,13 @@
-using System.Diagnostics.CodeAnalysis;
 using Arbus.Network.Abstractions;
 using Arbus.Network.Exceptions;
-using suburban.console.DataService.DTOs;
 using suburban.console.DataTypes;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
+using suburban.console.YandexDataService.DTOs;
 using suburban.essentials;
 using suburban.shared;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
 public class YandexFetcher : IYandexFetcher
 {

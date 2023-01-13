@@ -1,9 +1,9 @@
-using suburban.console.DataService.DTOs;
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
+using suburban.console.YandexDataService.DTOs;
 using suburban.essentials;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
 public class DtoValidator : IDtoValidator
 {

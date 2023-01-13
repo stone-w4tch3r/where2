@@ -1,7 +1,7 @@
 using Arbus.Network.Abstractions;
-using suburban.console.DataService.DTOs;
+using suburban.console.YandexDataService.DTOs;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
 public class AllStationsApiEndpoint : ApiEndpoint<StationsRootDto>
 {

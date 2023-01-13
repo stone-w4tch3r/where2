@@ -1,10 +1,10 @@
 using Arbus.Network.Abstractions;
-using suburban.console.DataService.DTOs;
+using suburban.console.YandexDataService.DTOs;
 using suburban.console.DataTypes;
 using suburban.console.HelperServices;
 using suburban.essentials;
 
-namespace suburban.console.DataService;
+namespace suburban.console.YandexDataService;
 
 public interface IYandexFetcher
 {
