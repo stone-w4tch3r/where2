@@ -1,3 +1,3 @@
 namespace suburban.console.YandexDataService.DTOs;
 
-public record RegionDto(IEnumerable<SettlementDto>? Settlements, CodesDto? Codes, string? Title);
+public record RegionDto(IEnumerable<SettlementDto>? Settlements, CodesDto? Codes, string? Title) : IDto;

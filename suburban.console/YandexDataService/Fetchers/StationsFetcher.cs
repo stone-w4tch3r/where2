@@ -13,19 +13,19 @@ namespace suburban.console.YandexDataService;
 public class StationsFetcher : IStationsFetcher
 {
     private readonly IHttpClientContext _context;
-    private readonly IStationsDtoValidator _validator;
+    private readonly IDtoConverter _converter;
     private readonly IFileService _fileService;
-    public StationsFetcher (IHttpClientContext context, IStationsDtoValidator validator, IFileService fileService)
+    public StationsFetcher (IHttpClientContext context, IDtoConverter converter, IFileService fileService)
     {
         _context = context;
-        _validator = validator;
+        _converter = converter;
         _fileService = fileService;
     }
     
     public async Task<Result<Stations>> TryFetchAllStations() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
         && true.LogToFile(fetchedStationsDto, FileResources.Debug.FetchedStationsDto, _fileService)
-            ? new (true, _validator.Validate(fetchedStationsDto))
+            ? new (true, _converter.Convert(fetchedStationsDto))
             : new (false, default);
 
     private static async Task<StationsDto?> FetchAllStations(IHttpClientContext context)
