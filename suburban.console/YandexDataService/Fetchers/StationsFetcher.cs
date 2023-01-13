@@ -5,10 +5,11 @@ using suburban.console.Extensions;
 using suburban.console.HelperServices;
 using suburban.console.YandexDataService.DTOs;
 using suburban.console.YandexDataService.Endpoints;
+using suburban.console.YandexDataService.Validators;
 using suburban.essentials;
 using suburban.shared;
 
-namespace suburban.console.YandexDataService;
+namespace suburban.console.YandexDataService.Fetchers;
 
 public class StationsFetcher : IStationsFetcher
 {

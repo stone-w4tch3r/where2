@@ -1,10 +1,7 @@
-using Arbus.Network.Abstractions;
-using suburban.console.YandexDataService.DTOs;
 using suburban.console.DataTypes;
-using suburban.console.HelperServices;
 using suburban.essentials;
 
-namespace suburban.console.YandexDataService;
+namespace suburban.console.YandexDataService.Fetchers;
 
 public interface IStationsFetcher
 {

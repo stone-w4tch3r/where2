@@ -3,6 +3,7 @@ using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
+using suburban.console.YandexDataService.Fetchers;
 using suburban.essentials;
 using suburban.shared;
 

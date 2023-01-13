@@ -1,7 +1,7 @@
 using suburban.console.DataTypes;
 using suburban.console.YandexDataService.DTOs;
 
-namespace suburban.console.YandexDataService;
+namespace suburban.console.YandexDataService.Validators;
 
 public interface IDtoConverter
 {
