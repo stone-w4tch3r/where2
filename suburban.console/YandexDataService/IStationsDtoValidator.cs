@@ -3,7 +3,7 @@ using suburban.console.YandexDataService.DTOs;
 
 namespace suburban.console.YandexDataService;
 
-public interface IDtoValidator
+public interface IStationsDtoValidator
 {
-    public StationsRoot Validate(StationsRootDto dto);
+    public Stations Validate(StationsDto dto);
 }

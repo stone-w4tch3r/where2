@@ -4,6 +4,7 @@ using suburban.console.DataTypes;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
 using suburban.console.YandexDataService.DTOs;
+using suburban.console.YandexDataService.Endpoints;
 using suburban.essentials;
 using suburban.shared;
 
@@ -12,26 +13,26 @@ namespace suburban.console.YandexDataService;
 public class YandexFetcher : IYandexFetcher
 {
     private readonly IHttpClientContext _context;
-    private readonly IDtoValidator _validator;
+    private readonly IStationsDtoValidator _validator;
     private readonly IFileService _fileService;
-    public YandexFetcher (IHttpClientContext context, IDtoValidator validator, IFileService fileService)
+    public YandexFetcher (IHttpClientContext context, IStationsDtoValidator validator, IFileService fileService)
     {
         _context = context;
         _validator = validator;
         _fileService = fileService;
     }
     
-    public async Task<Result<StationsRoot>> TryFetchAllStations() =>
-        await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsRootDto
-        && true.LogToFile(fetchedStationsRootDto, FileResources.Debug.FetchedStationsRootDto, _fileService)
-            ? new (true, _validator.Validate(fetchedStationsRootDto))
+    public async Task<Result<Stations>> TryFetchAllStations() =>
+        await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
+        && true.LogToFile(fetchedStationsDto, FileResources.Debug.FetchedStationsDto, _fileService)
+            ? new (true, _validator.Validate(fetchedStationsDto))
             : new (false, default);
 
-    private static async Task<StationsRootDto?> FetchAllStations(IHttpClientContext context)
+    private static async Task<StationsDto?> FetchAllStations(IHttpClientContext context)
     {
         try
         {
-            return await context.RunEndpoint(new AllStationsApiEndpoint()).ConfigureAwait(false);
+            return await context.RunEndpoint(new StationsApiEndpoint()).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {

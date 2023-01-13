@@ -5,12 +5,12 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService;
 
-public class DtoValidator : IDtoValidator
+public class StationsDtoValidator : IStationsDtoValidator
 {
-    public StationsRoot Validate(StationsRootDto dto) =>
+    public Stations Validate(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
-        .Map(countryDto => new StationsRoot(Convert(countryDto)));
+        .Map(countryDto => new Stations(Convert(countryDto)));
 
     private static Country Convert(CountryDto dto) =>
         new(

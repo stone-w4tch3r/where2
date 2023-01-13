@@ -19,37 +19,37 @@ public class YandexDataService
         _fileService = fileService;
     }
 
-    public async Task<StationsRoot> GetData(
+    public async Task<Stations> GetData(
         FileInfo fileInfo) =>
         (await GetStations(fileInfo).ConfigureAwait(false))
         .Map(FilterTrainOnlyStations)
-        .LogToFile(FileResources.Debug.FilteredStationsRoot, _fileService);
+        .LogToFile(FileResources.Debug.FilteredStations, _fileService);
 
-    private async Task<StationsRoot> GetStations(
+    private async Task<Stations> GetStations(
         FileInfo fileInfo)
     {
-        return await (await _fileService.LoadFromFile<StationsRoot>(fileInfo).ConfigureAwait(false))
-            .Map(async stationsRoot =>
-                stationsRoot is { }
-                && true.Log(StringResources.Debug.StationsRootLoadedFromCache, stationsRoot.CreationTime)
-                && stationsRoot.CreationTime > DateTime.Now.AddDays(-1)
-                    ? stationsRoot.Log(StringResources.Debug.DataIsActual)
+        return await (await _fileService.LoadFromFile<Stations>(fileInfo).ConfigureAwait(false))
+            .Map(async stations =>
+                stations is { }
+                && true.Log(StringResources.Debug.StationsLoadedFromCache, stations.CreationTime)
+                && stations.CreationTime > DateTime.Now.AddDays(-1)
+                    ? stations.Log(StringResources.Debug.DataIsActual)
                     : await _yandexFetcher.TryFetchAllStations().ConfigureAwait(false)
                         is { IsSuccess: true } fetchedStations
                         ? fetchedStations.Value!.Tap(SaveLoadedStationsToFile)
-                        : stationsRoot ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
+                        : stations ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
             .ConfigureAwait(false);
 
-        async void SaveLoadedStationsToFile(StationsRoot stations) =>
+        async void SaveLoadedStationsToFile(Stations stations) =>
             await _fileService.SaveToFile(stations, fileInfo).ConfigureAwait(false);
     }
 
-    private static StationsRoot FilterTrainOnlyStations(StationsRoot stationsRoot) =>
-        stationsRoot with
+    private static Stations FilterTrainOnlyStations(Stations stations) =>
+        stations with
         {
-            Country = stationsRoot.Country with
+            Country = stations.Country with
             {
-                Regions = stationsRoot.Country.Regions.Select(region => region with
+                Regions = stations.Country.Regions.Select(region => region with
                 {
                     Settlements =
                     region.Settlements.Select(settlement => settlement with

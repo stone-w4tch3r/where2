@@ -8,5 +8,5 @@ namespace suburban.console.YandexDataService;
 
 public interface IYandexFetcher
 {
-    public Task<Result<StationsRoot>> TryFetchAllStations();
+    public Task<Result<Stations>> TryFetchAllStations();
 }

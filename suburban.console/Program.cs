@@ -12,7 +12,7 @@ public static class Program
         var dataWorker = new YandexDataService.YandexDataService(
             new YandexFetcher(
                 new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
-                new DtoValidator(), 
+                new StationsDtoValidator(), 
                 new FileService()),
             new FileService());
         var data = await dataWorker

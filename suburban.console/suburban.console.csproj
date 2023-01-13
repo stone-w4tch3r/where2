@@ -17,8 +17,4 @@
       <ProjectReference Include="..\suburban.shared\suburban.shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="YandexDataService\Endpoints" />
-    </ItemGroup>
-
 </Project>
