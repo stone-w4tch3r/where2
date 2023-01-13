@@ -3,7 +3,8 @@ using suburban.console.YandexDataService.DTOs;
 
 namespace suburban.console.YandexDataService.DtoConverters;
 
-public interface IDtoConverter
+public interface IDtoConverter<in TDto, out TDataType> 
+    where TDto : IDto where TDataType : IDataType
 {
-    public Stations Convert(StationsDto dto);
+    public TDataType ConvertDtoToDataType(TDto dto);
 }

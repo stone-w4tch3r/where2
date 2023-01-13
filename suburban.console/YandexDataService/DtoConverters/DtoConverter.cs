@@ -5,9 +5,9 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService.DtoConverters;
 
-public class DtoConverter : IDtoConverter
+public class DtoConverter : IDtoConverter<StationsDto, Stations>
 {
-    public Stations Convert(StationsDto dto) =>
+    public Stations ConvertDtoToDataType(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
         .Map(countryDto => new Stations(Convert(countryDto)));

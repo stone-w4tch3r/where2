@@ -14,9 +14,9 @@ namespace suburban.console.YandexDataService.Fetchers;
 public class StationsFetcher : IStationsFetcher
 {
     private readonly IHttpClientContext _context;
-    private readonly IDtoConverter _converter;
+    private readonly IDtoConverter<StationsDto, Stations> _converter;
     private readonly IFileService _fileService;
-    public StationsFetcher (IHttpClientContext context, IDtoConverter converter, IFileService fileService)
+    public StationsFetcher (IHttpClientContext context, IDtoConverter<StationsDto, Stations> converter, IFileService fileService)
     {
         _context = context;
         _converter = converter;
@@ -26,7 +26,7 @@ public class StationsFetcher : IStationsFetcher
     public async Task<Result<Stations>> TryFetchAllStations() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
         && true.LogToFile(fetchedStationsDto, FileResources.Debug.FetchedStationsDto, _fileService)
-            ? new (true, _converter.Convert(fetchedStationsDto))
+            ? new (true, _converter.ConvertDtoToDataType(fetchedStationsDto))
             : new (false, default);
 
     private static async Task<StationsDto?> FetchAllStations(IHttpClientContext context)
