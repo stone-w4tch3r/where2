@@ -10,7 +10,7 @@ public static class Program
     public static async Task Main()
     {
         var dataWorker = new YandexDataService.YandexDataService(
-            new YandexFetcher(
+            new StationsFetcher(
                 new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
                 new StationsDtoValidator(), 
                 new FileService()),

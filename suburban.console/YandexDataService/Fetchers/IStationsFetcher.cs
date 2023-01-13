@@ -6,7 +6,7 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService;
 
-public interface IYandexFetcher
+public interface IStationsFetcher
 {
     public Task<Result<Stations>> TryFetchAllStations();
 }

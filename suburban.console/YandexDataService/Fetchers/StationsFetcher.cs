@@ -10,12 +10,12 @@ using suburban.shared;
 
 namespace suburban.console.YandexDataService;
 
-public class YandexFetcher : IYandexFetcher
+public class StationsFetcher : IStationsFetcher
 {
     private readonly IHttpClientContext _context;
     private readonly IStationsDtoValidator _validator;
     private readonly IFileService _fileService;
-    public YandexFetcher (IHttpClientContext context, IStationsDtoValidator validator, IFileService fileService)
+    public StationsFetcher (IHttpClientContext context, IStationsDtoValidator validator, IFileService fileService)
     {
         _context = context;
         _validator = validator;
