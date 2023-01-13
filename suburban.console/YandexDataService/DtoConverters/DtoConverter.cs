@@ -3,7 +3,7 @@ using suburban.console.DataTypes.Enums;
 using suburban.console.YandexDataService.DTOs;
 using suburban.essentials;
 
-namespace suburban.console.YandexDataService.Validators;
+namespace suburban.console.YandexDataService.DtoConverters;
 
 public class DtoConverter : IDtoConverter
 {
