@@ -24,7 +24,7 @@ public class YandexDataService
         FileInfo fileInfo) =>
         (await GetStations(fileInfo).ConfigureAwait(false))
         .Map(FilterTrainOnlyStations)
-        .LogToFile(FileResources.Debug.FilteredStations, _fileService);
+        .LogToFile(_fileService, FileResources.Debug.FilteredStations);
 
     private async Task<Stations> GetStations(
         FileInfo fileInfo)

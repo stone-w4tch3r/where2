@@ -12,7 +12,7 @@ public static class DebugExtensions
         return obj;
     }
     
-    public static T LogToFile<T>(this T obj, FileInfo fileInfo, IFileService fileService)
+    public static T LogToFile<T>(this T obj, IFileService fileService, FileInfo fileInfo)
     {
         if (Settings.EventLogLevel == EventLevel.Verbose)
             fileService.SaveToFile(obj, fileInfo);

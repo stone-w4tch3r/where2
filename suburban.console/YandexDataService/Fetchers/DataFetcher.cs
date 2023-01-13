@@ -11,30 +11,33 @@ using suburban.shared;
 
 namespace suburban.console.YandexDataService.Fetchers;
 
-public class StationsFetcher : IDataFetcher<Stations>
+public class DataFetcher<TDataType, TDto, TEndpoint> : IDataFetcher<TDataType>
+    where TDataType : IDataType
+    where TDto : class, IDto
+    where TEndpoint : ApiEndpointBase<TDto>, new()
 {
     private readonly IHttpClientContext _context;
-    private readonly IDtoConverter<StationsDto, Stations> _converter;
+    private readonly IDtoConverter<TDto, TDataType> _converter;
     private readonly IFileService _fileService;
     
-    public StationsFetcher (IHttpClientContext context, IDtoConverter<StationsDto, Stations> converter, IFileService fileService)
+    public DataFetcher (IHttpClientContext context, IDtoConverter<TDto, TDataType> converter, IFileService fileService)
     {
         _context = context;
         _converter = converter;
         _fileService = fileService;
     }
     
-    public async Task<Result<Stations>> TryFetchData() =>
+    public async Task<Result<TDataType>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
-        && true.LogToFile(fetchedStationsDto, FileResources.Debug.FetchedStationsDto, _fileService)
+        && true.LogToFile(fetchedStationsDto, FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)), _fileService)
             ? new (true, _converter.ConvertDtoToDataType(fetchedStationsDto))
             : new (false, default);
 
-    private static async Task<StationsDto?> FetchAllStations(IHttpClientContext context)
+    private static async Task<TDto?> FetchAllStations(IHttpClientContext context)
     {
         try
         {
-            return await context.RunEndpoint(new StationsApiEndpoint()).ConfigureAwait(false);
+            return await context.RunEndpoint(new TEndpoint()).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
