@@ -11,7 +11,7 @@ using suburban.shared;
 
 namespace suburban.console.YandexDataService.Fetchers;
 
-public class StationsFetcher : IStationsFetcher
+public class StationsFetcher : IDataFetcher<Stations>
 {
     private readonly IHttpClientContext _context;
     private readonly IDtoConverter<StationsDto, Stations> _converter;
@@ -23,7 +23,7 @@ public class StationsFetcher : IStationsFetcher
         _fileService = fileService;
     }
     
-    public async Task<Result<Stations>> TryFetchAllStations() =>
+    public async Task<Result<Stations>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
         && true.LogToFile(fetchedStationsDto, FileResources.Debug.FetchedStationsDto, _fileService)
             ? new (true, _converter.ConvertDtoToDataType(fetchedStationsDto))

@@ -12,11 +12,11 @@ namespace suburban.console.YandexDataService;
 public class YandexDataService
 {
     private readonly IFileService _fileService;
-    private readonly IStationsFetcher _stationsFetcher;
+    private readonly IDataFetcher<Stations> _dataFetcher;
 
-    public YandexDataService(IStationsFetcher stationsFetcher, IFileService fileService)
+    public YandexDataService(IDataFetcher<Stations> dataFetcher, IFileService fileService)
     {
-        _stationsFetcher = stationsFetcher;
+        _dataFetcher = dataFetcher;
         _fileService = fileService;
     }
 
@@ -35,7 +35,7 @@ public class YandexDataService
                 && true.Log(StringResources.Debug.StationsLoadedFromCache, stations.CreationTime)
                 && stations.CreationTime > DateTime.Now.AddDays(-1)
                     ? stations.Log(StringResources.Debug.DataIsActual)
-                    : await _stationsFetcher.TryFetchAllStations().ConfigureAwait(false)
+                    : await _dataFetcher.TryFetchData().ConfigureAwait(false)
                         is { IsSuccess: true } fetchedStations
                         ? fetchedStations.Value!.Tap(SaveLoadedStationsToFile)
                         : stations ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))

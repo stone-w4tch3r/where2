@@ -3,7 +3,7 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService.Fetchers;
 
-public interface IStationsFetcher
+public interface IDataFetcher<TDataType> where TDataType : IDataType
 {
-    public Task<Result<Stations>> TryFetchAllStations();
+    public Task<Result<TDataType>> TryFetchData();
 }
