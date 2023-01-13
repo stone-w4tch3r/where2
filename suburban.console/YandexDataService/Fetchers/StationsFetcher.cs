@@ -16,6 +16,7 @@ public class StationsFetcher : IDataFetcher<Stations>
     private readonly IHttpClientContext _context;
     private readonly IDtoConverter<StationsDto, Stations> _converter;
     private readonly IFileService _fileService;
+    
     public StationsFetcher (IHttpClientContext context, IDtoConverter<StationsDto, Stations> converter, IFileService fileService)
     {
         _context = context;

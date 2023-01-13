@@ -5,7 +5,7 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService.DtoConverters;
 
-public class DtoConverter : IDtoConverter<StationsDto, Stations>
+public class StationsConverter : IDtoConverter<StationsDto, Stations>
 {
     public Stations ConvertDtoToDataType(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))

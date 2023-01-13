@@ -14,7 +14,7 @@ public static class Program
         var dataWorker = new YandexDataService.YandexDataService(
             new StationsFetcher(
                 new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
-                new DtoConverter(), 
+                new StationsConverter(), 
                 new FileService()),
             new FileService());
         var data = await dataWorker
