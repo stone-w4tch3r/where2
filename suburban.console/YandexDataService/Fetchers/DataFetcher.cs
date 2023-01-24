@@ -46,7 +46,7 @@ public class DataFetcher<TDataType, TDto, TEndpoint> : IDataFetcher<TDataType>
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine($"{e.Message}\n{e.StackTrace}");
             return null;
         }
     }

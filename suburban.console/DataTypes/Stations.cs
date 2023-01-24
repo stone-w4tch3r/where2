@@ -1,6 +1,10 @@
 namespace suburban.console.DataTypes;
 
-public record Stations(Country Country) : IDataType
+public record Stations(Country Country) : SavableRecord, IDataType
 {
-    public DateTime CreationTime { get; } = DateTime.Now;
+}
+
+public abstract record SavableRecord
+{
+    public DateTime CreationTime { get; init; } = DateTime.Now;
 }
