@@ -20,7 +20,7 @@ public class DataRepository<T> : IDataRepository<T>
         _dataFetcher = dataFetcher;
     }
 
-    public async Task<T> GetDataType(FileInfo fileInfo)
+    public async Task<T> GetData(FileInfo fileInfo)
     {
         return await (await _fileService.LoadFromFile<T>(fileInfo).ConfigureAwait(false))
             .Map(async dataType =>

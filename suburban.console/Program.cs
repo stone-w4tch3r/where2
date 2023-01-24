@@ -1,4 +1,4 @@
-﻿using suburban.console.HelperServices;
+﻿using suburban.console.YandexDataService;
 
 namespace suburban.console;
 
@@ -6,9 +6,9 @@ public static class Program
 {
     public static async Task Main()
     {
-        var fileService = new FileService();
-        var dataWorker = new YandexDataService.YandexDataService(fileService);
-        var data = await dataWorker
+        var container = new Container();
+        var yandexDataService = new DataComposer(container.StationsRepository);
+        var data = await yandexDataService
             .GetData(new ("stations.json"))
             .ConfigureAwait(false);
 
