@@ -1,25 +1,25 @@
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
-using suburban.console.YandexDataService.DTOs;
-using suburban.console.YandexDataService.Filters;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
+using suburban.console.YandexDataService.Fetchers.DTOs;
 using suburban.essentials;
 
-namespace suburban.console.YandexDataService.DtoConverters;
+namespace suburban.console.YandexDataService.Fetchers.DtoConverters;
 
 public class StationsConverter : IDtoConverter<StationsDto, Stations>
 {
-    private readonly IDataFilter<Stations> _dataFilter;
+    private readonly IDataFilter<Stations> _stationsFilter;
     
-    public StationsConverter(IDataFilter<Stations> dataFilter)
+    public StationsConverter(IDataFilter<Stations> stationsFilter)
     {
-        _dataFilter = dataFilter;
+        _stationsFilter = stationsFilter;
     }
 
     public Stations ConvertDtoToDataType(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
         .Map(countryDto => new Stations(Convert(countryDto)))
-        .Map(_dataFilter.Filter);
+        .Map(_stationsFilter.Filter);
 
     private static Country Convert(CountryDto dto) =>
         new(

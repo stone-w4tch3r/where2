@@ -1,7 +1,7 @@
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 
-namespace suburban.console.YandexDataService.Filters;
+namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
 
 public class StationsFilter : IDataFilter<Stations>
 {

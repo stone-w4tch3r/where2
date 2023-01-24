@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using suburban.essentials;
 
-namespace suburban.console.YandexDataService.DTOs;
+namespace suburban.console.YandexDataService.Fetchers.DTOs;
 
 public record StationDto(
     string? Direction,

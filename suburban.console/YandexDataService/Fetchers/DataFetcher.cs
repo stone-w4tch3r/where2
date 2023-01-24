@@ -3,9 +3,9 @@ using Arbus.Network.Exceptions;
 using suburban.console.DataTypes;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
-using suburban.console.YandexDataService.DtoConverters;
-using suburban.console.YandexDataService.DTOs;
-using suburban.console.YandexDataService.Endpoints;
+using suburban.console.YandexDataService.Fetchers.DtoConverters;
+using suburban.console.YandexDataService.Fetchers.DTOs;
+using suburban.console.YandexDataService.Fetchers.Endpoints;
 using suburban.essentials;
 using suburban.shared;
 

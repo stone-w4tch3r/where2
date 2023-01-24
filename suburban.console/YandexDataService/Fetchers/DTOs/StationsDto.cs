@@ -1,3 +1,3 @@
-namespace suburban.console.YandexDataService.DTOs;
+namespace suburban.console.YandexDataService.Fetchers.DTOs;
 
 public record StationsDto(IEnumerable<CountryDto>? Countries) : IDto;
