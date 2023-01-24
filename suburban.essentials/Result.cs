@@ -4,14 +4,16 @@ namespace suburban.essentials;
 
 public record Result<T>
 {
-    // ReSharper disable once ConvertToPrimaryConstructor
     public Result(bool isSuccess, T? value)
     {
         IsSuccess = isSuccess;
-        Value = value;
+        Value = value is null && isSuccess
+            ? throw new ArgumentNullException(nameof(value))
+            : value;
     }
-    public bool IsSuccess { get; init; }
+    
+    [MemberNotNullWhen(true, nameof(Value))]
+    public bool IsSuccess { get; }
 
-    [MemberNotNullWhen(returnValue: true, nameof(IsSuccess))]
     public T? Value { get; }
 }
