@@ -29,7 +29,7 @@ public class DataFetcher<TDataType, TDto, TEndpoint> : IDataFetcher<TDataType>
     
     public async Task<Result<TDataType>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
-        && true.LogToFile(fetchedStationsDto, FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)), _fileService)
+        && true.TapLogToFile(fetchedStationsDto, FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)), _fileService)
             ? new (true, _converter.ConvertDtoToDataType(fetchedStationsDto))
             : new (false, default);
 

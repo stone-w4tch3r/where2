@@ -5,21 +5,21 @@ namespace suburban.console.Extensions;
 
 public static class DebugExtensions
 {
-    public static T LogToFile<T>(this T obj, object saveObj, FileInfo fileInfo, IFileService fileService)
+    public static T TapLogToFile<T>(this T obj, object saveObj, FileInfo fileInfo, IFileService fileService)
     {
         if (Settings.EventLogLevel == EventLevel.Verbose)
             fileService.SaveToFile(saveObj, fileInfo);
         return obj;
     }
     
-    public static T LogToFile<T>(this T obj, IFileService fileService, FileInfo fileInfo)
+    public static T TapLogToFile<T>(this T obj, IFileService fileService, FileInfo fileInfo)
     {
         if (Settings.EventLogLevel == EventLevel.Verbose)
             fileService.SaveToFile(obj, fileInfo);
         return obj;
     }
     
-    public static T Log<T>(this T obj, string message, params object?[]? args)
+    public static T TapLog<T>(this T obj, string message, params object?[]? args)
     {
         if (Settings.EventLogLevel == EventLevel.Verbose)
             Console.WriteLine(message, args);

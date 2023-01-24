@@ -25,12 +25,12 @@ public class DataRepository<T> : IDataRepository<T>
         return await (await _fileService.LoadFromFile<T>(fileInfo).ConfigureAwait(false))
             .Map(async dataType =>
                 dataType is { }
-                && true.Log(StringResources.Debug.StationsLoadedFromCache, dataType.CreationTime)
+                && true.TapLog(StringResources.Debug.StationsLoadedFromCache, dataType.CreationTime)
                 && dataType.CreationTime > DateTime.Now.AddDays(-1)
-                    ? dataType.Log(StringResources.Debug.DataIsActual)
+                    ? dataType.TapLog(StringResources.Debug.DataIsActual)
                     : await _dataFetcher.TryFetchData().ConfigureAwait(false)
                         is { IsSuccess: true } dataFetchResult
-                        ? dataFetchResult.Value!.Tap(SaveLoadedDataToFile)
+                        ? dataFetchResult.Value.Tap(SaveLoadedDataToFile)
                         : dataType ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
             .ConfigureAwait(false);
 
