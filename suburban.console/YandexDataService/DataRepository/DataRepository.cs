@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using suburban.console.DataTypes;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
@@ -11,30 +12,36 @@ namespace suburban.console.YandexDataService.DataRepository;
 public class DataRepository<T> : IDataRepository<T>
     where T : SavableRecord, IDataType
 {
-    private readonly IFileService _fileService;
     private readonly IDataFetcher<T> _dataFetcher;
-    
+    private readonly IFileService _fileService;
+
     public DataRepository(IFileService fileService, IDataFetcher<T> dataFetcher)
     {
         _fileService = fileService;
         _dataFetcher = dataFetcher;
     }
 
-    public async Task<T> GetData(FileInfo fileInfo)
-    {
-        return await (await _fileService.LoadFromFile<T>(fileInfo).ConfigureAwait(false))
-            .Map(async dataType =>
-                dataType is { }
-                && true.TapLog(StringResources.Debug.StationsLoadedFromCache, dataType.CreationTime)
-                && dataType.CreationTime > DateTime.Now.AddDays(-1)
-                    ? dataType.TapLog(StringResources.Debug.DataIsActual)
-                    : await _dataFetcher.TryFetchData().ConfigureAwait(false)
-                        is { IsSuccess: true } dataFetchResult
-                        ? dataFetchResult.Value.Tap(SaveLoadedDataToFile)
-                        : dataType ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed))
-            .ConfigureAwait(false);
+    public async Task<T> GetData(FileInfo fileInfo) => await
+        (await _fileService.LoadFromFile<T>(fileInfo).ConfigureAwait(false))
+        .Map(async loadedData =>
+            LoadedDataIsValid(loadedData)
+                ? loadedData.TapLog(StringResources.Debug.DataIsActual)
+                : (await FetchDataOrReturnLoaded(loadedData).ConfigureAwait(false))
+                    .Tap(data => SaveLoadedDataToFile(data, fileInfo)))
+        .ConfigureAwait(false);
 
-        async void SaveLoadedDataToFile(T dataType) =>
-            await _fileService.SaveToFile(dataType, fileInfo).ConfigureAwait(false);
-    }
+    private static bool LoadedDataIsValid([NotNullWhen(true)] T? dataType) =>
+        dataType is { }
+        && true.TapLog(StringResources.Debug.StationsLoadedFromCache, dataType.CreationTime)
+        && dataType.CreationTime > DateTime.Now.AddDays(-1);
+
+    private async Task<T> FetchDataOrReturnLoaded(T? loadedData) =>
+        (await _dataFetcher.TryFetchData().ConfigureAwait(false))
+        .TapLog(StringResources.Debug.DataIsNotValidFetching)
+            is { IsSuccess: true } dataFetchResult
+            ? dataFetchResult.Value.TapLog(StringResources.Debug.DataFetched)
+            : loadedData ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed);
+
+    private async void SaveLoadedDataToFile(T dataType, FileInfo fileInfo) =>
+        await _fileService.SaveToFile(dataType, fileInfo).ConfigureAwait(false);
 }

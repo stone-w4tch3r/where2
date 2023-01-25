@@ -16,7 +16,7 @@ public class FileService : IFileService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error while loading from file: {e.Message}");
+            Console.WriteLine($"Error while loading from file: {e.Message},\n{e.StackTrace}");
             return null;
         }
     }
@@ -28,6 +28,7 @@ public class FileService : IFileService
             WriteIndented = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
+        fileInfo.Directory?.Create();
         fileInfo.Delete();
         await using var stream = File.OpenWrite(fileInfo.FullName);
         await JsonSerializer.SerializeAsync(stream, data, options).ConfigureAwait(false);

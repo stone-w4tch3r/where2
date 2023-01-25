@@ -9,7 +9,7 @@ public static class Program
         var container = new Container();
         var yandexDataService = new DataComposer(container.StationsRepository);
         var data = await yandexDataService
-            .GetData(new ("stations.json"))
+            .GetData(new (Path.Combine("saved_data", "stations.json")))
             .ConfigureAwait(false);
 
         Console.WriteLine(data);
