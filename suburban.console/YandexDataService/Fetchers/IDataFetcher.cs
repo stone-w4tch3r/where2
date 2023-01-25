@@ -1,4 +1,5 @@
 using suburban.console.DataTypes;
+using suburban.console.DataTypes.Abstractions;
 using suburban.essentials;
 
 namespace suburban.console.YandexDataService.Fetchers;

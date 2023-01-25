@@ -1,4 +1,5 @@
 using suburban.console.DataTypes;
+using suburban.console.DataTypes.Abstractions;
 
 namespace suburban.console.YandexDataService.DataRepository;
 

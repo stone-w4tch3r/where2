@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using suburban.console.DataTypes;
+using suburban.console.DataTypes.Abstractions;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
 using suburban.console.YandexDataService.Fetchers;

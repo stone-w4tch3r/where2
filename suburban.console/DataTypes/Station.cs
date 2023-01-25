@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using suburban.console.DataTypes.Abstractions;
 using suburban.console.DataTypes.Enums;
 
 namespace suburban.console.DataTypes;
