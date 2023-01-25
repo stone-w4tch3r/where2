@@ -1,5 +1,5 @@
-using System.ComponentModel.Design;
 using Arbus.Network;
+using Arbus.Network.Abstractions;
 using Arbus.Network.Implementations;
 using suburban.console.DataTypes;
 using suburban.console.HelperServices;
@@ -17,6 +17,7 @@ public class Container
     public IFileService FileService { get; }
     public IDataFilter<Stations> StationsFilter { get; }
     public IDtoConverter<StationsDto, Stations> StationsConverter { get; }
+    public IHttpClientContext HttpClientContext { get; }
     public IDataFetcher<Stations> StationsFetcher { get; }
     public IDataRepository<Stations> StationsRepository { get; }
 
@@ -25,9 +26,10 @@ public class Container
         FileService = new FileService();
         StationsFilter = new StationsFilter();
         StationsConverter = new StationsConverter(StationsFilter);
-        StationsFetcher = 
-            new DataFetcher<Stations,StationsDto,StationsApiEndpoint>(
-                new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
+        HttpClientContext = new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager()));
+        StationsFetcher =
+            new DataFetcher<Stations, StationsDto, StationsApiEndpoint>(
+                HttpClientContext, 
                 StationsConverter,
                 FileService);
         StationsRepository = new DataRepository<Stations>(FileService, StationsFetcher);
