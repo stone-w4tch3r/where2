@@ -1,10 +1,11 @@
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Abstractions;
+using suburban.console.YandexDataService.Fetchers.DTOs;
 using suburban.essentials;
 
 namespace suburban.console.YandexDataService.Fetchers;
 
-public interface IDataFetcher<TDataType> where TDataType : IDataType
+public interface IDataFetcher<TDto> where TDto : IDto
 {
-    public Task<Result<TDataType>> TryFetchData();
+    public Task<Result<TDto>> TryFetchData();
 }

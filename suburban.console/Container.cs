@@ -18,8 +18,8 @@ public class Container
     public IDataFilter<Stations> StationsFilter { get; }
     public IDtoConverter<StationsDto, Stations> StationsConverter { get; }
     public IHttpClientContext HttpClientContext { get; }
-    public IDataFetcher<Stations> StationsFetcher { get; }
-    public IDataRepository<Stations> StationsRepository { get; }
+    public IDataFetcher<StationsDto> StationsFetcher { get; }
+    // public IDataRepository<Stations> StationsRepository { get; }
 
     public Container()
     {
@@ -28,10 +28,9 @@ public class Container
         StationsConverter = new StationsConverter(StationsFilter);
         HttpClientContext = new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager()));
         StationsFetcher =
-            new DataFetcher<Stations, StationsDto, StationsApiEndpoint>(
-                HttpClientContext, 
-                StationsConverter,
+            new DataFetcher<StationsDto, StationsApiEndpoint>(
+                HttpClientContext,
                 FileService);
-        StationsRepository = new DataRepository<Stations>(FileService, StationsFetcher);
+        // StationsRepository = new DataRepository<Stations>(FileService, StationsFetcher);
     }
 }

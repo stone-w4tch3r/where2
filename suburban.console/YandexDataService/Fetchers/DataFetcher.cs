@@ -4,7 +4,6 @@ using suburban.console.DataTypes;
 using suburban.console.DataTypes.Abstractions;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
-using suburban.console.YandexDataService.Fetchers.DtoConverters;
 using suburban.console.YandexDataService.Fetchers.DTOs;
 using suburban.console.YandexDataService.Fetchers.Endpoints;
 using suburban.essentials;
@@ -12,26 +11,23 @@ using suburban.shared;
 
 namespace suburban.console.YandexDataService.Fetchers;
 
-public class DataFetcher<TDataType, TDto, TEndpoint> : IDataFetcher<TDataType>
-    where TDataType : IDataType
+public class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     where TDto : class, IDto
     where TEndpoint : ApiEndpointBase<TDto>, new()
 {
     private readonly IHttpClientContext _context;
-    private readonly IDtoConverter<TDto, TDataType> _converter;
     private readonly IFileService _fileService;
     
-    public DataFetcher (IHttpClientContext context, IDtoConverter<TDto, TDataType> converter, IFileService fileService)
+    public DataFetcher (IHttpClientContext context, IFileService fileService)
     {
         _context = context;
-        _converter = converter;
         _fileService = fileService;
     }
     
-    public async Task<Result<TDataType>> TryFetchData() =>
+    public async Task<Result<TDto>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
         && true.TapLogToFile(fetchedStationsDto, FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)), _fileService)
-            ? new (true, _converter.ConvertDtoToDataType(fetchedStationsDto))
+            ? new (true, fetchedStationsDto)
             : new (false, default);
 
     private static async Task<TDto?> FetchAllStations(IHttpClientContext context)

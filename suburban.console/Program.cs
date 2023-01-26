@@ -7,7 +7,7 @@ public static class Program
     public static async Task Main()
     {
         var container = new Container();
-        var yandexDataService = new DataComposer(container.StationsRepository);
+        var yandexDataService = new DataComposer();
         var data = await yandexDataService
             .GetData(new (Path.Combine("saved_data", "stations.json")))
             .ConfigureAwait(false);
