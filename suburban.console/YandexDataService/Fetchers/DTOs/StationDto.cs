@@ -3,15 +3,42 @@ using suburban.essentials;
 
 namespace suburban.console.YandexDataService.Fetchers.DTOs;
 
-public record StationDto(
-    string? Direction,
-    CodesDto? Codes,
-    [property: JsonPropertyName("station_type")]
-    string? StationType,
-    string? Title,
-    [property: JsonConverter(typeof(NullableDoubleConverter))]
-    double? Longitude,
-    [property: JsonPropertyName("transport_type")]
-    string? TransportType,
-    [property: JsonConverter(typeof(NullableDoubleConverter))]
-    double? Latitude) : IDto;
+public record StationDto : IDto
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    public StationDto(
+        string? direction,
+        CodesDto? codes, 
+        string? stationType,
+        string? title, 
+        double? longitude, 
+        string? transportType, 
+        double? latitude)
+    {
+        Direction = direction;
+        Codes = codes;
+        StationType = stationType;
+        Title = title;
+        Longitude = longitude;
+        TransportType = transportType;
+        Latitude = latitude;
+    }
+    
+    public string? Direction { get; }
+    
+    public CodesDto? Codes { get; }
+    
+    [JsonPropertyName("station_type")]
+    public string? StationType { get; }
+    
+    public string? Title { get; }
+    
+    [JsonConverter(typeof(NullableDoubleConverter))]
+    public double? Longitude { get; }
+    
+    [JsonPropertyName("transport_type")]
+    public string? TransportType { get; }
+    
+    [JsonConverter(typeof(NullableDoubleConverter))]
+    public double? Latitude { get; }
+}
