@@ -26,15 +26,18 @@ public class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     
     public async Task<Result<TDto>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
-        && true.TapLogToFile(fetchedStationsDto, FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)), _fileService)
             ? new (true, fetchedStationsDto)
             : new (false, default);
 
-    private static async Task<TDto?> FetchAllStations(IHttpClientContext context)
+    private async Task<TDto?> FetchAllStations(IHttpClientContext context)
     {
         try
         {
-            return await context.RunEndpoint(new TEndpoint()).ConfigureAwait(false);
+            return await context.RunEndpointWithLogging(
+                    new TEndpoint(),
+                    FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
+                    _fileService)
+                .ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
