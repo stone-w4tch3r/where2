@@ -1,5 +1,6 @@
 using suburban.console.DataTypes;
 using suburban.console.YandexDataService.DataRepository;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 
 namespace suburban.console.YandexDataService;
 

@@ -7,6 +7,7 @@ using suburban.console.YandexDataService.DataRepository;
 using suburban.console.YandexDataService.Fetchers;
 using suburban.console.YandexDataService.Fetchers.DtoConverters;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 using suburban.console.YandexDataService.Fetchers.DTOs;
 using suburban.console.YandexDataService.Fetchers.Endpoints;
 

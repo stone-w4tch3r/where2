@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
-using suburban.console.DataTypes.Abstractions;
+using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 
-namespace suburban.console.DataTypes;
+namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 
 public record Station(
     string Title,
@@ -13,4 +13,4 @@ public record Station(
     double? Longitude,
     [property: JsonConverter(typeof(JsonStringEnumConverter))] //todo remove??
     TransportType TransportType,
-    double? Latitude) : IDataType;
+    double? Latitude) : ITransitType;
