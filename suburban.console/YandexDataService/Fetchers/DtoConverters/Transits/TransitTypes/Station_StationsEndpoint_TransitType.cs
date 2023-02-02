@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 
-namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
+namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 
-public record Station(
+public record Station_StationsEndpoint_TransitType(
     string Title,
     Codes Codes,
     string? Direction,

@@ -1,12 +1,13 @@
 using suburban.console.DataTypes;
 using suburban.console.YandexDataService.DataRepository;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 
 namespace suburban.console.YandexDataService;
 
 public class DataComposer
 {
-    private readonly IDataRepository<Stations> _stationsRepository;
+    private readonly IDataRepository<StationsTransitType> _stationsRepository;
     
     // public DataComposer(
     //     IDataRepository<Stations> stationsRepository)

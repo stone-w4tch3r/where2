@@ -1,4 +1,5 @@
 using suburban.console.DataTypes.Abstractions;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 
 namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 

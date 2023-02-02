@@ -1,17 +1,18 @@
 using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
+using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 
 namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
 
-public class StationsFilter : IDataFilter<Stations>
+public class StationsFilter : IDataFilter<StationsTransitType>
 {
-    public Stations Filter(Stations stations) =>
-        stations with
+    public StationsTransitType Filter(StationsTransitType stationsTransitType) =>
+        stationsTransitType with
         {
-            Country = stations.Country with
+            Country = stationsTransitType.Country with
             {
-                Regions = stations.Country.Regions.Select(region => region with
+                Regions = stationsTransitType.Country.Regions.Select(region => region with
                 {
                     Settlements =
                     region.Settlements.Select(settlement => settlement with

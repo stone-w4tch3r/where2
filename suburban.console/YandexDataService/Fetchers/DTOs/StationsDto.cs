@@ -1,3 +1,3 @@
 namespace suburban.console.YandexDataService.Fetchers.DTOs;
 
-public record StationsDto(IEnumerable<CountryDto>? Countries) : IDto;
+public partial record StationsDto(IEnumerable<CountryDto>? Countries) : IDto;
