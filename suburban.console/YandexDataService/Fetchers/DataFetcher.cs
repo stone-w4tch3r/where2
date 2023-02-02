@@ -5,6 +5,7 @@ using suburban.console.DataTypes.Abstractions;
 using suburban.console.Extensions;
 using suburban.console.HelperServices;
 using suburban.console.YandexDataService.Fetchers.DTOs;
+using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 using suburban.console.YandexDataService.Fetchers.Endpoints;
 using suburban.essentials;
 using suburban.shared;

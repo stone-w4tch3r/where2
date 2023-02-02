@@ -10,6 +10,7 @@ using suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 using suburban.console.YandexDataService.Fetchers.DTOs;
+using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 using suburban.console.YandexDataService.Fetchers.Endpoints;
 
 namespace suburban.console;

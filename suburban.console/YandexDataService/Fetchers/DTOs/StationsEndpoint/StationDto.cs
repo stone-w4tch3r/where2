@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using suburban.essentials;
 
-namespace suburban.console.YandexDataService.Fetchers.DTOs;
+namespace suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global - json deserialization
 public partial record StationsDto

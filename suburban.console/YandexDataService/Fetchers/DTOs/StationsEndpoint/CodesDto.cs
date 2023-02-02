@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace suburban.console.YandexDataService.Fetchers.DTOs;
+namespace suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
 public record CodesDto(
     [property: JsonPropertyName("yandex_code")] 

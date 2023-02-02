@@ -1,5 +1,6 @@
 using suburban.console.DataTypes;
 using suburban.console.YandexDataService.Fetchers.DTOs;
+using suburban.console.YandexDataService.Fetchers.DTOs.StationScheduleEndpoint;
 
 namespace suburban.console.YandexDataService.Fetchers.Endpoints;
 

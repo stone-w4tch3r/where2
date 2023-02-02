@@ -3,6 +3,7 @@ using suburban.console.DataTypes.Enums;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 using suburban.console.YandexDataService.Fetchers.DTOs;
+using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 using suburban.essentials;
 
 namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
@@ -40,9 +41,9 @@ public class StationsInTransitConverter : IInTransitConverter<StationsDto, Stati
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Stations ?? throw new NullReferenceException(nameof(dto.Stations))).Select(Convert));
 
-    private static Station_StationsEndpoint_TransitType Convert(StationDto dto) =>
+    private static Station_StationsEndpoint_TransitType Convert(StationsDto.StationDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(nameof(StationDto.Title)),
+            dto.Title ?? throw new NullReferenceException(nameof(StationsDto.StationDto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             dto.Direction,
             ConvertStationType(dto.StationType),
