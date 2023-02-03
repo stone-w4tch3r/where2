@@ -1,3 +1,8 @@
 namespace suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
-public record CountryDto(IEnumerable<RegionDto>? Regions, CodesDto? Codes, string? Title) : IDto;
+public record CountryDto : IDto
+{
+    public IEnumerable<RegionDto>? Regions { get; init; }
+    public CodesDto? Codes { get; init; }
+    public string? Title { get; init; }
+}
