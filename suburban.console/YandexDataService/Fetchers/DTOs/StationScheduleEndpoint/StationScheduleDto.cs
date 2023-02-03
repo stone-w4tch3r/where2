@@ -1,5 +1,3 @@
-using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
-
 namespace suburban.console.YandexDataService.Fetchers.DTOs.StationScheduleEndpoint;
 
 public partial record StationScheduleDto : IDto

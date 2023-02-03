@@ -1,4 +1,3 @@
-using suburban.console.YandexDataService.Fetchers.DTOs;
 using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
 namespace suburban.console.YandexDataService.Fetchers.Endpoints;

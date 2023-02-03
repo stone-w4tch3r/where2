@@ -1,6 +1,4 @@
-using suburban.console.DataTypes;
 using suburban.console.DataTypes.Enums;
-using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 
 namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
