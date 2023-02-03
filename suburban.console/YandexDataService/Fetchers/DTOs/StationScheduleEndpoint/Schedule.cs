@@ -4,7 +4,7 @@ namespace suburban.console.YandexDataService.Fetchers.DTOs.StationScheduleEndpoi
 
 public record Schedule : IDto
 {
-    public Thread? Thread { get; init; }
+    public ThreadRoute? Thread { get; init; }
     public bool? IsFuzzy { get; init; }
     public string? Platform { get; init; }
     public object? Terminal { get; init; }

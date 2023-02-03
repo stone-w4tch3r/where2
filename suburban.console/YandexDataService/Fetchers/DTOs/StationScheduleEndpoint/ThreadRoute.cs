@@ -2,7 +2,7 @@ using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
 namespace suburban.console.YandexDataService.Fetchers.DTOs.StationScheduleEndpoint;
 
-public class Thread : IDto
+public class ThreadRoute : IDto
 {
     public string? Number { get; init; }
     public string? Title { get; init; }
