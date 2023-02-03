@@ -1,5 +1,6 @@
 namespace suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global - json deserialization
 public record CountryDto : IDto
 {
     public IEnumerable<RegionDto>? Regions { get; init; }
