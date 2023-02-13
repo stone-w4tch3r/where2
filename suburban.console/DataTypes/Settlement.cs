@@ -3,4 +3,4 @@ using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.Transit
 
 namespace suburban.console.DataTypes;
 
-public record Settlement(string Title, Codes Codes, IEnumerable<Station_StationsEndpoint_TransitType> Stations) : IDataType;
+public record Settlement(string Title, Codes Codes, IEnumerable<Station> Stations) : IDataType;

@@ -4,6 +4,7 @@ using suburban.console.YandexDataService.Fetchers.DtoConverters.Filters;
 using suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes;
 using suburban.console.YandexDataService.Fetchers.DTOs.StationsEndpoint;
 using suburban.essentials;
+using Settlement = suburban.console.YandexDataService.Fetchers.DtoConverters.Transits.TransitTypes.Settlement;
 
 namespace suburban.console.YandexDataService.Fetchers.DtoConverters.Transits;
 
@@ -19,7 +20,7 @@ public class StationsInTransitConverter : IInTransitConverter<StationsDto, Stati
     public StationsTransitType ConvertDtoToTransitType(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
-        .Map(countryDto => new StationsTransitType(Convert(countryDto)))
+        .Map(countryDto => new StationsTransitType() { Country = Convert(countryDto) })
         .Map(_stationsFilter.Filter);
 
     private static Country Convert(CountryDto dto) =>
@@ -40,15 +41,17 @@ public class StationsInTransitConverter : IInTransitConverter<StationsDto, Stati
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Stations ?? throw new NullReferenceException(nameof(dto.Stations))).Select(Convert));
 
-    private static Station_StationsEndpoint_TransitType Convert(StationsDto.StationDto dto) =>
-        new(
-            dto.Title ?? throw new NullReferenceException(nameof(StationsDto.StationDto.Title)),
-            Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-            dto.Direction,
-            ConvertStationType(dto.StationType),
-            dto.Longitude,
-            ConvertTransportType(dto.TransportType),
-            dto.Latitude);
+    private static StationsTransitType.Station Convert(StationsDto.StationDto dto) =>
+        new ()
+        {
+            Title = dto.Title ?? throw new NullReferenceException(nameof(StationsDto.StationDto.Title)),
+            Codes = Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
+            Direction = dto.Direction,
+            StationType = ConvertStationType(dto.StationType),
+            Longitude = dto.Longitude,
+            TransportType = ConvertTransportType(dto.TransportType),
+            Latitude = dto.Latitude
+        };
 
     private static Codes Convert(CodesDto dto) =>
         new(
