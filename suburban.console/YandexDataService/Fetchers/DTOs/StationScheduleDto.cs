@@ -28,7 +28,7 @@ public record StationScheduleDto() : IDto;
     public class Root
     {
         public object date { get; set; }
-        public Station11 station { get; set; }
+        public Station station { get; set; }
         public Pagination pagination { get; set; }
         public List<Schedule> schedule { get; set; }
         public List<object> interval_schedule { get; set; }
@@ -54,18 +54,6 @@ public record StationScheduleDto() : IDto;
     {
         public string code { get; set; }
         public string title { get; set; }
-    }
-
-    public class Station11
-    {
-        public string type { get; set; }
-        public string title { get; set; }
-        public string short_title { get; set; }
-        public object popular_title { get; set; }
-        public string code { get; set; }
-        public string station_type { get; set; }
-        public string station_type_name { get; set; }
-        public string transport_type { get; set; }
     }
 
     public class Thread
