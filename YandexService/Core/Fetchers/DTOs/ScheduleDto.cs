@@ -24,7 +24,7 @@ public record ScheduleDto : IDto
 
     public required string? Direction { get; init; }
 
-    public required string? Arrival { get; init; }
+    public required TimeOnly? Arrival { get; init; }
 
-    public required string? Depdarture { get; init; }
+    public required TimeOnly? Departure { get; init; }
 }
