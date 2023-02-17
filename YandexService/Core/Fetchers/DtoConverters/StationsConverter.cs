@@ -9,7 +9,7 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 public class StationsConverter : IDtoConverter<StationsDto, Stations>
 {
     private readonly IDataFilter<Stations> _stationsFilter;
-    
+
     public StationsConverter(IDataFilter<Stations> stationsFilter)
     {
         _stationsFilter = stationsFilter;
@@ -77,12 +77,12 @@ public class StationsConverter : IDtoConverter<StationsDto, Stations>
             "port_point" => StationType.PortPoint,
             "wharf" => StationType.Wharf,
             "river_port" => StationType.RiverPort,
-            "marine_station" => StationType.MarineStation, 
+            "marine_station" => StationType.MarineStation,
             "" => StationType.NullOrEmpty,
             null => StationType.NullOrEmpty,
             _ => throw new ArgumentOutOfRangeException($"<{stationType}>")
         };
-    
+
     private static TransportType ConvertTransportType(string? transportType) =>
         transportType switch
         {

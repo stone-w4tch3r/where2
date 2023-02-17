@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arbus.Network" Version="4.0.0" />
+        <PackageReference Include="Arbus.Network" Version="4.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj" />
-      <ProjectReference Include="..\suburban.shared\suburban.shared.csproj" />
+        <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj"/>
+        <ProjectReference Include="..\suburban.shared\suburban.shared.csproj"/>
     </ItemGroup>
 
 </Project>

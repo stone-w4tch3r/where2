@@ -15,17 +15,17 @@ public class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
 {
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
-    
-    public DataFetcher (IHttpClientContext context, IFileService fileService)
+
+    public DataFetcher(IHttpClientContext context, IFileService fileService)
     {
         _context = context;
         _fileService = fileService;
     }
-    
+
     public async Task<Result<TDto>> TryFetchData() =>
         await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
-            ? new (true, fetchedStationsDto)
-            : new (false, default);
+            ? new(true, fetchedStationsDto)
+            : new(false, default);
 
     private async Task<TDto?> FetchAllStations(IHttpClientContext context)
     {

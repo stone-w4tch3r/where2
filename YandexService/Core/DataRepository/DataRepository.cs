@@ -45,3 +45,4 @@
 //     private async void SaveLoadedDataToFile(T dataType, FileInfo fileInfo) =>
 //         await _fileService.SaveToFile(dataType, fileInfo).ConfigureAwait(false);
 // }
+

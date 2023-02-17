@@ -1,4 +1,3 @@
-
 [*]
 
 # Microsoft .NET properties
@@ -8,5 +7,7 @@ csharp_style_expression_bodied_methods = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
 # ReSharper properties
+resharper_blank_lines_around_single_line_auto_property = 1
 resharper_local_function_body = expression_body
+resharper_place_accessorholder_attribute_on_same_line = false
 resharper_place_expr_method_on_single_line = true

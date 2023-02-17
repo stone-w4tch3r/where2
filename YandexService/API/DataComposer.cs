@@ -6,7 +6,7 @@ namespace YandexService.API;
 public class DataComposer
 {
     private readonly IDataRepository<Stations> _stationsRepository;
-    
+
     public DataComposer(IDataRepository<Stations> stationsRepository)
     {
         _stationsRepository = stationsRepository;

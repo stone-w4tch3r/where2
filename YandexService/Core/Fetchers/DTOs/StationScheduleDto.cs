@@ -7,14 +7,14 @@ public record StationScheduleDto : IDto
 {
     [JsonPropertyName("date")]
     public required DateOnly? RequestedDate { get; init; }
-    
+
     public required Station? Station { get; init; }
-    
+
     public required PaginationDto? Pagination { get; init; }
-    
+
     [JsonPropertyName("schedule")]
     public required List<ScheduleDto>? Schedules { get; init; }
-    
+
     public required List<ScheduleDirectionDto>? Directions { get; init; }
 
     [JsonPropertyName("schedule_direction")]

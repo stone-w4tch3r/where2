@@ -1,5 +1,4 @@
-﻿
-namespace suburban.console;
+﻿namespace suburban.console;
 
 public static class Program
 {

@@ -11,7 +11,7 @@ public static class DebugExtensions
             fileService.SaveToFile(saveObj, fileInfo);
         return obj;
     }
-    
+
     public static T TapLogToFile<T>(this T obj, FileInfo fileInfo, IFileService fileService)
         where T : notnull
     {
@@ -19,7 +19,7 @@ public static class DebugExtensions
             fileService.SaveToFile(obj, fileInfo);
         return obj;
     }
-    
+
     public static T TapLog<T>(this T obj, string message, params object?[]? args)
     {
         if (Settings.EventLogLevel == EventLevel.Verbose)
