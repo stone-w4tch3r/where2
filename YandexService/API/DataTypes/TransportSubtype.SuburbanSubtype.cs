@@ -2,7 +2,7 @@ namespace YandexService.API.DataTypes;
 
 public partial record TransportSubtype
 {
-    public enum SuburbanSubtype
+    public enum SubtypeCode
     {
         Rex,
         Sputnik,

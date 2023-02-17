@@ -9,37 +9,41 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 public class StationsConverter : IDtoConverter<StationsDto, Stations>
 {
     private readonly IDataFilter<Stations> _stationsFilter;
+    private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;
 
-    public StationsConverter(IDataFilter<Stations> stationsFilter)
+    public StationsConverter(
+        IDataFilter<Stations> stationsFilter, 
+        IStringToEnumConverter<TransportType> transportTypeConverter)
     {
         _stationsFilter = stationsFilter;
+        _transportTypeConverter = transportTypeConverter;
     }
 
-    public Stations ConvertDtoToDataType(StationsDto dto) =>
+    public Stations ConvertToDataType(StationsDto dto) =>
         (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
         .Map(countryDto => new Stations(Convert(countryDto)))
         .Map(_stationsFilter.Filter);
 
-    private static Country Convert(CountryDto dto) =>
+    private Country Convert(CountryDto dto) =>
         new(
             dto.Title ?? throw new NullReferenceException(dto.Title),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Regions ?? throw new NullReferenceException(nameof(dto.Regions))).Select(Convert));
 
-    private static Region Convert(RegionDto dto) =>
+    private Region Convert(RegionDto dto) =>
         new(
             dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Settlements ?? throw new NullReferenceException(nameof(dto.Settlements))).Select(Convert));
 
-    private static Settlement Convert(SettlementDto dto) =>
+    private Settlement Convert(SettlementDto dto) =>
         new(
             dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Stations ?? throw new NullReferenceException(nameof(dto.Stations))).Select(Convert));
 
-    private static Station Convert(StationDto dto) =>
+    private Station Convert(StationDto dto) =>
         new()
         {
             Title = dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
@@ -48,7 +52,7 @@ public class StationsConverter : IDtoConverter<StationsDto, Stations>
             Codes = Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             Direction = dto.Direction,
             StationType = ConvertStationType(dto.StationType),
-            TransportType = ConvertTransportType(dto.TransportType),
+            TransportType = _transportTypeConverter.ConvertToEnum(dto.TransportType),
             Longitude = dto.Longitude,
             Latitude = dto.Latitude
         };
@@ -81,20 +85,5 @@ public class StationsConverter : IDtoConverter<StationsDto, Stations>
             "" => StationType.NullOrEmpty,
             null => StationType.NullOrEmpty,
             _ => throw new ArgumentOutOfRangeException($"<{stationType}>")
-        };
-
-    private static TransportType ConvertTransportType(string? transportType) =>
-        transportType switch
-        {
-            "plane" => TransportType.Plane,
-            "train" => TransportType.Train,
-            "suburban" => TransportType.Suburban,
-            "bus" => TransportType.Bus,
-            "water" => TransportType.Water,
-            "helicopter" => TransportType.Helicopter,
-            "sea" => TransportType.Sea,
-            "" => TransportType.NullOrEmpty,
-            null => TransportType.NullOrEmpty,
-            _ => throw new ArgumentOutOfRangeException($"<{transportType}>")
         };
 }

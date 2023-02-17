@@ -6,5 +6,5 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 public interface IDtoConverter<in TDto, out TDataType>
     where TDto : IDto where TDataType : IDataType
 {
-    public TDataType ConvertDtoToDataType(TDto dto);
+    public TDataType ConvertToDataType(TDto dto);
 }

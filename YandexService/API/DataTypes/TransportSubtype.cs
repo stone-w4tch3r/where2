@@ -5,7 +5,7 @@ namespace YandexService.API.DataTypes;
 
 public partial record TransportSubtype : IDataType
 {
-    public required SuburbanSubtype Code { get; init; }
+    public required SubtypeCode Code { get; init; }
 
     public required string Title { get; init; }
 
