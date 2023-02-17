@@ -7,20 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj" />
-        <ProjectReference Include="..\suburban.shared\suburban.shared.csproj" />
+        <ProjectReference Include="..\suburban.essentials\suburban.essentials.csproj"/>
+        <ProjectReference Include="..\suburban.shared\suburban.shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Arbus.Network" Version="4.0.0" />
+        <PackageReference Include="Arbus.Network" Version="4.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Core" />
+        <Folder Include="Core"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ReferencePathWithRefAssemblies Update="\usr\local\share\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.2\ref\net7.0\System.Drawing.dll" />
+        <ReferencePathWithRefAssemblies Update="\usr\local\share\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.2\ref\net7.0\System.Drawing.dll"/>
     </ItemGroup>
 
 </Project>

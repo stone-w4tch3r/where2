@@ -6,7 +6,7 @@ namespace YandexService.API.DataTypes;
 public record RouteThread : IDataType
 {
     public required UId Id { get; init; }
-    
+
     public required string Number { get; init; }
 
     public required string Title { get; init; }
