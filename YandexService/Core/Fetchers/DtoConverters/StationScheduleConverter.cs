@@ -33,7 +33,7 @@ public class StationScheduleConverter : IDtoConverter<StationScheduleDto, Statio
             TransportSubtype = Convert(dto.TransportSubtype ?? throw new NRE(nameof(dto.TransportSubtype)))
         };
 
-    public TransportSubtype Convert(TransportSubtypeDto dto) =>
+    private static TransportSubtype Convert(TransportSubtypeDto dto) =>
         new()
         {
             Code = Convert(dto.Code),
@@ -41,7 +41,7 @@ public class StationScheduleConverter : IDtoConverter<StationScheduleDto, Statio
             Title = dto.Title ?? throw new NRE(nameof(dto.Title))
         };
 
-    public static TransportSubtype.SubtypeCode Convert(string? subtype) =>
+    private static TransportSubtype.SubtypeCode Convert(string? subtype) =>
         subtype switch
         {
             "Rex" => TransportSubtype.SubtypeCode.Rex,
