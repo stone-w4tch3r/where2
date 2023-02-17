@@ -21,6 +21,13 @@ public class StationScheduleConverter : IDtoConverter<StationScheduleDto, Statio
 
     public StationSchedule ConvertToDataType(StationScheduleDto dto) =>
         null!;
+
+    public static ScheduleDirection Convert(ScheduleDirectionDto dto) =>
+        new()
+        {
+            CodeName = dto.CodeName ?? throw new NRE(nameof(dto.CodeName)),
+            LocalizedTitle = dto.LocalizedTitle ?? throw new NRE(nameof(dto.LocalizedTitle))
+        };
     
     public RouteThread Convert(RouteThreadDto dto) =>
         new()
