@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
