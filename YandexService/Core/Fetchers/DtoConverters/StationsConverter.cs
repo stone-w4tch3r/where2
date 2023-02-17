@@ -29,26 +29,29 @@ public class StationsConverter : IDtoConverter<StationsDto, Stations>
 
     private static Region Convert(RegionDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(nameof(RegionDto.Title)),
+            dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Settlements ?? throw new NullReferenceException(nameof(dto.Settlements))).Select(Convert));
 
     private static Settlement Convert(SettlementDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(nameof(SettlementDto.Title)),
+            dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
             Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
             (dto.Stations ?? throw new NullReferenceException(nameof(dto.Stations))).Select(Convert));
 
     private static Station Convert(StationDto dto) =>
-        throw new NotImplementedException();
-        // new(
-        //     dto.Title ?? throw new NullReferenceException(nameof(StationDto.Title)),
-        //     Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-        //     dto.Direction,
-        //     ConvertStationType(dto.StationType),
-        //     dto.Longitude,
-        //     ConvertTransportType(dto.TransportType),
-        //     dto.Latitude);
+        new()
+        {
+            Title = dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
+            ShortTitle = dto.ShortTitle,
+            PopularTitle = dto.PopularTitle,
+            Codes = Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
+            Direction = dto.Direction,
+            StationType = ConvertStationType(dto.StationType),
+            TransportType = ConvertTransportType(dto.TransportType),
+            Longitude = dto.Longitude,
+            Latitude = dto.Latitude
+        };
 
     private static Codes Convert(CodesDto dto) =>
         new(
