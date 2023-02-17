@@ -1,4 +1,5 @@
 using suburban.essentials;
+using suburban.essentials.Exceptions;
 using YandexService.API.DataTypes;
 using YandexService.API.DataTypes.Enums;
 using YandexService.Core.Fetchers.DtoConverters.Filters;
@@ -20,36 +21,36 @@ public class StationsConverter : IDtoConverter<StationsDto, Stations>
     }
 
     public Stations ConvertToDataType(StationsDto dto) =>
-        (dto.Countries ?? throw new NullReferenceException(nameof(dto.Countries)))
+        (dto.Countries ?? throw new NRE(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
         .Map(countryDto => new Stations(Convert(countryDto)))
         .Map(_stationsFilter.Filter);
 
     private Country Convert(CountryDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(dto.Title),
-            Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-            (dto.Regions ?? throw new NullReferenceException(nameof(dto.Regions))).Select(Convert));
+            dto.Title ?? throw new NRE(dto.Title),
+            Convert(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
+            (dto.Regions ?? throw new NRE(nameof(dto.Regions))).Select(Convert));
 
     private Region Convert(RegionDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
-            Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-            (dto.Settlements ?? throw new NullReferenceException(nameof(dto.Settlements))).Select(Convert));
+            dto.Title ?? throw new NRE(nameof(dto.Title)),
+            Convert(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
+            (dto.Settlements ?? throw new NRE(nameof(dto.Settlements))).Select(Convert));
 
     private Settlement Convert(SettlementDto dto) =>
         new(
-            dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
-            Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
-            (dto.Stations ?? throw new NullReferenceException(nameof(dto.Stations))).Select(Convert));
+            dto.Title ?? throw new NRE(nameof(dto.Title)),
+            Convert(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
+            (dto.Stations ?? throw new NRE(nameof(dto.Stations))).Select(Convert));
 
     private Station Convert(StationDto dto) =>
         new()
         {
-            Title = dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
+            Title = dto.Title ?? throw new NRE(nameof(dto.Title)),
             ShortTitle = dto.ShortTitle,
             PopularTitle = dto.PopularTitle,
-            Codes = Convert(dto.Codes ?? throw new NullReferenceException(nameof(dto.Codes))),
+            Codes = Convert(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
             Direction = dto.Direction,
             StationType = ConvertStationType(dto.StationType),
             TransportType = _transportTypeConverter.ConvertToEnum(dto.TransportType),

@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using suburban.essentials.Exceptions;
 
 namespace suburban.essentials.HelperServices;
 
@@ -37,6 +38,6 @@ public class FileService : IFileService
     {
         await using var stream = File.OpenRead(file.FullName);
         return await JsonSerializer.DeserializeAsync<T>(stream).ConfigureAwait(false)
-               ?? throw new NullReferenceException($"{file.FullName} deserialize failed");
+               ?? throw new NRE($"{file.FullName} deserialize failed");
     }
 }

@@ -1,3 +1,4 @@
+using suburban.essentials.Exceptions;
 using YandexService.API.DataTypes;
 using YandexService.API.DataTypes.Enums;
 using YandexService.Core.Fetchers.DtoConverters.Filters;
@@ -24,9 +25,9 @@ public class StationScheduleConverter : IDtoConverter<StationScheduleDto, Statio
     public RouteThread Convert(RouteThreadDto dto) =>
         new()
         {
-            Id = new(dto.Id ?? throw new NullReferenceException(nameof(dto.Id))),
-            Title = dto.Title ?? throw new NullReferenceException(nameof(dto.Title)),
-            Number = dto.Number ?? throw new NullReferenceException(nameof(dto.Number)),
+            Id = new(dto.Id ?? throw new NRE(nameof(dto.Id))),
+            Title = dto.Title ?? throw new NRE(nameof(dto.Title)),
+            Number = dto.Number ?? throw new NRE(nameof(dto.Number)),
             IsExpress = dto.ExpressType is not null,
             TransportType = _transportTypeConverter.ConvertToEnum(dto.TransportType),
             TransportSubtype = Convert(dto.TransportSubtype)
