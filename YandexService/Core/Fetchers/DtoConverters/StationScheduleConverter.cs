@@ -6,11 +6,11 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 
 public class StationScheduleConverter : IDtoConverter<StationScheduleDto, StationSchedule>
 {
-    private readonly IDataFilter<StationSchedule> _stationsFilter;
+    private readonly IDataFilter<StationSchedule> _scheduleFilter;
 
-    public StationScheduleConverter(IDataFilter<StationSchedule> stationsFilter)
+    public StationScheduleConverter(IDataFilter<StationSchedule> scheduleFilter)
     {
-        _stationsFilter = stationsFilter;
+        _scheduleFilter = scheduleFilter;
     }
 
     public StationSchedule ConvertDtoToDataType(StationScheduleDto dto) =>
