@@ -30,15 +30,15 @@ public class StationScheduleConverter : IDtoConverter<StationScheduleDto, Statio
             Number = dto.Number ?? throw new NRE(nameof(dto.Number)),
             IsExpress = dto.ExpressType is not null,
             TransportType = _transportTypeConverter.ConvertToEnum(dto.TransportType),
-            TransportSubtype = Convert(dto.TransportSubtype)
+            TransportSubtype = Convert(dto.TransportSubtype ?? throw new NRE(nameof(dto.TransportSubtype)))
         };
 
     public TransportSubtype Convert(TransportSubtypeDto dto) =>
         new()
         {
             Code = Convert(dto.Code),
-            Color = dto.Color.Value,
-            Title = dto.Title
+            Color = dto.Color ?? throw new NRE(nameof(dto.Color)),
+            Title = dto.Title ?? throw new NRE(nameof(dto.Title))
         };
 
     public static TransportSubtype.SubtypeCode Convert(string? subtype) =>
