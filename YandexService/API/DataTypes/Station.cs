@@ -11,7 +11,9 @@ public record Station : IDataType
     public required string? ShortTitle { get; init; }
     
     public required string? PopularTitle { get; init; }
+    
     public required Codes Codes { get; init; }
+    
     public required string? Direction { get; init; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
