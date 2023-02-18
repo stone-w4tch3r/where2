@@ -8,28 +8,35 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 
 public class StationScheduleConverter : IDtoConverter<StationScheduleDto, StationSchedule>
 {
-    private readonly IDataFilter<StationSchedule> _scheduleFilter;
+    private readonly IDtoConverter<StationDto, Station> _stationConverter;
     private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;
 
     public StationScheduleConverter(
-        IDataFilter<StationSchedule> scheduleFilter, 
-        IStringToEnumConverter<TransportType> transportTypeConverter)
+        IStringToEnumConverter<TransportType> transportTypeConverter,
+        IDtoConverter<StationDto, Station> stationConverter)
     {
-        _scheduleFilter = scheduleFilter;
         _transportTypeConverter = transportTypeConverter;
+        _stationConverter = stationConverter;
     }
 
     public StationSchedule ConvertToDataType(StationScheduleDto dto) =>
-        null!;
+        new()
+        {
+            Station = _stationConverter.ConvertToDataType(dto.Station ?? throw new NRE(nameof(dto.Station))),
+            Directions = dto.Directions?.Select(Convert) ?? throw new NRE(nameof(dto.Directions)),
+            RouteThreads = dto.Schedules?
+                               .Select(x => Convert(x.RouteThread ?? throw new NRE(nameof(x.RouteThread))))
+                           ?? Enumerable.Empty<RouteThread>()
+        };
 
-    public static ScheduleDirection Convert(ScheduleDirectionDto dto) =>
+    private static ScheduleDirection Convert(ScheduleDirectionDto dto) =>
         new()
         {
             CodeName = dto.CodeName ?? throw new NRE(nameof(dto.CodeName)),
             LocalizedTitle = dto.LocalizedTitle ?? throw new NRE(nameof(dto.LocalizedTitle))
         };
-    
-    public RouteThread Convert(RouteThreadDto dto) =>
+
+    private RouteThread Convert(RouteThreadDto dto) =>
         new()
         {
             Id = new(dto.Id ?? throw new NRE(nameof(dto.Id))),
