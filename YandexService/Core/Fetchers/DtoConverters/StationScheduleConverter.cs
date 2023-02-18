@@ -1,7 +1,6 @@
 using suburban.essentials.Exceptions;
 using YandexService.API.DataTypes;
 using YandexService.API.DataTypes.Enums;
-using YandexService.Core.Fetchers.DtoConverters.Filters;
 using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.DtoConverters;

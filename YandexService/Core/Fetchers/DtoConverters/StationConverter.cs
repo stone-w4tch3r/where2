@@ -9,9 +9,9 @@ public class StationConverter : IDtoConverter<StationDto, Station>
 {
     private readonly IDtoConverter<CodesDto, Codes> _codesConverter;
     private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;
-    
+
     public StationConverter(
-        IDtoConverter<CodesDto, Codes> codesConverter, 
+        IDtoConverter<CodesDto, Codes> codesConverter,
         IStringToEnumConverter<TransportType> transportTypeConverter)
     {
         _codesConverter = codesConverter;

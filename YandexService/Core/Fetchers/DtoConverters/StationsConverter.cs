@@ -8,13 +8,13 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 
 public class StationsConverter : IDtoConverter<StationsDto, Stations>
 {
-    private readonly IDataFilter<Stations> _stationsFilter;
     private readonly IDtoConverter<CodesDto, Codes> _codesConverter;
     private readonly IDtoConverter<StationDto, Station> _stationConverter;
+    private readonly IDataFilter<Stations> _stationsFilter;
 
     public StationsConverter(
-        IDataFilter<Stations> stationsFilter, 
-        IDtoConverter<CodesDto, Codes> codesConverter, 
+        IDataFilter<Stations> stationsFilter,
+        IDtoConverter<CodesDto, Codes> codesConverter,
         IDtoConverter<StationDto, Station> stationConverter)
     {
         _stationsFilter = stationsFilter;
