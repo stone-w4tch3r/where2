@@ -14,3 +14,14 @@ internal abstract class EndpointBase<TDto> : ApiEndpoint<TDto>
 
     protected virtual IEnumerable<string> PathParts { get; } = Enumerable.Empty<string>();
 }
+
+internal abstract class EndpointBase<TParameter, TDto> : EndpointBase<TDto>
+    where TDto : IDto
+{
+    protected TParameter Parameter { get; }
+
+    protected EndpointBase(TParameter parameter)
+    {
+        Parameter = parameter;
+    }
+}
