@@ -5,26 +5,26 @@ namespace YandexService.Core.Fetchers.DTOs;
 internal record ScheduleDto : IDto
 {
     [JsonPropertyName("Thread")]
-    public required RouteThreadDto? RouteThread { get; init; }
+    public RouteThreadDto? RouteThread { get; init; }
 
     [JsonPropertyName("is_fuzzy")]
-    public required bool? IsFuzzy { get; init; }
+    public bool? IsFuzzy { get; init; }
 
-    public required string? Platform { get; init; }
+    public string? Platform { get; init; }
 
     [JsonPropertyName("terminal")]
-    public required string? AirportTerminal { get; init; }
+    public string? AirportTerminal { get; init; }
 
-    public required string? Days { get; init; }
+    public string? Days { get; init; }
 
     [JsonPropertyName("except_days")]
-    public required string? ExceptDays { get; init; }
+    public string? ExceptDays { get; init; }
 
-    public required string? Stops { get; init; }
+    public string? Stops { get; init; }
 
-    public required string? Direction { get; init; }
+    public string? Direction { get; init; }
 
-    public required TimeOnly? Arrival { get; init; }
+    public string? Arrival { get; init; } //to timeOnly
 
-    public required TimeOnly? Departure { get; init; }
+    public string? Departure { get; init; } //to timeOnly
 }

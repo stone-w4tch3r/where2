@@ -5,7 +5,7 @@ namespace YandexService.Core.Fetchers.DTOs;
 internal record CarrierDto : IDto
 {
     [JsonPropertyName("code")]
-    public required int? YandexCode { get; init; }
+    public int? YandexCode { get; init; }
 
-    public required string? Title { get; init; }
+    public string? Title { get; init; }
 }

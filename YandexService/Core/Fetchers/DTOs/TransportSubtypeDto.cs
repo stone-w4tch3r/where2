@@ -6,10 +6,10 @@ namespace YandexService.Core.Fetchers.DTOs;
 
 internal record TransportSubtypeDto : IDto
 {
-    public required string? Title { get; init; }
+    public string? Title { get; init; }
 
-    public required string? Code { get; init; }
+    public string? Code { get; init; }
 
     [JsonConverter(typeof(JsonHexadecimalColorConverter))]
-    public required Color? Color { get; init; }
+    public Color? Color { get; init; }
 }
