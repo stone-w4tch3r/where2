@@ -11,7 +11,7 @@ namespace YandexService.Core.Fetchers;
 
 internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     where TDto : class, IDto
-    where TEndpoint : ApiEndpointBase<TDto>, new()
+    where TEndpoint : EndpointBase<TDto>
 {
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
@@ -22,20 +22,19 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
         _fileService = fileService;
     }
 
-    public async Task<Result<TDto>> TryFetchData() =>
-        await FetchAllStations(_context).ConfigureAwait(false) is { } fetchedStationsDto
+    public async Task<Result<TDto>> TryFetchData(Func<EndpointBase<TDto>> createEndpoint) =>
+        await Fetch(createEndpoint, _context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
             ? new(true, fetchedStationsDto)
             : new(false, default);
 
-    private async Task<TDto?> FetchAllStations(IHttpClientContext context)
+    private static async Task<TDto?> Fetch(
+        Func<EndpointBase<TDto>> createEndpoint, 
+        IHttpClientContext context,
+        IFileService fileService)
     {
         try
         {
-            return await context.RunEndpointWithLogging(
-                    new TEndpoint(),
-                    FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
-                    _fileService)
-                .ConfigureAwait(false);
+            return await RunEndpoint(createEndpoint, context, fileService).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
@@ -48,4 +47,14 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
             return null;
         }
     }
+    
+    private static Task<TDto> RunEndpoint(
+        Func<EndpointBase<TDto>> createEndpoint, 
+        IHttpClientContext context, 
+        IFileService fileService) 
+        =>
+        context.RunEndpointWithLogging(
+            createEndpoint(),
+            FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
+            fileService);
 }

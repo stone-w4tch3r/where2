@@ -3,7 +3,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.Endpoints;
 
-internal abstract class ApiEndpointBase<TDto> : ApiEndpoint<TDto>
+internal abstract class EndpointBase<TDto> : ApiEndpoint<TDto>
     where TDto : IDto
 {
     private const string ApiKeyPathPart = "/?apikey=741883ec-2d53-4830-aa83-fa17b38c1f66";

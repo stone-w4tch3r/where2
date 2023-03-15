@@ -3,7 +3,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.Endpoints;
 
-internal class StationScheduleApiEndpoint : ApiEndpointBase<StationScheduleDto>
+internal class StationScheduleEndpoint : EndpointBase<StationScheduleDto>
 {
     private const int Limit = 999;
     private const string TimeZone = "Europe/Moscow";
@@ -24,7 +24,7 @@ internal class StationScheduleApiEndpoint : ApiEndpointBase<StationScheduleDto>
         $"limit={Limit}"
     };
 
-    public StationScheduleApiEndpoint(Codes stationCode)
+    public StationScheduleEndpoint(Codes stationCode)
     {
         _stationCode = stationCode;
     }

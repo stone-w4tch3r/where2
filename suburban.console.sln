@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "suburban.shared", "suburban
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YandexService", "YandexService\YandexService.csproj", "{73C4122C-7A93-43B4-BECC-7334E46CA55B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "suburban.console.tester", "suburban.console.tester\suburban.console.tester.csproj", "{4C2D989B-7EDB-48AB-A3AC-387A47664704}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{73C4122C-7A93-43B4-BECC-7334E46CA55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73C4122C-7A93-43B4-BECC-7334E46CA55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73C4122C-7A93-43B4-BECC-7334E46CA55B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C2D989B-7EDB-48AB-A3AC-387A47664704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C2D989B-7EDB-48AB-A3AC-387A47664704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C2D989B-7EDB-48AB-A3AC-387A47664704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C2D989B-7EDB-48AB-A3AC-387A47664704}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
