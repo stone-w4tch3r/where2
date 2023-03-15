@@ -11,7 +11,7 @@ namespace YandexService.Core.Fetchers;
 
 internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     where TDto : class, IDto
-    where TEndpoint : EndpointBase<TDto>
+    where TEndpoint : EndpointBase<TDto>, new()
 {
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
@@ -22,19 +22,16 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
         _fileService = fileService;
     }
 
-    public async Task<Result<TDto>> TryFetchData(Func<EndpointBase<TDto>> createEndpoint) =>
-        await Fetch(createEndpoint, _context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
+    public async Task<Result<TDto>> TryFetchData() =>
+        await Fetch(_context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
             ? new(true, fetchedStationsDto)
             : new(false, default);
 
-    private static async Task<TDto?> Fetch(
-        Func<EndpointBase<TDto>> createEndpoint, 
-        IHttpClientContext context,
-        IFileService fileService)
+    private static async Task<TDto?> Fetch(IHttpClientContext context, IFileService fileService)
     {
         try
         {
-            return await RunEndpoint(createEndpoint, context, fileService).ConfigureAwait(false);
+            return await RunEndpoint(context, fileService).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
@@ -48,13 +45,9 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
         }
     }
     
-    private static Task<TDto> RunEndpoint(
-        Func<EndpointBase<TDto>> createEndpoint, 
-        IHttpClientContext context, 
-        IFileService fileService) 
-        =>
+    private static Task<TDto> RunEndpoint(IHttpClientContext context, IFileService fileService) =>
         context.RunEndpointWithLogging(
-            createEndpoint(),
+            new TEndpoint(),
             FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
             fileService);
 }
