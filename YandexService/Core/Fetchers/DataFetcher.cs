@@ -9,23 +9,21 @@ using YandexService.Infrastructure.Extensions;
 
 namespace YandexService.Core.Fetchers;
 
-internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
+internal class DataFetcher<TEndpoint, TDto>
     where TDto : class, IDto
     where TEndpoint : EndpointBase<TDto>
 {
-    private readonly Func<TEndpoint> _endpointFactory;
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
 
-    public DataFetcher(Func<TEndpoint> endpointFactory, IHttpClientContext context, IFileService fileService)
+    public DataFetcher(IHttpClientContext context, IFileService fileService)
     {
-        _endpointFactory = endpointFactory;
         _context = context;
         _fileService = fileService;
     }
 
-    public async Task<Result<TDto>> TryFetchData() =>
-        await Fetch(_endpointFactory, _context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
+    public async Task<Result<TDto>> TryFetchData(Func<TEndpoint> endpointFactory) =>
+        await Fetch(endpointFactory, _context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
             ? new(true, fetchedStationsDto)
             : new(false, default);
 
@@ -51,39 +49,12 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     }
     
     private static Task<TDto> RunEndpoint(
-        Func<TEndpoint> createEndpoint, 
+        Func<TEndpoint> getEndpoint, 
         IHttpClientContext context, 
         IFileService fileService) 
         =>
         context.RunEndpointWithLogging(
-            createEndpoint(),
+            getEndpoint(),
             FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
             fileService);
-}
-
-internal class DataFetcher<TParameter, TEndpoint, TDto>
-    where TDto : class, IDto
-    where TEndpoint : EndpointBase<TParameter, TDto>
-{
-    private readonly Func<TParameter?, TEndpoint> _endpointFactory;
-    private readonly DataFetcher<TDto, TEndpoint> _parameterlessFetcher;
-
-    private TParameter? _parameter;
-    
-    public DataFetcher(
-        Func<TParameter?, TEndpoint> endpointFactory, 
-        IHttpClientContext context, 
-        IFileService fileService)
-    {
-        _endpointFactory = endpointFactory;
-        _parameterlessFetcher = new(CreateEndpoint, context, fileService);
-    }
-
-    public Task<Result<TDto>> TryFetchData(TParameter parameter)
-    {
-        _parameter = parameter;
-        return _parameterlessFetcher.TryFetchData();
-    }
-
-    private TEndpoint CreateEndpoint() => _endpointFactory(_parameter);
 }
