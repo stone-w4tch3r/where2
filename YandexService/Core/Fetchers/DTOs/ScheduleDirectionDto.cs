@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record ScheduleDirectionDto : IDto
+internal record ScheduleDirectionDto : IDto
 {
     [JsonPropertyName("code")]
     public required string? CodeName { get; init; }

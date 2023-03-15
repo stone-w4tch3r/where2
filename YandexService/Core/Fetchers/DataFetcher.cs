@@ -9,7 +9,7 @@ using YandexService.Infrastructure.Extensions;
 
 namespace YandexService.Core.Fetchers;
 
-public class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
+internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     where TDto : class, IDto
     where TEndpoint : ApiEndpointBase<TDto>, new()
 {

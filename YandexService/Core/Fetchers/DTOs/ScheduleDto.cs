@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record ScheduleDto : IDto
+internal record ScheduleDto : IDto
 {
     [JsonPropertyName("Thread")]
     public required RouteThreadDto? RouteThread { get; init; }

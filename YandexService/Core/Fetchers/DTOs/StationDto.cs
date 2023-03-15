@@ -5,7 +5,7 @@ using suburban.essentials;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record StationDto : IDto
+internal record StationDto : IDto
 {
     public string? Direction { get; init; }
 

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record RouteThreadDto : IDto
+internal record RouteThreadDto : IDto
 {
     public required string? Number { get; init; }
 

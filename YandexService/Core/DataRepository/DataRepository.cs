@@ -9,7 +9,7 @@
 //
 // namespace suburban.console.YandexDataService.DataRepository;
 //
-// public class DataRepository<T> : IDataRepository<T>
+// internal class DataRepository<T> : IDataRepository<T>
 //     where T : SavableRecord, IDataType
 // {
 //     private readonly IDataFetcher<T> _dataFetcher;

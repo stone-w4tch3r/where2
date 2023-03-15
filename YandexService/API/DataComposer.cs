@@ -7,9 +7,8 @@ public class DataComposer
 {
     private readonly IDataRepository<Stations> _stationsRepository;
 
-    public DataComposer(IDataRepository<Stations> stationsRepository)
+    public DataComposer()
     {
-        _stationsRepository = stationsRepository;
     }
 
     public async Task<object> GetData(FileInfo fileInfo)

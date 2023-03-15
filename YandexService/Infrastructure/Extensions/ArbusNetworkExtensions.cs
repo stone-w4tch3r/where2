@@ -3,7 +3,7 @@ using suburban.essentials.HelperServices;
 
 namespace YandexService.Infrastructure.Extensions;
 
-public static class ArbusNetworkExtensions
+internal static class ArbusNetworkExtensions
 {
     public static async Task<T> RunEndpointWithLogging<T>(
         this IHttpClientContext context,

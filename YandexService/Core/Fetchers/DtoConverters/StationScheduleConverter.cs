@@ -5,7 +5,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.DtoConverters;
 
-public class StationScheduleConverter : IDtoConverter<StationScheduleDto, StationSchedule>
+internal class StationScheduleConverter : IDtoConverter<StationScheduleDto, StationSchedule>
 {
     private readonly IDtoConverter<StationDto, Station> _stationConverter;
     private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;

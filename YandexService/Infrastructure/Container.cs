@@ -11,7 +11,7 @@
 
 namespace YandexService.Infrastructure;
 
-public class Container
+internal class Container
 {
     // public IFileService FileService { get; }
     // public IDataFilter<Stations> StationsFilter { get; }

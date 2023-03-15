@@ -3,7 +3,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.Endpoints;
 
-public class StationScheduleApiEndpoint : ApiEndpointBase<StationScheduleDto>
+internal class StationScheduleApiEndpoint : ApiEndpointBase<StationScheduleDto>
 {
     private const string TimeZone = "Europe/Moscow";
     private const string TransportTypes = "suburban";

@@ -2,7 +2,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.Endpoints;
 
-public class StationsApiEndpoint : ApiEndpointBase<StationsDto>
+internal class StationsApiEndpoint : ApiEndpointBase<StationsDto>
 {
     protected override string RootPath => "https://api.rasp.yandex.net/v3.0/stations_list";
 

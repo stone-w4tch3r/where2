@@ -4,7 +4,7 @@ using suburban.essentials;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record TransportSubtypeDto : IDto
+internal record TransportSubtypeDto : IDto
 {
     public required string? Title { get; init; }
 

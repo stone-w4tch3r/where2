@@ -1,6 +1,6 @@
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record PaginationDto : IDto
+internal record PaginationDto : IDto
 {
     public required int? Total { get; init; }
 

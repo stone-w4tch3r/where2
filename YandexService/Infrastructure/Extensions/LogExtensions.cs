@@ -4,7 +4,7 @@ using suburban.essentials.HelperServices;
 
 namespace YandexService.Infrastructure.Extensions;
 
-public static class DebugExtensions
+internal static class DebugExtensions
 {
     public static T TapLogToFile<T>(this T obj, object saveObj, FileInfo fileInfo, IFileService fileService)
     {

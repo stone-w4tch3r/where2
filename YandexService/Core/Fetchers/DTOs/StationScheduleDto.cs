@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace YandexService.Core.Fetchers.DTOs;
 
-public record StationScheduleDto : IDto
+internal record StationScheduleDto : IDto
 {
     [JsonPropertyName("date")]
     public required DateOnly? RequestedDate { get; init; }
