@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <PackageReference Include="Arbus.Network" Version="4.0.0" />
-        <PackageReference Include="ImTools" Version="4.0.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -11,8 +11,4 @@
       <ProjectReference Include="..\YandexService\YandexService.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="ImTools" Version="4.0.0" />
-    </ItemGroup>
-
 </Project>
