@@ -5,9 +5,9 @@ namespace YandexService.Core.Fetchers.Endpoints;
 
 internal class StationScheduleApiEndpoint : ApiEndpointBase<StationScheduleDto>
 {
+    private const int Limit = 999;
     private const string TimeZone = "Europe/Moscow";
     private const string TransportTypes = "suburban";
-    private const int Limit = 999;
 
     private readonly Codes _stationCode;
 

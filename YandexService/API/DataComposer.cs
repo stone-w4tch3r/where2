@@ -7,10 +7,6 @@ public class DataComposer
 {
     private readonly IDataRepository<Stations> _stationsRepository;
 
-    public DataComposer()
-    {
-    }
-
     public async Task<object> GetData(FileInfo fileInfo)
     {
         var result = Enumerable.Empty<object>();
