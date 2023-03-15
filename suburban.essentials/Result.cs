@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace suburban.essentials;
 
-public record Result<T>
+public readonly record struct Result<T>
 {
     [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess { get; }
