@@ -11,27 +11,32 @@ namespace YandexService.Core.Fetchers;
 
 internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
     where TDto : class, IDto
-    where TEndpoint : EndpointBase<TDto>, new()
+    where TEndpoint : EndpointBase<TDto>
 {
+    private readonly Func<TEndpoint> _endpointFactory;
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
 
-    public DataFetcher(IHttpClientContext context, IFileService fileService)
+    public DataFetcher(Func<TEndpoint> endpointFactory, IHttpClientContext context, IFileService fileService)
     {
+        _endpointFactory = endpointFactory;
         _context = context;
         _fileService = fileService;
     }
 
     public async Task<Result<TDto>> TryFetchData() =>
-        await Fetch(_context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
+        await Fetch(_endpointFactory, _context, _fileService).ConfigureAwait(false) is { } fetchedStationsDto
             ? new(true, fetchedStationsDto)
             : new(false, default);
 
-    private static async Task<TDto?> Fetch(IHttpClientContext context, IFileService fileService)
+    private static async Task<TDto?> Fetch(
+        Func<TEndpoint> createEndpoint, 
+        IHttpClientContext context,
+        IFileService fileService)
     {
         try
         {
-            return await RunEndpoint(context, fileService).ConfigureAwait(false);
+            return await RunEndpoint(createEndpoint, context, fileService).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
@@ -45,9 +50,40 @@ internal class DataFetcher<TDto, TEndpoint> : IDataFetcher<TDto>
         }
     }
     
-    private static Task<TDto> RunEndpoint(IHttpClientContext context, IFileService fileService) =>
+    private static Task<TDto> RunEndpoint(
+        Func<TEndpoint> createEndpoint, 
+        IHttpClientContext context, 
+        IFileService fileService) 
+        =>
         context.RunEndpointWithLogging(
-            new TEndpoint(),
+            createEndpoint(),
             FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
             fileService);
+}
+
+internal class DataFetcher<TParameter, TEndpoint, TDto>
+    where TDto : class, IDto
+    where TEndpoint : EndpointBase<TParameter, TDto>
+{
+    private readonly Func<TParameter?, TEndpoint> _endpointFactory;
+    private readonly DataFetcher<TDto, TEndpoint> _parameterlessFetcher;
+
+    private TParameter? _parameter;
+    
+    public DataFetcher(
+        Func<TParameter?, TEndpoint> endpointFactory, 
+        IHttpClientContext context, 
+        IFileService fileService)
+    {
+        _endpointFactory = endpointFactory;
+        _parameterlessFetcher = new(CreateEndpoint, context, fileService);
+    }
+
+    public Task<Result<TDto>> TryFetchData(TParameter parameter)
+    {
+        _parameter = parameter;
+        return _parameterlessFetcher.TryFetchData();
+    }
+
+    private TEndpoint CreateEndpoint() => _endpointFactory(_parameter);
 }
