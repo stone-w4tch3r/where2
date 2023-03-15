@@ -9,8 +9,8 @@ internal static class ArbusNetworkExtensions
         this IHttpClientContext context,
         ApiEndpoint<T> endpoint,
         FileInfo fileInfo,
-        IFileService fileService
-    ) where T : notnull =>
+        IFileService fileService)
+        where T : notnull =>
         await context.RunEndpoint(endpoint).ConfigureAwait(false)
             .TapLogToFile(fileInfo, fileService);
 }
