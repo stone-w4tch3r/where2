@@ -17,7 +17,7 @@ public class FileService : IFileService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error while loading from file: {e.Message},\n{e.StackTrace}");
+            Console.WriteLine($"Error while loading from file: {e.GetType()} {e.Message},\n{e.StackTrace}");
             return null;
         }
     }
@@ -34,7 +34,8 @@ public class FileService : IFileService
         await using var stream = File.OpenWrite(fileInfo.FullName);
         await JsonSerializer.SerializeAsync(stream, data, options).ConfigureAwait(false);
     }
-    private async Task<T> LoadFromFileUnsafe<T>(FileSystemInfo file)
+    
+    private static async Task<T> LoadFromFileUnsafe<T>(FileSystemInfo file)
     {
         await using var stream = File.OpenRead(file.FullName);
         return await JsonSerializer.DeserializeAsync<T>(stream).ConfigureAwait(false)
