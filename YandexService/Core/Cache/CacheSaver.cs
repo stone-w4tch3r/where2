@@ -6,14 +6,12 @@ namespace YandexService.Core.Cache;
 internal class CacheSaver
 {
     private readonly IFileService _fileService;
-    private readonly Func<IModel, ISavable<IModel>> _toSavable;
 
-    public CacheSaver(IFileService fileService, Func<IModel, ISavable<IModel>> toSavable)
+    public CacheSaver(IFileService fileService)
     {
         _fileService = fileService;
-        _toSavable = toSavable;
     }
 
-    public async void Save(IModel model, FileInfo fileInfo) =>
-        await _fileService.SaveToFile(_toSavable(model), fileInfo).ConfigureAwait(false);
+    public async void Save<T>(T model, FileInfo fileInfo, Func<IModel, ISavable<IModel>> toSavable) where T : IModel=>
+        await _fileService.SaveToFile(toSavable(model), fileInfo).ConfigureAwait(false);
 }

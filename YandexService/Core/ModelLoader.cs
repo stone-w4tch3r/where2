@@ -11,7 +11,7 @@ internal class ModelLoader
         FileInfo fileInfo,
         Func<Task<T>> fetch,
         Func<FileInfo, Task<ISavable<T>?>> loadFromFile)
-        where T : ISavable<T>, IModel
+        where T : IModel
         =>
             await fileInfo
                 .MapAsync(loadFromFile)
