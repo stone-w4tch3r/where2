@@ -45,6 +45,6 @@ internal class Fetcher
         =>
             context.RunEndpointWithLogging(
                 endpoint,
-                FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
+                FileResources.Debug.GetFileInfo(typeof(TDto)),
                 fileService);
 }

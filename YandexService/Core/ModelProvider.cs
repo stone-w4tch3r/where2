@@ -8,13 +8,11 @@ namespace YandexService.Core;
 internal class ModelProvider
 {
     public static async Task<T> UncacheOrFetch<T>(
-        FileInfo fileInfo,
-        Func<FileInfo, Task<ICachable<T>?>> uncache,
+        Func<Task<ICachable<T>?>> uncache,
         Func<Task<T>> fetch)
         where T : IModel
         =>
-            await fileInfo
-                .MapAsync(uncache)
+            await uncache()
                 .MapAsync(cachable => IsValid(cachable) ? cachable.Content : default)
                 .MapAsync<T?, T>(async loadedData => loadedData ?? await fetch().ConfigureAwait(false))
                 .ConfigureAwait(false);
