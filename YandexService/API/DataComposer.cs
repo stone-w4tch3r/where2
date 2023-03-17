@@ -4,7 +4,7 @@ namespace YandexService.API;
 
 public class DataComposer
 {
-    private readonly Func<FileInfo, Task<IDataType>> _stationsRepository;
+    private readonly Func<FileInfo, Task<IModel>> _stationsRepository;
 
     public async Task<object> GetData(FileInfo fileInfo)
     {

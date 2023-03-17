@@ -5,16 +5,17 @@
 // using suburban.essentials.HelperServices;
 // using suburban.shared;
 // using YandexService.API.DataTypes.Abstractions;
+// using YandexService.Core.Caching;
 //
 // namespace suburban.console.YandexDataService.DataRepository;
 //
-// internal class DataRepository<T> : IDataRepository<T>
-//     where T : SavableRecord, IDataType
+// internal class DataRepository<T>
+//     where T : ISavable<T>, IModel
 // {
 //     private readonly IDataFetcher<T> _dataFetcher;
 //     private readonly IFileService _fileService;
 //
-//     public DataRepository(IFileService fileService, Func<Task<Result<TDto>>, Func<TEndpoint>> dataFetcher)
+//     public DataRepository(IFileService fileService, Func<Func<TEndpoint>, Task<Result<TDto>>> dataFetcher)
 //     {
 //         _fileService = fileService;
 //         _dataFetcher = dataFetcher;
@@ -29,18 +30,14 @@
 //                     .Tap(data => SaveLoadedDataToFile(data, fileInfo)))
 //         .ConfigureAwait(false);
 //
-//     private static bool LoadedDataIsValid([NotNullWhen(true)] T? dataType) =>
-//         dataType is { }
-//         && true.TapLog(StringResources.Debug.StationsLoadedFromCache, dataType.CreationTime)
-//         && dataType.CreationTime > DateTime.Now.AddDays(-1);
+//     
 //
 //     private async Task<T> FetchDataOrReturnLoaded(T? loadedData) =>
 //         (await _dataFetcher.TryFetchData().ConfigureAwait(false))
-//         .TapLog(StringResources.Debug.DataIsNotValidFetching)
+//                 .TapLog(StringResources.Debug.DataIsNotValidFetching)
 //             is { IsSuccess: true } dataFetchResult
 //             ? dataFetchResult.Value.TapLog(StringResources.Debug.DataFetched)
 //             : loadedData ?? throw new DataException(StringResources.Exceptions.FetchingAndLoadingFailed);
 //
-//     private async void SaveLoadedDataToFile(T dataType, FileInfo fileInfo) =>
-//         await _fileService.SaveToFile(dataType, fileInfo).ConfigureAwait(false);
+//     
 // }

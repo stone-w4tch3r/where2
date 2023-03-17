@@ -17,10 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Core" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ReferencePathWithRefAssemblies Update="\usr\local\share\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.2\ref\net7.0\System.Drawing.dll" />
     </ItemGroup>
 

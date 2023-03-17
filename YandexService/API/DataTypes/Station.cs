@@ -4,7 +4,7 @@ using YandexService.API.DataTypes.Enums;
 
 namespace YandexService.API.DataTypes;
 
-public record Station : IDataType
+public record Station : IModel
 {
     public required string Title { get; init; }
 

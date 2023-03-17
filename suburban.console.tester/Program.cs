@@ -3,16 +3,16 @@
 using Arbus.Network;
 using Arbus.Network.Implementations;
 using suburban.essentials.HelperServices;
-using YandexService.Core.Fetchers;
-using YandexService.Core.Fetchers.DTOs;
-using YandexService.Core.Fetchers.Endpoints;
+using YandexService.Core.YandexApi;
+using YandexService.Core.YandexApi.DTOs;
+using YandexService.Core.YandexApi.Endpoints;
 
 Console.WriteLine("Hello, World!");
 
-var fetcher = new DataFetcher<StationScheduleEndpoint, StationScheduleDto>(
+var fetcher = new Fetcher<StationScheduleEndpoint, StationScheduleDto>(
     new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
     new FileService());
-var result = await fetcher.TryFetchData(() => new (new ("s9607404", null)));
+var result = await fetcher.TryFetch(() => new (new ("s9607404", null)));
 if (result.IsSuccess)
     Console.WriteLine(result.Value);
 else

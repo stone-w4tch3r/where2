@@ -3,7 +3,7 @@ using YandexService.API.DataTypes.Enums;
 
 namespace YandexService.API.DataTypes;
 
-public record RouteThread : IDataType
+public record RouteThread : IModel
 {
     public required UId Id { get; init; }
 

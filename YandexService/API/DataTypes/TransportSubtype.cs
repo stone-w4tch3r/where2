@@ -3,7 +3,7 @@ using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.API.DataTypes;
 
-public partial record TransportSubtype : IDataType
+public partial record TransportSubtype : IModel
 {
     public required SubtypeCode Code { get; init; }
 

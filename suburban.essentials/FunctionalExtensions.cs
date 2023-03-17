@@ -10,6 +10,12 @@ public static class FunctionalExtensions
         return source;
     }
 
+    public static async Task<T> TapAsync<T>(this T source, Func<T, Task> action)
+    {
+        await action(source).ConfigureAwait(false);
+        return source;
+    }
+
     public static T TapIf<T>(this T source, Func<T, bool> predicate, Action<T> action) =>
         predicate(source) ? source.Tap(action) : source;
 }
