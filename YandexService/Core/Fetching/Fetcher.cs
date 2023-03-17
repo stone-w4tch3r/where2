@@ -18,13 +18,12 @@ internal class Fetcher
         _fileService = fileService;
     }
 
-    public async Task<TDto?> Fetch<TEndpoint, TDto>(TEndpoint endpoint)
+    public async Task<TDto?> Fetch<TDto>(ApiEndpoint<TDto> endpoint)
         where TDto : class, IDto
-        where TEndpoint : ApiEndpoint<TDto>
     {
         try
         {
-            return await RunEndpoint<TEndpoint, TDto>(endpoint, _context, _fileService).ConfigureAwait(false);
+            return await RunEndpoint(endpoint, _context, _fileService).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
@@ -38,12 +37,11 @@ internal class Fetcher
         }
     }
 
-    private static Task<TDto> RunEndpoint<TEndpoint, TDto>(
-        TEndpoint endpoint,
+    private static Task<TDto> RunEndpoint<TDto>(
+        ApiEndpoint<TDto> endpoint,
         IHttpClientContext context,
         IFileService fileService)
-        where TDto : class, IDto
-        where TEndpoint : ApiEndpoint<TDto>
+        where TDto : IDto
         =>
             context.RunEndpointWithLogging(
                 endpoint,
