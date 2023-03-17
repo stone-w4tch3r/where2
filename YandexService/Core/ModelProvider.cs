@@ -5,9 +5,9 @@ using YandexService.Core.Cache;
 
 namespace YandexService.Core;
 
-internal class ModelLoader
+internal class ModelProvider
 {
-    public static async Task<T> GetFromCacheOrFetch<T>(
+    public static async Task<T> UncacheOrFetch<T>(
         FileInfo fileInfo,
         Func<Task<T>> fetch,
         Func<FileInfo, Task<ISavable<T>?>> loadFromFile)
