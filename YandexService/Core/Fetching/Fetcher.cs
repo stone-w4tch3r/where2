@@ -1,7 +1,5 @@
-using Arbus.Network;
 using Arbus.Network.Abstractions;
 using Arbus.Network.Exceptions;
-using suburban.essentials;
 using suburban.essentials.HelperServices;
 using suburban.shared;
 using YandexService.Core.Fetching.DTOs;
@@ -20,7 +18,7 @@ internal class Fetcher
         _fileService = fileService;
     }
 
-    private async Task<TModel?> Fetch<TDto, TModel>(
+    public async Task<TModel?> Fetch<TDto, TModel>(
         ApiEndpoint<TDto> endpoint,
         Func<TDto, TModel> map)
         where TDto : IDto

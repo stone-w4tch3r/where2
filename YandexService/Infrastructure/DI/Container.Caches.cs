@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using suburban.shared;
 using YandexService.API.DataTypes;
 using YandexService.Core.Cache;
 
 namespace YandexService.Infrastructure.DI;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
 internal partial class Container
 {
     private class Caches

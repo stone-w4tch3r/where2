@@ -1,7 +1,7 @@
 using YandexService.API.DataTypes;
 using YandexService.API.DataTypes.Enums;
 
-namespace YandexService.Core.Mapping.Filters;
+namespace YandexService.Core.Fetching.Mapping.Filters;
 
 internal class StationsFilter
 {

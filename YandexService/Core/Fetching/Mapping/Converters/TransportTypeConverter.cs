@@ -1,6 +1,6 @@
 using YandexService.API.DataTypes.Enums;
 
-namespace YandexService.Core.Mapping.Converters;
+namespace YandexService.Core.Fetching.Mapping.Converters;
 
 internal class TransportTypeConverter
 {

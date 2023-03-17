@@ -2,12 +2,13 @@ using System.Diagnostics.CodeAnalysis;
 using YandexService.API.DataTypes;
 using YandexService.Core.Fetching;
 using YandexService.Core.Fetching.DTOs;
-using YandexService.Core.Mapping;
-using YandexService.Core.Mapping.Converters;
-using YandexService.Core.Mapping.Filters;
+using YandexService.Core.Fetching.Mapping.Converters;
+using YandexService.Core.Fetching.Mapping.Filters;
 
 namespace YandexService.Infrastructure.DI;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
 internal partial class Container
 {
     private class Mappers
@@ -17,7 +18,7 @@ internal partial class Container
         public Func<StationScheduleDto, StationSchedule> ScheduleMapper { get; }
 
         [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
-        public Mappers(Services services)
+        public Mappers()
         {
             var stationsFilter = StationsFilter.Filter;
             var stationScheduleFilter = StationScheduleFilter.Filter;

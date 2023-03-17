@@ -3,7 +3,7 @@ using suburban.essentials.Exceptions;
 using YandexService.API.DataTypes;
 using YandexService.Core.Fetching.DTOs;
 
-namespace YandexService.Core.Mapping.Converters;
+namespace YandexService.Core.Fetching.Mapping.Converters;
 
 internal class StationsConverter
 {

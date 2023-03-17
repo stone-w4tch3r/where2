@@ -1,6 +1,6 @@
 using YandexService.API.DataTypes;
 
-namespace YandexService.Core.Mapping.Filters;
+namespace YandexService.Core.Fetching.Mapping.Filters;
 
 internal class ModelConstructor
 {

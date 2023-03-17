@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Arbus.Network;
 using Arbus.Network.Abstractions;
 using Arbus.Network.Implementations;
@@ -6,6 +7,7 @@ using YandexService.Core.Cache;
 
 namespace YandexService.Infrastructure.DI;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
 internal partial class Container
 {
     private class Services
