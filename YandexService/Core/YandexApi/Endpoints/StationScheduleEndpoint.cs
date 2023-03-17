@@ -22,7 +22,7 @@ internal class StationScheduleEndpoint : EndpointBase<Codes, StationScheduleDto>
         $"result_timezone={TimeZone}",
         $"limit={Limit}"
     };
-    
+
     public StationScheduleEndpoint(Codes codes) : base(codes)
     {
     }

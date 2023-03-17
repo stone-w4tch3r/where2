@@ -38,14 +38,14 @@ internal class Fetcher<TEndpoint, TDto>
             return null;
         }
     }
-    
+
     private static Task<TDto> RunEndpoint(
-        Func<TEndpoint> getEndpoint, 
-        IHttpClientContext context, 
-        IFileService fileService) 
+        Func<TEndpoint> getEndpoint,
+        IHttpClientContext context,
+        IFileService fileService)
         =>
-        context.RunEndpointWithLogging(
-            getEndpoint(),
-            FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
-            fileService);
+            context.RunEndpointWithLogging(
+                getEndpoint(),
+                FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
+                fileService);
 }

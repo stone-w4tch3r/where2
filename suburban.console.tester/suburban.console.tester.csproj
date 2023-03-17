@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\YandexService\YandexService.csproj" />
+        <ProjectReference Include="..\YandexService\YandexService.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="ImToolsUnionEdition" Version="0.1.0" />
+        <PackageReference Include="ImToolsUnionEdition" Version="0.1.0"/>
     </ItemGroup>
 
 </Project>

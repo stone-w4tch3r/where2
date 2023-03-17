@@ -12,6 +12,6 @@ Console.WriteLine("Hello, World!");
 var fetcher = new Fetcher<StationScheduleEndpoint, StationScheduleDto>(
     new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager())),
     new FileService());
-var result = await fetcher.Fetch(() => new (new ("s9607404", null)));
+var result = await fetcher.Fetch(() => new(new("s9607404", null)));
 
 Console.WriteLine(result?.ToString() ?? "nope");

@@ -6,7 +6,7 @@ namespace YandexService.Core.Mapping.Filters;
 internal class StationsFilter
 {
     public static Stations Filter(Stations stations) =>
-        new (stations.Country with
+        new(stations.Country with
         {
             Regions = stations.Country.Regions.Select(region => region with
             {

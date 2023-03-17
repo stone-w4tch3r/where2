@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using suburban.essentials;
 using suburban.essentials.Extensions;
 using suburban.essentials.HelperServices;
@@ -19,7 +18,7 @@ public class CacheLoader
     public async Task<ISavable<T>?> Load<T>(FileInfo fileInfo) where T : IModel =>
         (await LoadFromFile<T>(fileInfo).ConfigureAwait(false))
         .Map(savable => savable?.Tap(LogCreationTime));
-    
+
     private async Task<ISavable<T>?> LoadFromFile<T>(FileInfo fileInfo) where T : IModel =>
         await _fileService.LoadFromFile<ISavable<T>>(fileInfo).ConfigureAwait(false);
 
