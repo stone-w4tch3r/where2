@@ -7,27 +7,21 @@ using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.Core.Cache;
 
-public class Loader
+public class CacheLoader
 {
     private readonly IFileService _fileService;
 
-    public Loader(IFileService fileService)
+    public CacheLoader(IFileService fileService)
     {
         _fileService = fileService;
     }
 
-    public async Task<T?> Load<T>(FileInfo fileInfo) where T : IModel =>
+    public async Task<ISavable<T>?> Load<T>(FileInfo fileInfo) where T : IModel =>
         (await LoadFromFile<T>(fileInfo).ConfigureAwait(false))
-        .Map(savable =>
-            IsValid(savable)
-                ? savable.Tap(LogCreationTime).Data
-                : default);
+        .Map(savable => savable?.Tap(LogCreationTime));
     
     private async Task<ISavable<T>?> LoadFromFile<T>(FileInfo fileInfo) where T : IModel =>
         await _fileService.LoadFromFile<ISavable<T>>(fileInfo).ConfigureAwait(false);
-
-    private static bool IsValid<T>([NotNullWhen(true)] ISavable<T>? model) where T : IModel =>
-        model is { } && model.CreationTime > DateTime.Now.AddDays(-1);
 
     private static void LogCreationTime<T>(ISavable<T> savable) =>
         savable.TapLog(StringResources.Debug.DataLoadedFromCache, savable.CreationTime);
