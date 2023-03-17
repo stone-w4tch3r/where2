@@ -45,8 +45,8 @@ internal class Container
     private readonly Services _servicesContainer;
     private readonly Fetchers _fetchersContainer;
     
-    public Func<FileInfo, Task<ISavable<StationSchedule>?>> ScheduleUncacher { get; }
-    public Func<FileInfo, Task<ISavable<Stations>?>> StationsUncacher { get; }
+    public Func<FileInfo, Task<ICachable<StationSchedule>?>> ScheduleUncacher { get; }
+    public Func<FileInfo, Task<ICachable<Stations>?>> StationsUncacher { get; }
     public Func<FileInfo, Task<Stations>> StationsProvider { get; }
     // public Func<FileInfo, Task<StationsWithSchedule>> StationsWithScheduleModelLoader { get; }
     
@@ -57,6 +57,6 @@ internal class Container
         
         StationsUncacher = file => _servicesContainer.Uncacher.Uncache<Stations>(file);
         ScheduleUncacher = file => _servicesContainer.Uncacher.Uncache<StationSchedule>(file);
-        StationsProvider = file => ModelProvider.UncacheOrFetch(file, _fetchersContainer.StationsFetcher, StationsUncacher);
+        StationsProvider = file => ModelProvider.UncacheOrFetch(file, StationsUncacher, _fetchersContainer.StationsFetcher);
     }
 }

@@ -15,13 +15,13 @@ internal class Uncacher
         _fileService = fileService;
     }
 
-    public async Task<ISavable<T>?> Uncache<T>(FileInfo fileInfo) where T : IModel =>
+    public async Task<ICachable<T>?> Uncache<T>(FileInfo fileInfo) where T : IModel =>
         (await LoadFromFile<T>(fileInfo).ConfigureAwait(false))
         .Map(savable => savable?.Tap(LogCreationTime));
 
-    private async Task<ISavable<T>?> LoadFromFile<T>(FileInfo fileInfo) where T : IModel =>
-        await _fileService.LoadFromFile<ISavable<T>>(fileInfo).ConfigureAwait(false);
+    private async Task<ICachable<T>?> LoadFromFile<T>(FileInfo fileInfo) where T : IModel =>
+        await _fileService.LoadFromFile<ICachable<T>>(fileInfo).ConfigureAwait(false);
 
-    private static void LogCreationTime<T>(ISavable<T> savable) =>
-        savable.TapLog(StringResources.Debug.DataLoadedFromCache, savable.CreationTime);
+    private static void LogCreationTime<T>(ICachable<T> cachable) =>
+        cachable.TapLog(StringResources.Debug.DataLoadedFromCache, cachable.CreationTime);
 }

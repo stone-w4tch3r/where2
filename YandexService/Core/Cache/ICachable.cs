@@ -1,6 +1,6 @@
 namespace YandexService.Core.Cache;
 
-public interface ISavable<T>
+public interface ICachable<T>
 {
     public DateTime CreationTime { get; init; }
 
