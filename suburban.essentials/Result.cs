@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace suburban.essentials;
 
 public readonly record struct Result<T>
+    where T : class
 {
     [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess { get; }
