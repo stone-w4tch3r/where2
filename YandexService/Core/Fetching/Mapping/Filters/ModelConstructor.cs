@@ -8,7 +8,7 @@ internal class ModelConstructor
     {
         foreach (var region in stations.Country.Regions)
             foreach (var settlement in region.Settlements)
-                foreach (var station in settlement.Stations)
+                foreach (var _ in settlement.Stations)
                 {
                 }
     }

@@ -2,7 +2,7 @@ namespace YandexService.Core.Cache;
 
 public interface ICachable<T>
 {
-    public DateTime CreationTime { get; init; }
+    public DateTime CreationTime { get; }
 
-    public T Content { get; init; }
+    public T Content { get; }
 }
