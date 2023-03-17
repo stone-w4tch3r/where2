@@ -25,14 +25,14 @@ internal class Fetcher
         where TDto : IDto
         =>
             await Fetch(endpoint, _context, _fileService).ConfigureAwait(false)
-            is { } dto
+                is { } dto
                 ? map(dto).TapLogToFile(FileResources.Debug.GetFileInfo(typeof(TModel)), _fileService)
                 : default;
 
     private static async Task<TDto?> Fetch<TDto>(
-        ApiEndpoint<TDto> endpoint, 
+        ApiEndpoint<TDto> endpoint,
         IHttpClientContext context,
-        IFileService fileService) 
+        IFileService fileService)
         where TDto : IDto
     {
         try

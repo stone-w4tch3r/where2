@@ -2,7 +2,7 @@ using suburban.essentials;
 using YandexService.API.DataTypes.Abstractions;
 using YandexService.Core.Fetching.DTOs;
 
-namespace YandexService.Core.Fetching;
+namespace YandexService.Core.Fetching.Mapping;
 
 internal class Mapper
 {

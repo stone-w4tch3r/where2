@@ -1,7 +1,6 @@
 using YandexService.API.DataTypes;
 using YandexService.Core;
 
-
 namespace YandexService.Infrastructure.DI;
 
 internal partial class Container

@@ -14,7 +14,9 @@ internal partial class Container
 
         public Fetchers(Services services, Mappers mappers)
         {
-            StationsFetcher = () => new Fetcher(services.Context, services.FileService).Fetch(new StationsEndpoint(), mappers.StationsMapper);
+            StationsFetcher = () =>
+                new Fetcher(services.Context, services.FileService).Fetch(new StationsEndpoint(),
+                    mappers.StationsMapper);
             // StationsScheduleFetcher = codes => new Fetcher(services.Context, services.FileService).Fetch(new StationScheduleEndpoint(codes));
         }
     }

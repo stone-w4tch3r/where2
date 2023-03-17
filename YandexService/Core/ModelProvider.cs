@@ -14,12 +14,12 @@ internal class ModelProvider
         where T : class, IModel
         =>
             await uncache()
-                .MapAsync(cachable => IsValid(cachable) 
-                    ? new Result<T>(true, cachable.Content) 
-                    : new (false, cachable?.Content))
+                .MapAsync(cachable => IsValid(cachable)
+                    ? new Result<T>(true, cachable.Content)
+                    : new(false, cachable?.Content))
                 .MapAsync(async result =>
-                    result.IsSuccess 
-                        ? (value: result.Value, fallback: null) 
+                    result.IsSuccess
+                        ? (value: result.Value, fallback: null)
                         : (value: await fetch().ConfigureAwait(false), fallback: result.Value))
                 .MapAsync(tuple => tuple.value ?? (tuple.fallback ?? throw new DataException()))
                 .ConfigureAwait(false);

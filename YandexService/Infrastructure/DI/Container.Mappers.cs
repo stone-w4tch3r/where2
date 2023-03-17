@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using YandexService.API.DataTypes;
-using YandexService.Core.Fetching;
 using YandexService.Core.Fetching.DTOs;
+using YandexService.Core.Fetching.Mapping;
 using YandexService.Core.Fetching.Mapping.Converters;
 using YandexService.Core.Fetching.Mapping.Filters;
 

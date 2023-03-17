@@ -13,7 +13,7 @@ internal class Cacher
     }
 
     public async void Cache<T>(T model, FileInfo fileInfo, Func<IModel, ICachable<IModel>> toCachable)
-        where T : IModel 
+        where T : IModel
         =>
-        await _fileService.SaveToFile(toCachable(model), fileInfo).ConfigureAwait(false);
+            await _fileService.SaveToFile(toCachable(model), fileInfo).ConfigureAwait(false);
 }
