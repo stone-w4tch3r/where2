@@ -3,14 +3,11 @@ using Arbus.Network.Exceptions;
 using suburban.essentials.HelperServices;
 using suburban.shared;
 using YandexService.Core.Fetching.DTOs;
-using YandexService.Core.Fetching.Endpoints;
 using YandexService.Infrastructure.Extensions;
 
 namespace YandexService.Core.Fetching;
 
-internal class Fetcher<TEndpoint, TDto>
-    where TDto : class, IDto
-    where TEndpoint : EndpointBase<TDto>
+internal class Fetcher
 {
     private readonly IHttpClientContext _context;
     private readonly IFileService _fileService;
@@ -21,11 +18,13 @@ internal class Fetcher<TEndpoint, TDto>
         _fileService = fileService;
     }
 
-    public async Task<TDto?> Fetch(Func<TEndpoint> createEndpoint)
+    public async Task<TDto?> Fetch<TEndpoint, TDto>(TEndpoint endpoint)
+        where TDto : class, IDto
+        where TEndpoint : ApiEndpoint<TDto>
     {
         try
         {
-            return await RunEndpoint(createEndpoint, _context, _fileService).ConfigureAwait(false);
+            return await RunEndpoint<TEndpoint, TDto>(endpoint, _context, _fileService).ConfigureAwait(false);
         }
         catch (NetworkException e)
         {
@@ -39,13 +38,15 @@ internal class Fetcher<TEndpoint, TDto>
         }
     }
 
-    private static Task<TDto> RunEndpoint(
-        Func<TEndpoint> getEndpoint,
+    private static Task<TDto> RunEndpoint<TEndpoint, TDto>(
+        TEndpoint endpoint,
         IHttpClientContext context,
         IFileService fileService)
+        where TDto : class, IDto
+        where TEndpoint : ApiEndpoint<TDto>
         =>
             context.RunEndpointWithLogging(
-                getEndpoint(),
+                endpoint,
                 FileResources.Debug.GetFileInfoForFetchedType(typeof(TDto)),
                 fileService);
 }
