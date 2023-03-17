@@ -1,11 +1,10 @@
 // using System.Data;
 // using System.Diagnostics.CodeAnalysis;
-// using suburban.console.DataTypes.Abstractions;
-// using suburban.console.Extensions;
-// using suburban.console.HelperServices;
-// using suburban.console.YandexDataService.Fetchers;
 // using suburban.essentials;
+// using suburban.essentials.Extensions;
+// using suburban.essentials.HelperServices;
 // using suburban.shared;
+// using YandexService.API.DataTypes.Abstractions;
 //
 // namespace suburban.console.YandexDataService.DataRepository;
 //
@@ -15,7 +14,7 @@
 //     private readonly IDataFetcher<T> _dataFetcher;
 //     private readonly IFileService _fileService;
 //
-//     public DataRepository(IFileService fileService, IDataFetcher<T> dataFetcher)
+//     public DataRepository(IFileService fileService, Func<Task<Result<TDto>>, Func<TEndpoint>> dataFetcher)
 //     {
 //         _fileService = fileService;
 //         _dataFetcher = dataFetcher;
@@ -45,4 +44,3 @@
 //     private async void SaveLoadedDataToFile(T dataType, FileInfo fileInfo) =>
 //         await _fileService.SaveToFile(dataType, fileInfo).ConfigureAwait(false);
 // }
-
