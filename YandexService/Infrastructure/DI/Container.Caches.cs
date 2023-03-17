@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using suburban.essentials;
 using suburban.shared;
 using YandexService.API.DataTypes;
 using YandexService.Core.Cache;
@@ -31,8 +32,12 @@ internal partial class Container
         {
             var files = new Files();
 
-            ScheduleUncacher = () => services.Uncacher.Uncache<StationSchedule>(files.StationsSchedule);
-            StationsUncacher = () => services.Uncacher.Uncache<Stations>(files.Stations);
+            ScheduleUncacher = () => services.Uncacher.Uncache<StationSchedule>(
+                files.StationsSchedule,
+                new JsonConcreteTypeConverter<Cachable<StationSchedule>>());
+            StationsUncacher = () => services.Uncacher.Uncache<Stations>(
+                files.Stations,
+                new JsonConcreteTypeConverter<Cachable<Stations>>());
             StationsCacher = model => services.Cacher.Cache(new Cachable<Stations>(model), files.Stations);
             ScheduleCacher = model =>
                 services.Cacher.Cache(new Cachable<StationSchedule>(model), files.StationsSchedule);
