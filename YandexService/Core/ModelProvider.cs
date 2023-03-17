@@ -15,7 +15,7 @@ internal class ModelProvider
         =>
             await fileInfo
                 .MapAsync(uncache)
-                .MapAsync(cachable => IsValid(cachable) ? cachable.Data : default)
+                .MapAsync(cachable => IsValid(cachable) ? cachable.Content : default)
                 .MapAsync<T?, T>(async loadedData => loadedData ?? await fetch().ConfigureAwait(false))
                 .ConfigureAwait(false);
 

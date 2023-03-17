@@ -4,5 +4,5 @@ public interface ICachable<T>
 {
     public DateTime CreationTime { get; init; }
 
-    public T Data { get; init; }
+    public T Content { get; init; }
 }
