@@ -15,7 +15,7 @@ internal class ModelLoader
         =>
             await fileInfo
                 .MapAsync(loadFromFile)
-                .MapAsync(loadedData => IsValid(loadedData) ? loadedData.Data : default)
+                .MapAsync(savable => IsValid(savable) ? savable.Data : default)
                 .MapAsync<T?, T>(async loadedData => loadedData ?? await fetch().ConfigureAwait(false))
                 .ConfigureAwait(false);
 
