@@ -4,7 +4,7 @@ namespace YandexService.Core.Mapping.Converters;
 
 internal class TransportTypeConverter
 {
-    public static TransportType ConvertToEnum(string? transportType) =>
+    public static TransportType Convert(string? transportType) =>
         transportType switch
         {
             "plane" => TransportType.Plane,
