@@ -5,7 +5,7 @@ using suburban.essentials.HelperServices;
 using suburban.shared;
 using YandexService.API.DataTypes.Abstractions;
 
-namespace YandexService.Core.Caching;
+namespace YandexService.Core.Cache;
 
 public class Loader
 {

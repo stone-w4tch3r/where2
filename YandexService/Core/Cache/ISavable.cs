@@ -1,4 +1,4 @@
-namespace YandexService.Core.Caching;
+namespace YandexService.Core.Cache;
 
 public interface ISavable<T>
 {

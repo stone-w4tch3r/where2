@@ -1,4 +1,4 @@
-namespace YandexService.Core.Caching;
+namespace YandexService.Core.Cache;
 
 internal record Savable<T>(T Data) : ISavable<T>
 {

@@ -1,7 +1,7 @@
 using suburban.essentials.HelperServices;
 using YandexService.API.DataTypes.Abstractions;
 
-namespace YandexService.Core.Caching;
+namespace YandexService.Core.Cache;
 
 public class Saver
 {
