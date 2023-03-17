@@ -5,14 +5,14 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.DtoConverters;
 
-internal class StationScheduleConverter : IDtoConverter<StationScheduleDto, StationSchedule>
+internal class StationScheduleConverter
 {
-    private readonly IDtoConverter<StationDto, Station> _stationConverter;
+    private readonly Func<StationDto, Station> _stationConverter;
     private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;
 
     public StationScheduleConverter(
         IStringToEnumConverter<TransportType> transportTypeConverter,
-        IDtoConverter<StationDto, Station> stationConverter)
+        Func<StationDto, Station> stationConverter)
     {
         _transportTypeConverter = transportTypeConverter;
         _stationConverter = stationConverter;
@@ -21,7 +21,7 @@ internal class StationScheduleConverter : IDtoConverter<StationScheduleDto, Stat
     public StationSchedule ConvertToDataType(StationScheduleDto dto) =>
         new()
         {
-            Station = _stationConverter.ConvertToDataType(dto.Station ?? throw new NRE(nameof(dto.Station))),
+            Station = _stationConverter(dto.Station ?? throw new NRE(nameof(dto.Station))),
             Directions = dto.Directions?.Select(Convert) ?? throw new NRE(nameof(dto.Directions)),
             RouteThreads = dto.Schedules?
                                .Select(x => Convert(x.RouteThread ?? throw new NRE(nameof(x.RouteThread))))

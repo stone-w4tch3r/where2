@@ -3,7 +3,7 @@ using YandexService.Core.Fetchers.DTOs;
 
 namespace YandexService.Core.Fetchers.DtoConverters;
 
-internal class CodesConverter : IDtoConverter<CodesDto, Codes>
+internal class CodesConverter
 {
     public Codes ConvertToDataType(CodesDto dto) =>
         new(

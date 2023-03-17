@@ -3,7 +3,7 @@ using YandexService.API.DataTypes.Enums;
 
 namespace YandexService.Core.Fetchers.DtoConverters.Filters;
 
-internal class StationsFilter : IDataFilter<Stations>
+internal class StationsFilter
 {
     public Stations Filter(Stations stations) =>
         stations with
