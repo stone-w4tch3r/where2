@@ -3,7 +3,7 @@ using suburban.essentials;
 using YandexService.API.DataTypes.Abstractions;
 using YandexService.Core.Cache;
 
-namespace YandexService.Core.DataRepository;
+namespace YandexService.Core;
 
 internal class ModelLoader
 {
