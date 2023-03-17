@@ -1,3 +1,4 @@
+using System.Text.Json;
 using suburban.essentials;
 using suburban.essentials.Extensions;
 using suburban.essentials.HelperServices;
@@ -20,8 +21,11 @@ internal class Uncacher
         .Map(savable => savable?.Tap(LogCreationTime));
 
     private async Task<ICachable<T>?> LoadFromFile<T>(FileInfo fileInfo) where T : IModel =>
-        await _fileService.LoadFromFile<ICachable<T>>(fileInfo).ConfigureAwait(false);
+        await _fileService.LoadFromFile<ICachable<T>>(fileInfo, GetOptions<T>()).ConfigureAwait(false);
 
     private static void LogCreationTime<T>(ICachable<T> cachable) =>
         cachable.TapLog(StringResources.Debug.DataLoadedFromCache, cachable.CreationTime);
+
+    private static JsonSerializerOptions GetOptions<T>() =>
+        new() { Converters = { new JsonConcreteTypeConverter<Cachable<T>>() } };
 }

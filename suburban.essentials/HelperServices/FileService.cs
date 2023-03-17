@@ -6,14 +6,14 @@ namespace suburban.essentials.HelperServices;
 
 public class FileService : IFileService
 {
-    public async Task<T?> LoadFromFile<T>(FileInfo fileInfo) where T : class
+    public async Task<T?> LoadFromFile<T>(FileInfo fileInfo, JsonSerializerOptions? options = null) where T : class
     {
         if (!fileInfo.Exists)
             return null;
 
         try
         {
-            return await LoadFromFileUnsafe<T>(fileInfo).ConfigureAwait(false);
+            return await LoadFromFileUnsafe<T>(fileInfo, options).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -34,11 +34,11 @@ public class FileService : IFileService
         await using var stream = File.OpenWrite(fileInfo.FullName);
         await JsonSerializer.SerializeAsync(stream, data, options).ConfigureAwait(false);
     }
-    
-    private static async Task<T> LoadFromFileUnsafe<T>(FileSystemInfo file)
+
+    private static async Task<T> LoadFromFileUnsafe<T>(FileSystemInfo file, JsonSerializerOptions? options = null)
     {
         await using var stream = File.OpenRead(file.FullName);
-        return await JsonSerializer.DeserializeAsync<T>(stream).ConfigureAwait(false)
+        return await JsonSerializer.DeserializeAsync<T>(stream, options).ConfigureAwait(false)
                ?? throw new NRE($"{file.FullName} deserialize failed");
     }
 }
