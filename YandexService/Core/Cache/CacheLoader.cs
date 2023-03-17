@@ -6,7 +6,7 @@ using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.Core.Cache;
 
-public class CacheLoader
+internal class CacheLoader
 {
     private readonly IFileService _fileService;
 

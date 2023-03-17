@@ -3,7 +3,7 @@ using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.Core.Cache;
 
-public class CacheSaver
+internal class CacheSaver
 {
     private readonly IFileService _fileService;
     private readonly Func<IModel, ISavable<IModel>> _toSavable;

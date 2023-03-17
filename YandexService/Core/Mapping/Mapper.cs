@@ -1,5 +1,5 @@
 namespace YandexService.Core.Mapping;
 
-public class Mapper
+internal class Mapper
 {
 }
