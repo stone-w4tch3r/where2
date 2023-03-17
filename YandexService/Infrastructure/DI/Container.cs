@@ -12,6 +12,7 @@ internal partial class Container
     private readonly Caches _cacheContainer;
     private readonly Fetchers _fetchersContainer;
     private readonly Services _servicesContainer;
+    private readonly Mappers _mappersContainer;
 
     public Func<Task<Stations>> StationsProvider { get; }
     // public Func<FileInfo, Task<StationsWithSchedule>> StationsWithScheduleModelLoader { get; }
@@ -21,8 +22,11 @@ internal partial class Container
         _servicesContainer = new();
         _fetchersContainer = new(_servicesContainer);
         _cacheContainer = new(_servicesContainer);
+        _mappersContainer = new(_servicesContainer);
 
         StationsProvider = () =>
-            ModelProvider.UncacheOrFetch(_cacheContainer.StationsUncacher, _fetchersContainer.StationsFetcher);
+            ModelProvider.UncacheOrFetch(
+                _cacheContainer.StationsUncacher, 
+                async () => _mappersContainer.StationsMapper(await _fetchersContainer.StationsFetcher())));
     }
 }
