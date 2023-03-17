@@ -12,10 +12,9 @@ public static class DebugExtensions
         return obj;
     }
 
-    public static T TapLogToFile<T>(this T obj, FileInfo fileInfo, IFileService fileService)
-        where T : notnull
+    public static T? TapLogToFile<T>(this T? obj, FileInfo fileInfo, IFileService fileService)
     {
-        if (Settings.EventLogLevel == EventLevel.Verbose)
+        if (Settings.EventLogLevel == EventLevel.Verbose && obj is not null)
             fileService.SaveToFile(obj, fileInfo);
         return obj;
     }
