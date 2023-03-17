@@ -30,15 +30,15 @@ internal class Container
     {
         public IFileService FileService { get; }
         public IHttpClientContext Context { get; }
-        public CacheLoader CacheLoader { get; }
-        public CacheSaver CacheSaver { get; }
+        public Uncacher Uncacher { get; }
+        public Cacher Cacher { get; }
 
         public Services()
         {
             FileService = new FileService();
             Context = new HttpClientContext(new NativeHttpClient(new WindowsNetworkManager()));
-            CacheLoader = new(FileService);
-            CacheSaver = new(FileService);
+            Uncacher = new(FileService);
+            Cacher = new(FileService);
         }
     }
 
@@ -55,8 +55,8 @@ internal class Container
         _servicesContainer = new ();
         _fetchersContainer = new (_servicesContainer);
         
-        StationsCacheLoader = file => _servicesContainer.CacheLoader.Load<Stations>(file);
-        ScheduleCacheLoader = file => _servicesContainer.CacheLoader.Load<StationSchedule>(file);
+        StationsCacheLoader = file => _servicesContainer.Uncacher.Uncache<Stations>(file);
+        ScheduleCacheLoader = file => _servicesContainer.Uncacher.Uncache<StationSchedule>(file);
         StationsModelLoader = file => ModelLoader.GetFromCacheOrFetch(file, _fetchersContainer.StationsFetcher, StationsCacheLoader);
     }
 }

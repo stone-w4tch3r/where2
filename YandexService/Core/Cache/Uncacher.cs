@@ -6,16 +6,16 @@ using YandexService.API.DataTypes.Abstractions;
 
 namespace YandexService.Core.Cache;
 
-internal class CacheLoader
+internal class Uncacher
 {
     private readonly IFileService _fileService;
 
-    public CacheLoader(IFileService fileService)
+    public Uncacher(IFileService fileService)
     {
         _fileService = fileService;
     }
 
-    public async Task<ISavable<T>?> Load<T>(FileInfo fileInfo) where T : IModel =>
+    public async Task<ISavable<T>?> Uncache<T>(FileInfo fileInfo) where T : IModel =>
         (await LoadFromFile<T>(fileInfo).ConfigureAwait(false))
         .Map(savable => savable?.Tap(LogCreationTime));
 
