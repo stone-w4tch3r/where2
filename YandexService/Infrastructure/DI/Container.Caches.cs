@@ -13,14 +13,19 @@ internal partial class Container
     {
         private class Files
         {
-            public FileInfo Stations { get; } = FileResources.Debug.GetFileInfo(typeof(Stations));
+            public FileInfo Stations { get; } = FileResources.Debug.GetFileInfo(typeof(Stations), "cached");
 
-            public FileInfo StationsSchedule { get; } = FileResources.Debug.GetFileInfo(typeof(StationSchedule));
+            public FileInfo StationsSchedule { get; } =
+                FileResources.Debug.GetFileInfo(typeof(StationSchedule), "cached");
         }
 
         public Func<Task<ICachable<Stations>?>> StationsUncacher { get; }
 
         public Func<Task<ICachable<StationSchedule>?>> ScheduleUncacher { get; }
+
+        public Func<Stations, Task> StationsCacher { get; }
+
+        public Func<StationSchedule, Task> ScheduleCacher { get; }
 
         public Caches(Services services)
         {
@@ -28,6 +33,9 @@ internal partial class Container
 
             ScheduleUncacher = () => services.Uncacher.Uncache<StationSchedule>(files.StationsSchedule);
             StationsUncacher = () => services.Uncacher.Uncache<Stations>(files.Stations);
+            StationsCacher = model => services.Cacher.Cache(new Cachable<Stations>(model), files.Stations);
+            ScheduleCacher = model =>
+                services.Cacher.Cache(new Cachable<StationSchedule>(model), files.StationsSchedule);
         }
     }
 }

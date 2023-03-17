@@ -12,8 +12,8 @@ internal partial class Container
     {
         var services = new Services();
         var mappers = new Mappers();
-        var fetchers = new Fetchers(services, mappers);
         var caches = new Caches(services);
+        var fetchers = new Fetchers(services, mappers, caches);
 
         StationsProvider = () => ModelProvider.UncacheOrFetch(caches.StationsUncacher, fetchers.StationsFetcher);
     }

@@ -12,8 +12,8 @@ internal class Cacher
         _fileService = fileService;
     }
 
-    public async void Cache<T>(T model, FileInfo fileInfo, Func<IModel, ICachable<IModel>> toCachable)
+    public async Task Cache<T>(ICachable<T> model, FileInfo fileInfo)
         where T : IModel
         =>
-            await _fileService.SaveToFile(toCachable(model), fileInfo).ConfigureAwait(false);
+            await _fileService.SaveToFile(model, fileInfo).ConfigureAwait(false);
 }
