@@ -2,7 +2,7 @@ using YandexService.API.DataTypes.Enums;
 
 namespace YandexService.Core.Fetchers.DtoConverters;
 
-internal class TransportTypeConverter : IStringToEnumConverter<TransportType>
+internal class TransportTypeConverter
 {
     public TransportType ConvertToEnum(string? transportType) =>
         transportType switch

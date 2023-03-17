@@ -8,11 +8,11 @@ namespace YandexService.Core.Fetchers.DtoConverters;
 internal class StationConverter
 {
     private readonly Func<CodesDto, Codes> _codesConverter;
-    private readonly IStringToEnumConverter<TransportType> _transportTypeConverter;
+    private readonly Func<string?, TransportType> _transportTypeConverter;
 
     public StationConverter(
         Func<CodesDto, Codes> codesConverter,
-        IStringToEnumConverter<TransportType> transportTypeConverter)
+        Func<string?, TransportType> transportTypeConverter)
     {
         _codesConverter = codesConverter;
         _transportTypeConverter = transportTypeConverter;
@@ -27,7 +27,7 @@ internal class StationConverter
             Codes = _codesConverter(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
             Direction = dto.Direction,
             StationType = ConvertStationType(dto.StationType),
-            TransportType = _transportTypeConverter.ConvertToEnum(dto.TransportType),
+            TransportType = _transportTypeConverter(dto.TransportType),
             Longitude = dto.Longitude,
             Latitude = dto.Latitude
         };
