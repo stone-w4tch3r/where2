@@ -19,7 +19,7 @@ internal class Fetcher
     }
 
     public async Task<TDto?> Fetch<TDto>(ApiEndpoint<TDto> endpoint)
-        where TDto : class, IDto
+        where TDto : IDto
     {
         try
         {
@@ -28,12 +28,12 @@ internal class Fetcher
         catch (NetworkException e)
         {
             Console.WriteLine($"{e.StatusCode}\n{e.Message}\n{e.StackTrace}");
-            return null;
+            return default;
         }
         catch (Exception e)
         {
             Console.WriteLine($"{e.Message}\n{e.StackTrace}");
-            return null;
+            return default;
         }
     }
 
