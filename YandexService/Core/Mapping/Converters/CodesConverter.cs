@@ -1,5 +1,5 @@
 using YandexService.API.DataTypes;
-using YandexService.Core.YandexApi.DTOs;
+using YandexService.Core.Fetching.DTOs;
 
 namespace YandexService.Core.Mapping.Converters;
 

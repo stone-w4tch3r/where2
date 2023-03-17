@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Text.Json.Serialization;
 using suburban.essentials;
 
-namespace YandexService.Core.YandexApi.DTOs;
+namespace YandexService.Core.Fetching.DTOs;
 
 internal record TransportSubtypeDto : IDto
 {

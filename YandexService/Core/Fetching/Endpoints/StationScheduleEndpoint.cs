@@ -1,7 +1,7 @@
 using YandexService.API.DataTypes;
-using YandexService.Core.YandexApi.DTOs;
+using YandexService.Core.Fetching.DTOs;
 
-namespace YandexService.Core.YandexApi.Endpoints;
+namespace YandexService.Core.Fetching.Endpoints;
 
 internal class StationScheduleEndpoint : EndpointBase<Codes, StationScheduleDto>
 {

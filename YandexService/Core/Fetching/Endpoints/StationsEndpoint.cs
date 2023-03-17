@@ -1,6 +1,6 @@
-using YandexService.Core.YandexApi.DTOs;
+using YandexService.Core.Fetching.DTOs;
 
-namespace YandexService.Core.YandexApi.Endpoints;
+namespace YandexService.Core.Fetching.Endpoints;
 
 internal class StationsEndpoint : EndpointBase<StationsDto>
 {

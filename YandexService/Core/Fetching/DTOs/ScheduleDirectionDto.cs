@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace YandexService.Core.YandexApi.DTOs;
+namespace YandexService.Core.Fetching.DTOs;
 
 internal record ScheduleDirectionDto : IDto
 {

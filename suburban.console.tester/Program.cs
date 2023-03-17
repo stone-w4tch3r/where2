@@ -3,9 +3,9 @@
 using Arbus.Network;
 using Arbus.Network.Implementations;
 using suburban.essentials.HelperServices;
-using YandexService.Core.YandexApi;
-using YandexService.Core.YandexApi.DTOs;
-using YandexService.Core.YandexApi.Endpoints;
+using YandexService.Core.Fetching;
+using YandexService.Core.Fetching.DTOs;
+using YandexService.Core.Fetching.Endpoints;
 
 Console.WriteLine("Hello, World!");
 

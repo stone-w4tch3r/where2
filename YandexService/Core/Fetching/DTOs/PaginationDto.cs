@@ -1,4 +1,4 @@
-namespace YandexService.Core.YandexApi.DTOs;
+namespace YandexService.Core.Fetching.DTOs;
 
 internal record PaginationDto : IDto
 {

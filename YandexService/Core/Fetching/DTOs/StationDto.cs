@@ -3,7 +3,7 @@ using suburban.essentials;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace YandexService.Core.YandexApi.DTOs;
+namespace YandexService.Core.Fetching.DTOs;
 
 internal record StationDto : IDto
 {

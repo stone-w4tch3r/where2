@@ -1,3 +1,3 @@
-namespace YandexService.Core.YandexApi.DTOs;
+namespace YandexService.Core.Fetching.DTOs;
 
 internal record StationsDto(IEnumerable<CountryDto>? Countries) : IDto;

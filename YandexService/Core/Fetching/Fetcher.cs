@@ -2,11 +2,11 @@ using Arbus.Network.Abstractions;
 using Arbus.Network.Exceptions;
 using suburban.essentials.HelperServices;
 using suburban.shared;
-using YandexService.Core.YandexApi.DTOs;
-using YandexService.Core.YandexApi.Endpoints;
+using YandexService.Core.Fetching.DTOs;
+using YandexService.Core.Fetching.Endpoints;
 using YandexService.Infrastructure.Extensions;
 
-namespace YandexService.Core.YandexApi;
+namespace YandexService.Core.Fetching;
 
 internal class Fetcher<TEndpoint, TDto>
     where TDto : class, IDto
