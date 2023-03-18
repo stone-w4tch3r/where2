@@ -21,7 +21,7 @@ internal class Uncacher
         where T : IModel
         =>
             (await LoadFromFile<T>(fileInfo, concreteTypeConverter).ConfigureAwait(false))
-            .Map(savable => savable?.Tap(LogCreationTime));
+            .To(savable => savable?.Do(LogCreationTime));
 
     private async Task<ICachable<T>?> LoadFromFile<T>(FileInfo fileInfo, JsonConverter converter) where T : IModel =>
         await _fileService.LoadFromFile<ICachable<T>>(fileInfo, GetOptions(converter)).ConfigureAwait(false);

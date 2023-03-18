@@ -13,5 +13,5 @@ internal class Mapper
         where TDto : IDto
         where TModel : IModel
         =>
-            converter(dto).Map(filter);
+            converter(dto).To(filter);
 }

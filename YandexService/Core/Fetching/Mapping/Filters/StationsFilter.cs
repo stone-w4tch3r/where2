@@ -15,8 +15,8 @@ internal class StationsFilter
 
     public StationsDto Filter(StationsDto stations) =>
         GetRussia(stations)
-            .MapOrNull(FilterRegionsInCountry)
-            .Map<CountryDto?, StationsDto>(country =>
+            .ToOrNull(FilterRegionsInCountry)
+            .To<CountryDto?, StationsDto>(country =>
                 country is not null
                     ? new(new[] { country })
                     : new(Enumerable.Empty<CountryDto>()));

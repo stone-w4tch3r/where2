@@ -27,7 +27,7 @@ internal class Fetcher
         =>
             await Fetch(endpoint, _context, _fileService).ConfigureAwait(false)
                 is { } dto
-                ? await map(dto).TapAsync(cache).ConfigureAwait(false)
+                ? await map(dto).DoAsync(cache).ConfigureAwait(false)
                 : default;
 
     private static async Task<TDto?> Fetch<TDto>(

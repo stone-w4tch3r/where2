@@ -24,8 +24,8 @@ internal class StationsConverter
     public Stations Convert(StationsDto dto) =>
         (dto.Countries ?? throw new NRE(nameof(dto.Countries)))
         .First(countryDto => countryDto.Title == "Россия")
-        .Map(countryDto => new Stations(Convert(countryDto)))
-        .Map(_stationsFilter);
+        .To(countryDto => new Stations(Convert(countryDto)))
+        .To(_stationsFilter);
 
     private Country Convert(CountryDto dto) =>
         new(
