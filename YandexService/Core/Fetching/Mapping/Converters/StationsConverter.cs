@@ -9,12 +9,12 @@ internal class StationsConverter
 {
     private readonly Func<CodesDto, Codes> _codesConverter;
     private readonly Func<StationDto, Station> _stationConverter;
-    private readonly Func<Stations, Stations> _stationsFilter;
+    private readonly Func<StationsDto, StationsDto> _stationsFilter;
 
     public StationsConverter(
-        Func<Stations, Stations> stationsFilter,
         Func<CodesDto, Codes> codesConverter,
-        Func<StationDto, Station> stationConverter)
+        Func<StationDto, Station> stationConverter,
+        Func<StationsDto, StationsDto> stationsFilter)
     {
         _stationsFilter = stationsFilter;
         _codesConverter = codesConverter;
@@ -22,10 +22,10 @@ internal class StationsConverter
     }
 
     public Stations Convert(StationsDto dto) =>
-        (dto.Countries ?? throw new NRE(nameof(dto.Countries)))
-        .First(countryDto => countryDto.Title == "Россия")
-        .To(countryDto => new Stations(Convert(countryDto)))
-        .To(_stationsFilter);
+        dto
+            .To(_stationsFilter)
+            .To(stationsDto => stationsDto.Countries?.Single() ?? throw new NRE(nameof(stationsDto.Countries)))
+            .To(countryDto => new Stations(Convert(countryDto)));
 
     private Country Convert(CountryDto dto) =>
         new(

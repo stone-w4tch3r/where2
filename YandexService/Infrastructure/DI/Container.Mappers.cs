@@ -20,14 +20,15 @@ internal partial class Container
         [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
         public Mappers()
         {
-            var stationsFilter = StationsFilter.Filter;
-            var stationScheduleFilter = StationScheduleFilter.Filter;
             var transportTypeConverter = TransportTypeConverter.Convert;
+            var stationsFilterObject = new StationsFilter(transportTypeConverter);
+            var stationScheduleFilter = StationScheduleFilter.Filter;
             var codesConverter = CodesConverter.Convert;
+            Func<StationsDto, StationsDto> stationsFilter = dto => stationsFilterObject.Filter(dto);
             Func<StationDto, Station> stationConverter =
                 dto => new StationConverter(codesConverter, transportTypeConverter).Convert(dto);
             Func<StationsDto, Stations> stationsConverter = dto =>
-                new StationsConverter(stationsFilter, codesConverter, stationConverter).Convert(dto);
+                new StationsConverter(codesConverter, stationConverter, stationsFilter).Convert(dto);
             Func<StationScheduleDto, StationSchedule> scheduleConverter = dto =>
                 new StationScheduleConverter(transportTypeConverter, stationConverter).Convert(dto);
             StationsMapper = dto => Mapper.Map(dto, stationsConverter, stationsFilter);
