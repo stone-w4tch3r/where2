@@ -2,9 +2,9 @@ using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace suburban.essentials;
+namespace YandexService.Infrastructure.JsonConverters;
 
-public class JsonHexadecimalColorConverter : JsonConverter<Color>
+internal class JsonHexadecimalColorConverter : JsonConverter<Color>
 {
     public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

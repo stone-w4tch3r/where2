@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace suburban.essentials;
+namespace YandexService.Infrastructure.JsonConverters;
 
-public class JsonConcreteTypeConverter<TConcrete> : JsonConverter<TConcrete>
+internal class JsonConcreteTypeConverter<TConcrete> : JsonConverter<TConcrete>
 {
     public override bool CanConvert(Type typeToConvert) =>
         typeToConvert.IsInterface && typeof(TConcrete).GetInterfaces().Contains(typeToConvert);

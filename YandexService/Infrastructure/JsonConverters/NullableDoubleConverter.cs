@@ -2,9 +2,9 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace suburban.essentials;
+namespace YandexService.Infrastructure.JsonConverters;
 
-public class NullableDoubleConverter : JsonConverter<double?>
+internal class NullableDoubleConverter : JsonConverter<double?>
 {
     public override double? Read(ref Utf8JsonReader reader, Type _, JsonSerializerOptions __)
     {
