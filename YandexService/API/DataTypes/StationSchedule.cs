@@ -4,7 +4,7 @@ namespace YandexService.API.DataTypes;
 
 public record StationSchedule : IModel
 {
-    public required Station Station { get; init; }
+    public required Codes StationCodes { get; init; }
 
     public required IEnumerable<RouteThread> RouteThreads { get; init; }
 

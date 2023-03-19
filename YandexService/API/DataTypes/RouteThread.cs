@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using YandexService.API.DataTypes.Abstractions;
 using YandexService.API.DataTypes.Enums;
 
@@ -13,7 +14,8 @@ public record RouteThread : IModel
 
     public required bool IsExpress { get; init; }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public required TransportType TransportType { get; init; }
-
+    
     public required TransportSubtype TransportSubtype { get; init; }
 }

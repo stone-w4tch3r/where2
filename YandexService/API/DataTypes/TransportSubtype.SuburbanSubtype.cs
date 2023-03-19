@@ -21,6 +21,7 @@ public partial record TransportSubtype
         Express,
         Skor,
         Fiztekh,
-        Vag6
+        Vag6,
+        Suburban
     }
 }

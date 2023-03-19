@@ -21,7 +21,7 @@ internal class StationScheduleConverter
     public StationSchedule Convert(StationScheduleDto dto) =>
         new()
         {
-            Station = _stationConverter(dto.Station ?? throw new NRE(nameof(dto.Station))),
+            StationCodes = _stationConverter(dto.Station ?? throw new NRE(nameof(dto.Station))).Codes,
             Directions = dto.Directions?.Select(Convert) ?? throw new NRE(nameof(dto.Directions)),
             RouteThreads = dto.Schedules?
                                .Select(x => Convert(x.RouteThread ?? throw new NRE(nameof(x.RouteThread))))
@@ -57,24 +57,25 @@ internal class StationScheduleConverter
     private static TransportSubtype.SubtypeCode Convert(string? subtype) =>
         subtype switch
         {
-            "Rex" => TransportSubtype.SubtypeCode.Rex,
-            "Sputnik" => TransportSubtype.SubtypeCode.Sputnik,
-            "Skiarrow" => TransportSubtype.SubtypeCode.Skiarrow,
-            "Shezh" => TransportSubtype.SubtypeCode.Shezh,
-            "Skirus" => TransportSubtype.SubtypeCode.Skirus,
-            "City" => TransportSubtype.SubtypeCode.City,
-            "Kalina" => TransportSubtype.SubtypeCode.Kalina,
-            "Vostok" => TransportSubtype.SubtypeCode.Vostok,
-            "Prostoryaltaya" => TransportSubtype.SubtypeCode.Prostoryaltaya,
-            "14Vag" => TransportSubtype.SubtypeCode.Vag14,
-            "Last" => TransportSubtype.SubtypeCode.Last,
-            "Exprdal" => TransportSubtype.SubtypeCode.Exprdal,
-            "Volzhex" => TransportSubtype.SubtypeCode.Volzhex,
-            "Stdplus" => TransportSubtype.SubtypeCode.Stdplus,
-            "Express" => TransportSubtype.SubtypeCode.Express,
-            "Skor" => TransportSubtype.SubtypeCode.Skor,
-            "Fiztekh" => TransportSubtype.SubtypeCode.Fiztekh,
-            "Vag6" => TransportSubtype.SubtypeCode.Vag6,
-            _ => throw new ArgumentOutOfRangeException(nameof(subtype))
+            "rex" => TransportSubtype.SubtypeCode.Rex,
+            "sputnik" => TransportSubtype.SubtypeCode.Sputnik,
+            "skiarrow" => TransportSubtype.SubtypeCode.Skiarrow,
+            "shezh" => TransportSubtype.SubtypeCode.Shezh,
+            "skirus" => TransportSubtype.SubtypeCode.Skirus,
+            "city" => TransportSubtype.SubtypeCode.City,
+            "kalina" => TransportSubtype.SubtypeCode.Kalina,
+            "vostok" => TransportSubtype.SubtypeCode.Vostok,
+            "prostoryaltaya" => TransportSubtype.SubtypeCode.Prostoryaltaya,
+            "14vag" => TransportSubtype.SubtypeCode.Vag14,
+            "last" or "lastdl" => TransportSubtype.SubtypeCode.Last,
+            "exprdal" => TransportSubtype.SubtypeCode.Exprdal,
+            "volzhex" => TransportSubtype.SubtypeCode.Volzhex,
+            "stdplus" => TransportSubtype.SubtypeCode.Stdplus,
+            "express" => TransportSubtype.SubtypeCode.Express,
+            "skor" => TransportSubtype.SubtypeCode.Skor,
+            "fiztekh" => TransportSubtype.SubtypeCode.Fiztekh,
+            "vag6" => TransportSubtype.SubtypeCode.Vag6,
+            "suburban" => TransportSubtype.SubtypeCode.Suburban,
+            _ => throw new ArgumentOutOfRangeException($"{nameof(subtype)}: {subtype}")
         };
 }

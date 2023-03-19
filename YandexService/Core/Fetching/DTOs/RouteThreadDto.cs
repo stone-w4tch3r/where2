@@ -20,6 +20,7 @@ internal record RouteThreadDto : IDto
     [JsonPropertyName("transport_type")]
     public string? TransportType { get; init; }
 
+    [JsonPropertyName("transport_subtype")]
     public TransportSubtypeDto? TransportSubtype { get; init; }
 
     public string? Vehicle { get; init; }

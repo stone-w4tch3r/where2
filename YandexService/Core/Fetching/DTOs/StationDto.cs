@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using suburban.essentials;
+using YandexService.Core.Fetching.Mapping.Converters;
+using YandexService.Infrastructure.JsonConverters;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -10,6 +12,8 @@ internal record StationDto : IDto
     public string? Direction { get; init; }
 
     public CodesDto? Codes { get; init; }
+    
+    public string? Code { get; init; }
 
     [JsonPropertyName("station_type")]
     public string? StationType { get; init; }

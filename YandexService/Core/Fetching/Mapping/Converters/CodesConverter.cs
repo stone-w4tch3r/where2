@@ -7,6 +7,5 @@ internal class CodesConverter
 {
     public static Codes Convert(CodesDto dto) =>
         new(
-            dto.YandexCode,
-            dto.EsrCode);
+            dto.YandexCode);
 }

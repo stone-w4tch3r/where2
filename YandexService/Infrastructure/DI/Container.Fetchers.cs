@@ -10,16 +10,21 @@ internal partial class Container
     {
         public Func<Task<Stations?>> StationsFetcher { get; }
 
-        // public Func<Codes, Task<StationSchedule>> StationsScheduleFetcher { get; }
+        public Func<Codes, Task<StationSchedule?>> StationsScheduleFetcher { get; }
 
         public Fetchers(Services services, Mappers mappers, Caches caches)
         {
             StationsFetcher = () =>
-                new Fetcher(services.Context, services.FileService).Fetch(
-                    new StationsEndpoint(),
-                    mappers.StationsMapper,
-                    caches.StationsCacher);
-            // StationsScheduleFetcher = codes => new Fetcher(services.Context, services.FileService).Fetch(new StationScheduleEndpoint(codes));
+                new Fetcher(services.Context, services.FileService)
+                    .Fetch(
+                        new StationsEndpoint(),
+                        mappers.StationsMapper,
+                        caches.StationsCacher);
+            StationsScheduleFetcher = codes => new Fetcher(services.Context, services.FileService)
+                .Fetch(
+                    new StationScheduleEndpoint(codes),
+                    mappers.ScheduleMapper,
+                    caches.ScheduleCacher);
         }
     }
 }

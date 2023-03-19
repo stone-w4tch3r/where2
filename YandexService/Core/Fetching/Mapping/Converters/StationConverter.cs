@@ -22,10 +22,10 @@ internal class StationConverter
         new()
         {
             Title = dto.Title ?? throw new NRE(nameof(dto.Title)),
-            ShortTitle = dto.ShortTitle,
-            PopularTitle = dto.PopularTitle,
-            Codes = _codesConverter(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
-            Direction = dto.Direction,
+            Codes = _codesConverter(dto.Codes
+                                    ?? (dto.Code is not null
+                                        ? new (dto.Code, null)
+                                        : throw new NRE(nameof(dto.Codes)))),
             StationType = ConvertStationType(dto.StationType),
             TransportType = _transportTypeConverter(dto.TransportType),
             Longitude = dto.Longitude,

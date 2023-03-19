@@ -6,7 +6,7 @@ namespace YandexService.Infrastructure.DI;
 internal partial class Container
 {
     public Func<Task<Stations>> StationsProvider { get; }
-    // public Func<FileInfo, Task<StationsWithSchedule>> StationsWithScheduleModelLoader { get; }
+    public Func<Codes, Task<StationSchedule>> StationScheduleProvider { get; }
 
     public Container()
     {
@@ -16,5 +16,6 @@ internal partial class Container
         var fetchers = new Fetchers(services, mappers, caches);
 
         StationsProvider = () => ModelProvider.UncacheOrFetch(caches.StationsUncacher, fetchers.StationsFetcher);
+        StationScheduleProvider = codes => ModelProvider.UncacheOrFetch(caches.ScheduleUncacher, () => fetchers.StationsScheduleFetcher(codes));
     }
 }

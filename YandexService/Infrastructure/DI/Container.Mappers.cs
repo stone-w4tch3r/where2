@@ -31,7 +31,7 @@ internal partial class Container
                 new StationsConverter(codesConverter, stationConverter, stationsFilter).Convert(dto);
             Func<StationScheduleDto, StationSchedule> scheduleConverter = dto =>
                 new StationScheduleConverter(transportTypeConverter, stationConverter).Convert(dto);
-            StationsMapper = dto => Mapper.Map(dto, stationsConverter, stationsFilter);
+            // StationsMapper = dto => Mapper.Map(dto, stationsConverter, stationsFilter);
             ScheduleMapper = dto => Mapper.Map(dto, scheduleConverter, stationScheduleFilter);
         }
     }
