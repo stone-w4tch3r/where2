@@ -15,7 +15,7 @@ public record Station : IModel
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public required TransportType TransportType { get; init; }
-
+    
     public required double? Longitude { get; init; }
 
     public required double? Latitude { get; init; }

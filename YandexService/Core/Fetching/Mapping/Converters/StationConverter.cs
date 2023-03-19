@@ -22,15 +22,18 @@ internal class StationConverter
         new()
         {
             Title = dto.Title ?? throw new NRE(nameof(dto.Title)),
-            Codes = _codesConverter(dto.Codes
-                                    ?? (dto.Code is not null
-                                        ? new (dto.Code, null)
-                                        : throw new NRE(nameof(dto.Codes)))),
+            Codes = GetCodes(dto),
             StationType = ConvertStationType(dto.StationType),
             TransportType = _transportTypeConverter(dto.TransportType),
             Longitude = dto.Longitude,
             Latitude = dto.Latitude
         };
+
+    private Codes GetCodes(StationDto dto) =>
+        _codesConverter(dto.Codes
+                        ?? (dto.Code is not null
+                            ? new(dto.Code, null)
+                            : throw new NRE(nameof(dto.Codes))));
 
     private static StationType ConvertStationType(string? stationType) =>
         stationType switch

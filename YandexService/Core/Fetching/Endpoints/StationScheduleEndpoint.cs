@@ -3,7 +3,7 @@ using YandexService.Core.Fetching.DTOs;
 
 namespace YandexService.Core.Fetching.Endpoints;
 
-internal class StationScheduleEndpoint : EndpointBase<Codes, StationScheduleDto>
+internal class StationScheduleEndpoint : EndpointBase<Codes, ScheduleDto>
 {
     private const int Limit = 999;
     private const string TimeZone = "Europe/Moscow";

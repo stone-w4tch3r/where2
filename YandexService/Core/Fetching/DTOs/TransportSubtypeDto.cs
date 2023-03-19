@@ -1,6 +1,5 @@
 using System.Drawing;
 using System.Text.Json.Serialization;
-using suburban.essentials;
 using YandexService.Infrastructure.JsonConverters;
 
 namespace YandexService.Core.Fetching.DTOs;

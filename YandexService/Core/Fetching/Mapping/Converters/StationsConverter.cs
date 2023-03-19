@@ -25,13 +25,10 @@ internal class StationsConverter
         dto
             .To(_stationsFilter)
             .To(stationsDto => stationsDto.Countries?.Single() ?? throw new NRE(nameof(stationsDto.Countries)))
-            .To(countryDto => new Stations(Convert(countryDto)));
+            .To(CountryToStations);
 
-    private Country Convert(CountryDto dto) =>
-        new(
-            dto.Title ?? throw new NRE(dto.Title),
-            _codesConverter(dto.Codes ?? throw new NRE(nameof(dto.Codes))),
-            (dto.Regions ?? throw new NRE(nameof(dto.Regions))).Select(Convert));
+    private Stations CountryToStations(CountryDto dto) =>
+        new((dto.Regions ?? throw new NRE(nameof(dto.Regions))).Select(Convert));
 
     private Region Convert(RegionDto dto) =>
         new(

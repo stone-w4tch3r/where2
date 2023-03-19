@@ -7,21 +7,17 @@ namespace YandexService.Core.Fetching.Mapping.Converters;
 
 internal class StationScheduleConverter
 {
-    private readonly Func<StationDto, Station> _stationConverter;
     private readonly Func<string?, TransportType> _transportTypeConverter;
 
     public StationScheduleConverter(
-        Func<string?, TransportType> transportTypeConverter,
-        Func<StationDto, Station> stationConverter)
+        Func<string?, TransportType> transportTypeConverter)
     {
         _transportTypeConverter = transportTypeConverter;
-        _stationConverter = stationConverter;
     }
 
-    public StationSchedule Convert(StationScheduleDto dto) =>
+    public Schedule Convert(ScheduleDto dto) =>
         new()
         {
-            StationCodes = _stationConverter(dto.Station ?? throw new NRE(nameof(dto.Station))).Codes,
             Directions = dto.Directions?.Select(Convert) ?? throw new NRE(nameof(dto.Directions)),
             RouteThreads = dto.Schedules?
                                .Select(x => Convert(x.RouteThread ?? throw new NRE(nameof(x.RouteThread))))

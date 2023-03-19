@@ -6,7 +6,7 @@ namespace YandexService.Infrastructure.DI;
 internal partial class Container
 {
     public Func<Task<Stations>> StationsProvider { get; }
-    public Func<Codes, Task<StationSchedule>> StationScheduleProvider { get; }
+    public Func<Codes, Task<Schedule>> StationScheduleProvider { get; }
 
     public Container()
     {

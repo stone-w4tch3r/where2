@@ -4,27 +4,18 @@ namespace YandexService.Core.Fetching.DTOs;
 
 internal record ScheduleDto : IDto
 {
-    [JsonPropertyName("Thread")]
-    public RouteThreadDto? RouteThread { get; init; }
+    [JsonPropertyName("date")]
+    public DateOnly? RequestedDate { get; init; }
 
-    [JsonPropertyName("is_fuzzy")]
-    public bool? IsFuzzy { get; init; }
+    public StationDto? Station { get; init; }
 
-    public string? Platform { get; init; }
+    public PaginationDto? Pagination { get; init; }
 
-    [JsonPropertyName("terminal")]
-    public string? AirportTerminal { get; init; }
+    [JsonPropertyName("schedule")]
+    public IEnumerable<ScheduleEntryDto>? Schedules { get; init; }
 
-    public string? Days { get; init; }
+    public IEnumerable<ScheduleDirectionDto>? Directions { get; init; }
 
-    [JsonPropertyName("except_days")]
-    public string? ExceptDays { get; init; }
-
-    public string? Stops { get; init; }
-
-    public string? Direction { get; init; }
-
-    public string? Arrival { get; init; } //to timeOnly
-
-    public string? Departure { get; init; } //to timeOnly
+    [JsonPropertyName("schedule_direction")]
+    public ScheduleDirectionDto? RequestedDirection { get; init; }
 }

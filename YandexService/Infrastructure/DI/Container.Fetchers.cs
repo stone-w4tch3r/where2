@@ -1,5 +1,6 @@
 using YandexService.API.DataTypes;
 using YandexService.Core.Fetching;
+using YandexService.Core.Fetching.DTOs;
 using YandexService.Core.Fetching.Endpoints;
 
 namespace YandexService.Infrastructure.DI;
@@ -10,7 +11,9 @@ internal partial class Container
     {
         public Func<Task<Stations?>> StationsFetcher { get; }
 
-        public Func<Codes, Task<StationSchedule?>> StationsScheduleFetcher { get; }
+        public Func<Codes, Task<Schedule?>> StationsScheduleFetcher { get; }
+        
+        // Func<StationsDto, Stations>
 
         public Fetchers(Services services, Mappers mappers, Caches caches)
         {
