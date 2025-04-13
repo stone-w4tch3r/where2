@@ -1,52 +1,49 @@
-// validate-schemas.ts
-import axios from 'axios'
-import chalk from 'chalk'
-import { diff } from 'deep-object-diff'
-import { ZodError, ZodSchema } from 'zod'
-import { stationsListResponseSchema } from './stations-list-schemas'
-import { stationScheduleResponseSchema } from './stations-endpoint'
+import axios from "axios";
+import chalk from "chalk";
+import { ZodError, ZodSchema } from "zod";
+import { stationsListResponseSchema } from "./src/api/endpoints/all-stations.js";
+import { writeFileSync } from "fs";
 
 interface ValidationConfig {
-  apiKey: string
+  apiKey: string;
   endpoints: {
     [key: string]: {
-      url: string
-      schema: ZodSchema
-      params: Record<string, any>
-    }
-  }
+      url: string;
+      schema: ZodSchema;
+      params: Record<string, any>;
+    };
+  };
 }
 
 const config: ValidationConfig = {
-  apiKey: process.env.YANDEX_SCHEDULE_API_KEY || '',
+  apiKey: "741883ec-2d53-4830-aa83-fa17b38c1f66",
   endpoints: {
-    stationsList: {
-      url: 'https://api.rasp.yandex.net/v3.0/stations_list/',
+    // stationsList: {
+    //   url: "https://api.rasp.yandex.net/v3.0/stations_list/",
+    //   schema: stationsListResponseSchema,
+    //   params: {
+    //     format: "json",
+    //     lang: "ru_RU",
+    //   },
+    // },
+    stationSchedule: {
+      url: "https://api.rasp.yandex.net/v3.0/schedule/",
       schema: stationsListResponseSchema,
       params: {
-        format: 'json',
-        lang: 'ru_RU'
-      }
+        station: "s9600213", // Sheremetyevo
+        transport_types: "plane",
+        date: new Date().toISOString().split("T")[0],
+      },
     },
-    stationSchedule: {
-      url: 'https://api.rasp.yandex.net/v3.0/schedule/',
-      schema: stationScheduleResponseSchema,
-      params: {
-        station: 's9600213', // Sheremetyevo
-        transport_types: 'plane',
-        date: new Date().toISOString().split('T')[0]
-      }
-    }
-  }
-}
+  },
+};
 
 interface ValidationResult {
-  endpoint: string
-  success: boolean
-  validationError?: ZodError
-  rawData?: any
-  parsedData?: any
-  diff?: any
+  endpoint: string;
+  success: boolean;
+  validationError?: ZodError;
+  rawData?: any;
+  parsedData?: any;
 }
 
 async function validateEndpoint(
@@ -56,152 +53,132 @@ async function validateEndpoint(
   params: Record<string, any>
 ): Promise<ValidationResult> {
   try {
-    console.log(chalk.blue(`\nValidating ${endpoint}...`))
-    
+    console.log(chalk.blue(`\nValidating ${endpoint}...`));
+
+    // Print the final request URL with params
+    const fullUrl = new URL(url);
+    fullUrl.searchParams.append("apikey", config.apiKey);
+    Object.entries(params).forEach(([key, value]) => {
+      fullUrl.searchParams.append(key, value);
+    });
+    console.log(chalk.gray("Request URL:"), fullUrl.toString());
+
+    // Pause for confirmation
+    await new Promise((resolve) => {
+      console.log(chalk.yellow("Press Enter to continue..."));
+      process.stdin.once("data", () => resolve(undefined));
+    });
+
     const response = await axios.get(url, {
       params: {
         apikey: config.apiKey,
-        ...params
-      }
-    })
+        ...params,
+      },
+    });
 
-    const rawData = response.data
-    let parsedData
+    const rawData = response.data;
+    let parsedData;
 
     try {
-      parsedData = schema.parse(rawData)
-      const differences = diff(rawData, parsedData)
-      
-      if (Object.keys(differences).length > 0) {
-        return {
-          endpoint,
-          success: false,
-          rawData,
-          parsedData,
-          diff: differences
-        }
-      }
+      parsedData = schema.parse(rawData);
 
       return {
         endpoint,
         success: true,
         rawData,
-        parsedData
-      }
+        parsedData,
+      };
     } catch (error) {
       if (error instanceof ZodError) {
         return {
           endpoint,
           success: false,
           validationError: error,
-          rawData
-        }
+          rawData,
+        };
       }
-      throw error
+      throw error;
     }
-
   } catch (error) {
-    console.error(chalk.red(`Error fetching ${endpoint}:`), error)
-    throw error
+    console.error(chalk.red(`Error fetching ${endpoint}:`), error);
+    throw error;
   }
 }
 
 function printValidationError(error: ZodError) {
-  console.log(chalk.red('\nValidation Errors:'))
+  console.log(chalk.red("\nValidation Errors:"));
   error.errors.forEach((err) => {
-    console.log(chalk.yellow('\nPath:'), err.path.join('.'))
-    console.log(chalk.yellow('Error:'), err.message)
-    if (err.code === 'invalid_type') {
-      console.log(chalk.gray('Expected:'), err.expected)
-      console.log(chalk.gray('Received:'), err.received)
+    console.log(chalk.yellow("\nPath:"), err.path.join("."));
+    console.log(chalk.yellow("Error:"), err.message);
+    if (err.code === "invalid_type") {
+      console.log(chalk.gray("Expected:"), err.expected);
+      console.log(chalk.gray("Received:"), err.received);
     }
-  })
-}
-
-function printDataDiff(differences: any, path: string[] = []) {
-  Object.entries(differences).forEach(([key, value]) => {
-    const currentPath = [...path, key]
-    
-    if (value && typeof value === 'object') {
-      printDataDiff(value, currentPath)
-    } else {
-      console.log(
-        chalk.yellow('\nPath:'), 
-        currentPath.join('.'),
-        '\n' + chalk.gray('Difference:'), 
-        value
-      )
-    }
-  })
+  });
 }
 
 async function validateAllEndpoints() {
-  console.log(chalk.green('Starting schema validation...\n'))
-  
-  const results: ValidationResult[] = []
+  console.log(chalk.green("Starting schema validation...\n"));
 
-  for (const [endpoint, config] of Object.entries(config.endpoints)) {
+  const results: ValidationResult[] = [];
+
+  for (const [endpoint, cfg] of Object.entries(config.endpoints)) {
     try {
       const result = await validateEndpoint(
         endpoint,
-        config.url,
-        config.schema,
-        config.params
-      )
-      results.push(result)
+        cfg.url,
+        cfg.schema,
+        cfg.params
+      );
+      results.push(result);
     } catch (error) {
-      console.error(chalk.red(`Failed to validate ${endpoint}`), error)
+      console.error(chalk.red(`Failed to validate ${endpoint}`), error);
     }
   }
 
   // Print results summary
-  console.log(chalk.green('\n=== Validation Results ===\n'))
-  
+  console.log(chalk.green("\n=== Validation Results ===\n"));
+
   results.forEach((result) => {
-    console.log(chalk.blue(`\nEndpoint: ${result.endpoint}`))
-    
+    console.log(chalk.blue(`\nEndpoint: ${result.endpoint}`));
+
     if (result.success) {
-      console.log(chalk.green('✓ Schema validation passed'))
+      console.log(chalk.green("✓ Schema validation passed"));
     } else {
-      console.log(chalk.red('✗ Schema validation failed'))
-      
+      console.log(chalk.red("✗ Schema validation failed"));
+
       if (result.validationError) {
-        printValidationError(result.validationError)
-      }
-      
-      if (result.diff) {
-        console.log(chalk.red('\nData Differences:'))
-        printDataDiff(result.diff)
+        printValidationError(result.validationError);
       }
     }
-  })
+  });
 
   // Save failed validations for debugging
-  const failedValidations = results.filter(r => !r.success)
+  const failedValidations = results.filter((r) => !r.success);
   if (failedValidations.length > 0) {
-    const debugData = failedValidations.map(result => ({
+    const debugData = failedValidations.map((result) => ({
       endpoint: result.endpoint,
       rawData: result.rawData,
       parsedData: result.parsedData,
       validationError: result.validationError?.errors,
-      diff: result.diff
-    }))
+    }));
 
-    const fs = require('fs')
-    fs.writeFileSync(
-      'schema-validation-debug.json',
+    writeFileSync(
+      "schema-validation-debug.json",
       JSON.stringify(debugData, null, 2)
-    )
-    
-    console.log(chalk.yellow(
-      '\nDebug data for failed validations saved to schema-validation-debug.json'
-    ))
+    );
+
+    console.log(
+      chalk.yellow(
+        "\nDebug data for failed validations saved to schema-validation-debug.json"
+      )
+    );
   }
 }
 
 // Run validation if executed directly
-if (require.main === module) {
-  validateAllEndpoints().catch(console.error)
+if (import.meta.url === new URL(import.meta.url).href) {
+  validateAllEndpoints().catch(console.error);
 }
 
-export { validateAllEndpoints, validateEndpoint }
+export { validateAllEndpoints, validateEndpoint };
