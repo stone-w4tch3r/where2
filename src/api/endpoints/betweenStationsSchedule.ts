@@ -5,7 +5,7 @@ import {
   paginationSchema,
   searchInfoSchema,
   segmentSchema,
-} from "../base-schemas";
+} from "../baseSchemas";
 
 export const betweenStationsScheduleParamsSchema = z.object({
   /** From station code */

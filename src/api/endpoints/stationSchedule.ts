@@ -6,7 +6,7 @@ import {
   directionSchema,
   threadSchemaWithInterval,
   stationSchema,
-} from "../base-schemas";
+} from "../baseSchemas";
 
 export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
@@ -54,8 +54,8 @@ export const stationScheduleResponseSchema = z.object({
         arrival: z.string().nullable().describe("Arrival time in ISO 8601"),
         thread: threadSchemaWithInterval,
         is_fuzzy: z.boolean().describe("Whether times are approximate"),
-        days: z.string().describe("Service days description"),
-        stops: z.string().max(1000).describe("Stops description"),
+        days: z.string().describe("Service days"),
+        stops: z.string().max(1000).describe("Stops"),
         departure: z.string().describe("Departure time in ISO 8601"),
         terminal: z.string().nullable().describe("Airport terminal"),
         platform: z.string().describe("Platform or track number"),

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Result } from "../../utils/result";
 import { makeYandexApiRequest } from "../../utils/api-helpers";
-import { countrySchema } from "../base-schemas";
+import { countrySchema } from "../baseSchemas";
 
 export const stationsListParamsSchema = z.object({
   /** Response language (e.g. "ru_RU", "uk_UA") */

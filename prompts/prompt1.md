@@ -3,6 +3,7 @@ Help me to create architecture for my fullstack ts pet project. Time plan is one
 ## app description
 
 Embeddable map overlay with suburban trains data:
+
 - routes
 - schedule
 - stations
@@ -10,7 +11,11 @@ Embeddable map overlay with suburban trains data:
 
 Compatible with different map providers: google/yandex etc
 
-Schedule data provided via yandex.rasp API, preprocessed on backend
+Routes data provided via Yandex.Rasp API, preprocessed on backend. Scheduling and timetables are omitted for simplicity.
+
+User can navigate to Yandex.Rasp webpage from selected route/station etc by urls that are already provided by API
+
+Yandex Rasp has a lot of data, app will use only Sverdlovsk Region, Russia
 
 ## UI
 

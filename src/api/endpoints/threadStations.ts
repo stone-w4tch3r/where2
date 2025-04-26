@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { Result } from "../../utils/result";
 import { makeYandexApiRequest } from "../../utils/api-helpers";
-import { threadSchema, intervalSchema } from "../base-schemas";
-import { threadStopSchema } from "../base-schemas";
+import { threadSchema, intervalSchema } from "../baseSchemas";
+import { threadStopSchema } from "../baseSchemas";
 
 export const threadStationsParamsSchema = z.object({
   uid: z
