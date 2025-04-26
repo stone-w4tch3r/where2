@@ -248,7 +248,6 @@ export const stationListItemSchema = z
       .describe("Station longitude"),
     latitude: z
       .union([z.number(), z.literal("")])
-      .transform((val) => (val === "" ? "" : val.toString()))
       .describe("Station latitude"),
   })
   .describe(
