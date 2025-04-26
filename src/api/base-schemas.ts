@@ -3,7 +3,7 @@ import { z } from "zod";
 export const stationSchema = z.object({
   code: z.string().describe("Station code in Yandex Schedule system"),
   title: z.string().describe("Station name"),
-  popular_title: z.string().describe("Common name of the station"),
+  popular_title: z.string().nullable().describe("Common name of the station"),
   short_title: z.string().describe("Short name of the station"),
   transport_type: z
     .enum(["plane", "train", "suburban", "bus", "water", "helicopter"])
@@ -44,20 +44,29 @@ export const carrierCodesSchema = z.object({
 export const carrierSchema = z.object({
   code: z.number().describe("Carrier code in Yandex Schedule system"),
   contacts: z.string().describe("Contact information"),
-  url: z.string().url().describe("Carrier website"),
+  url: z.string().describe("Carrier website"),
   logo_svg: z.string().nullable().describe("SVG logo URL"),
   title: z.string().describe("Carrier name"),
   phone: z.string().describe("Contact phone number"),
   codes: carrierCodesSchema,
   address: z.string().describe("Legal address"),
   logo: z.string().describe("Raster logo URL"),
-  email: z.string().email().describe("Email address"),
+  email: z
+    .string()
+    .email()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? null : val))
+    .nullable()
+    .describe("Email address"),
 });
 
 export const transportSubtypeSchema = z.object({
-  color: z.string().describe("Main color of transport in hex format"),
-  code: z.string().describe("Transport subtype code"),
-  title: z.string().describe("Transport subtype description"),
+  color: z
+    .string()
+    .nullable()
+    .describe("Main color of transport in hex format"),
+  code: z.string().nullable().describe("Transport subtype code"),
+  title: z.string().nullable().describe("Transport subtype description"),
 });
 
 export const threadSchema = z.object({
@@ -65,7 +74,7 @@ export const threadSchema = z.object({
   title: z.string().describe("Thread name (full station names)"),
   number: z.string().describe("Route number"),
   short_title: z.string().describe("Thread name (short station names)"),
-  thread_method_link: z.string().url().describe("URL for thread info request"),
+  thread_method_link: z.string().describe("URL for thread info request"),
   carrier: carrierSchema,
   transport_type: z.enum([
     "plane",
@@ -75,8 +84,8 @@ export const threadSchema = z.object({
     "water",
     "helicopter",
   ]),
-  vehicle: z.string().describe("Vehicle name"),
-  transport_subtype: transportSubtypeSchema,
+  vehicle: z.string().nullable().describe("Vehicle name"),
+  transport_subtype: transportSubtypeSchema.nullable(),
   express_type: z
     .enum(["express", "aeroexpress"])
     .nullable()
@@ -94,10 +103,19 @@ export const placeSchema = z.object({
   name: z.string().describe("Ticket type name"),
 });
 
-export const ticketsInfoSchema = z.object({
-  et_marker: z.boolean().describe("Electronic ticket availability"),
-  places: z.array(placeSchema).describe("Available ticket types and prices"),
-});
+export const ticketsInfoSchema = z
+  .object({
+    et_marker: z.boolean().describe("Electronic ticket availability"),
+    places: z
+      .array(
+        placeSchema.extend({
+          name: z.string().nullable().describe("Ticket type name"),
+        })
+      )
+      .describe("Available ticket types and prices"),
+  })
+  .nullable()
+  .describe("Tickets information");
 
 export const segmentSchema = z.object({
   arrival: z.string().describe("Arrival time in ISO 8601"),
@@ -127,14 +145,14 @@ export const searchInfoSchema = z.object({
   to: z.object({
     code: z.string(),
     type: z.enum(["station", "settlement"]),
-    popular_title: z.string(),
+    popular_title: z.string().nullable(),
     short_title: z.string(),
     title: z.string(),
   }),
   from: z.object({
     code: z.string(),
     type: z.enum(["station", "settlement"]),
-    popular_title: z.string(),
+    popular_title: z.string().nullable(),
     short_title: z.string(),
     title: z.string(),
   }),

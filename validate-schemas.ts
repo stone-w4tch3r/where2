@@ -4,9 +4,11 @@ import { ZodError, ZodSchema } from "zod";
 import {
   stationsListResponseSchema,
   betweenStationsScheduleResponseSchema,
-  BetweenStationsScheduleParams
+  BetweenStationsScheduleParams,
 } from "./src/api";
 import { writeFileSync } from "fs";
+
+const SAVE_DEBUG_FILE = true;
 
 interface ValidationConfig {
   apiKey: string;
@@ -22,23 +24,23 @@ interface ValidationConfig {
 const config: ValidationConfig = {
   apiKey: "741883ec-2d53-4830-aa83-fa17b38c1f66",
   endpoints: {
-    stationsList: {
-      url: "https://api.rasp.yandex.net/v3.0/stations_list/",
-      schema: stationsListResponseSchema,
-      params: {
-        format: "json",
-        lang: "ru_RU",
-      },
-    },
-    // stationSchedule: {
-    //   url: "https://api.rasp.yandex.net/v3.0/search/",
-    //   schema: betweenStationsScheduleResponseSchema,
+    // stationsList: {
+    //   url: "https://api.rasp.yandex.net/v3.0/stations_list/",
+    //   schema: stationsListResponseSchema,
     //   params: {
-    //     station: "s9600213", // Sheremetyevo
-    //     transport_types: "plane",
-    //     date: new Date().toISOString().split("T")[0],
-    //   } as BetweenStationsScheduleParams,
+    //     format: "json",
+    //     lang: "ru_RU",
+    //   },
     // },
+    stationSchedule: {
+      url: "https://api.rasp.yandex.net/v3.0/search/",
+      schema: betweenStationsScheduleResponseSchema,
+      params: {
+        from: "s9607404", // Екатеринбург-Пасс.
+        to: "s9607483", // Нижний Тагил
+        date: new Date().toISOString().split("T")[0],
+      } as BetweenStationsScheduleParams,
+    },
   },
 };
 
@@ -159,13 +161,15 @@ async function validateAllEndpoints() {
 
   // Save failed validations for debugging
   const failedValidations = results.filter((r) => !r.success);
-  if (failedValidations.length > 0) {
-    const debugData = failedValidations.map((result) => ({
-      endpoint: result.endpoint,
-      rawData: result.rawData,
-      parsedData: result.parsedData,
-      validationError: result.validationError?.errors,
-    }));
+  if (failedValidations.length > 0 || SAVE_DEBUG_FILE) {
+    const debugData = results
+      .filter((result) => !result.success || SAVE_DEBUG_FILE)
+      .map((result) => ({
+        endpoint: result.endpoint,
+        rawData: result.rawData,
+        parsedData: result.parsedData,
+        validationError: result.validationError?.errors,
+      }));
 
     writeFileSync(
       "schema-validation-debug.json",
@@ -174,7 +178,7 @@ async function validateAllEndpoints() {
 
     console.log(
       chalk.yellow(
-        "\nDebug data for failed validations saved to schema-validation-debug.json"
+        "\nDebug data for validations saved to schema-validation-debug.json"
       )
     );
   }
@@ -182,7 +186,14 @@ async function validateAllEndpoints() {
 
 // Run validation if executed directly
 if (import.meta.url === new URL(import.meta.url).href) {
-  validateAllEndpoints().catch(console.error);
+  validateAllEndpoints()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }
 
 export { validateAllEndpoints, validateEndpoint };
