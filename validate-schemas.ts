@@ -7,10 +7,12 @@ import {
   BetweenStationsScheduleParams,
   stationScheduleResponseSchema,
   StationScheduleParams,
+  ThreadStationsParams,
+  threadStationsResponseSchema,
 } from "./src/api";
 import { writeFileSync } from "fs";
 
-const SAVE_DEBUG_FILE = true;
+const SAVE_DEBUG_FILE = false;
 
 interface ValidationConfig {
   apiKey: string;
@@ -26,29 +28,36 @@ interface ValidationConfig {
 const config: ValidationConfig = {
   apiKey: "741883ec-2d53-4830-aa83-fa17b38c1f66",
   endpoints: {
-    // stationsList: {
-    //   url: "https://api.rasp.yandex.net/v3.0/stations_list/",
-    //   schema: stationsListResponseSchema,
-    //   params: {
-    //     format: "json",
-    //     lang: "ru_RU",
-    //   },
-    // },
-    // betweenStations: {
-    //   url: "https://api.rasp.yandex.net/v3.0/search/",
-    //   schema: betweenStationsScheduleResponseSchema,
-    //   params: {
-    //     from: "s9607404", // Екатеринбург-Пасс.
-    //     to: "s9607483", // Нижний Тагил
-    //     date: new Date().toISOString().split("T")[0],
-    //   } as BetweenStationsScheduleParams,
-    // },
+    stationsList: {
+      url: "https://api.rasp.yandex.net/v3.0/stations_list/",
+      schema: stationsListResponseSchema,
+      params: {
+        format: "json",
+        lang: "ru_RU",
+      },
+    },
+    betweenStations: {
+      url: "https://api.rasp.yandex.net/v3.0/search/",
+      schema: betweenStationsScheduleResponseSchema,
+      params: {
+        from: "s9607404", // Екатеринбург-Пасс.
+        to: "s9607483", // Нижний Тагил
+        date: new Date().toISOString().split("T")[0],
+      } as BetweenStationsScheduleParams,
+    },
     stationSchedule: {
       url: "https://api.rasp.yandex.net/v3.0/schedule/",
       schema: stationScheduleResponseSchema,
       params: {
         station: "s9600213", // Sheremetyevo
       } as StationScheduleParams,
+    },
+    threadStations: {
+      url: "https://api.rasp.yandex.net/v3.0/thread/",
+      schema: threadStationsResponseSchema,
+      params: {
+        uid: "211E_1_2",
+      } as ThreadStationsParams,
     },
   },
 };
