@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { z } from "zod";
+import { Result } from "../../utils/result";
+import { makeYandexApiRequest } from "../../utils/api-helpers";
 import {
   paginationSchema,
   searchInfoSchema,
@@ -34,39 +34,38 @@ export const betweenStationsScheduleResponseSchema = z.object({
   search: searchInfoSchema,
 });
 
-const fetchSchedule = async (
-  apiKey: string,
-  params: BetweenStationsScheduleParams
-) => {
-  const response = await axios.get("https://api.rasp.yandex.net/v3.0/search/", {
-    params: {
-      apikey: apiKey,
-      ...params,
-    },
-  });
-  return betweenStationsScheduleResponseSchema.parse(response.data);
-};
+export type BetweenStationsScheduleResponse = z.infer<
+  typeof betweenStationsScheduleResponseSchema
+>;
+
+const SEARCH_ENDPOINT = "search";
 
 /**
- * React Query hook for fetching schedule between stations
- * @param apiKey - Yandex Schedule API key
+ * Fetches schedule between stations
  * @param params - Schedule search parameters
+ * @returns Result with schedule data or error message
  * @example
  * ```
- * const { data, isLoading, error } = useSchedule('your-api-key', {
+ * const result = await fetchSchedule({
  *   from: 's9600396', // Simferopol
  *   to: 's9600213',   // Sheremetyevo
  *   date: '2024-01-20'
- * })
+ * });
+ *
+ * if (result.success) {
+ *   const scheduleData = result.data;
+ *   // Process the schedule data
+ * } else {
+ *   console.error(result.message);
+ * }
  * ```
  */
-export const useSchedule = (
-  apiKey: string,
+export const fetchSchedule = async (
   params: BetweenStationsScheduleParams
-) => {
-  return useQuery({
-    queryKey: ["schedule", params],
-    queryFn: () => fetchSchedule(apiKey, params),
-    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
-  });
+): Promise<Result<BetweenStationsScheduleResponse>> => {
+  return makeYandexApiRequest(
+    SEARCH_ENDPOINT,
+    betweenStationsScheduleResponseSchema,
+    params
+  );
 };

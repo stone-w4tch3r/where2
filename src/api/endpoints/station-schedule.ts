@@ -1,12 +1,12 @@
 import { z } from "zod";
+import { Result } from "../../utils/result";
+import { makeYandexApiRequest } from "../../utils/api-helpers";
 import {
   paginationSchema,
   directionSchema,
   threadSchemaWithInterval,
   stationSchema,
 } from "../base-schemas";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
 
 export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
@@ -84,43 +84,39 @@ export const stationScheduleResponseSchema = z.object({
     .describe("Available directions for suburban trains"),
 });
 
-const fetchStationSchedule = async (
-  apiKey: string,
-  params: StationScheduleParams
-) => {
-  const response = await axios.get(
-    "https://api.rasp.yandex.net/v3.0/schedule/",
-    {
-      params: {
-        apikey: apiKey,
-        ...params,
-      },
-    }
-  );
-  return stationScheduleResponseSchema.parse(response.data);
-};
+export type StationScheduleResponse = z.infer<
+  typeof stationScheduleResponseSchema
+>;
+
+const SCHEDULE_ENDPOINT = "schedule";
 
 /**
- * React Query hook for fetching station schedule
- * @param apiKey - Yandex Schedule API key
+ * Fetches station schedule from Yandex.Rasp API
  * @param params - Schedule search parameters
+ * @returns Result with station schedule data or error message
  * @example
  * ```
- * const { data, isLoading, error } = useStationSchedule('your-api-key', {
+ * const result = await fetchStationSchedule({
  *   station: 's9600213', // Sheremetyevo
  *   date: '2024-01-20',
  *   transport_types: 'plane',
  *   event: 'departure'
- * })
+ * });
+ *
+ * if (result.success) {
+ *   const scheduleData = result.data;
+ *   // Process the schedule data
+ * } else {
+ *   console.error(result.message);
+ * }
  * ```
  */
-export const useStationSchedule = (
-  apiKey: string,
+export const fetchStationSchedule = async (
   params: StationScheduleParams
-) => {
-  return useQuery({
-    queryKey: ["stationSchedule", params],
-    queryFn: () => fetchStationSchedule(apiKey, params),
-    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
-  });
+): Promise<Result<StationScheduleResponse>> => {
+  return makeYandexApiRequest(
+    SCHEDULE_ENDPOINT,
+    stationScheduleResponseSchema,
+    params
+  );
 };

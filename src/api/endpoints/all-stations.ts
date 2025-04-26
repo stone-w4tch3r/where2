@@ -1,7 +1,6 @@
-// stations-list-schemas.ts
-import axios from "axios";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { Result } from "../../utils/result";
+import { makeYandexApiRequest } from "../../utils/api-helpers";
 import { countrySchema } from "../base-schemas";
 
 export const stationsListParamsSchema = z.object({
@@ -20,42 +19,34 @@ export const stationsListResponseSchema = z.object({
     .describe("List of countries with stations"),
 });
 
-const fetchStationsList = async (
-  apiKey: string,
-  params?: StationsListParams
-) => {
-  const response = await axios.get(
-    "https://api.rasp.yandex.net/v3.0/stations_list/",
-    {
-      params: {
-        apikey: apiKey,
-        ...params,
-      },
-    }
-  );
-  return stationsListResponseSchema.parse(response.data);
-};
+export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
 
 /**
- * React Query hook for fetching complete stations list
+ * Fetches complete stations list
  * Note: Response is about 40MB in size, use with caution
- * @param apiKey - Yandex Schedule API key
  * @param params - Request parameters
+ * @returns Result with stations list data or error message
  * @example
  * ```
- * const { data, isLoading, error } = useStationsList('your-api-key', {
+ * const result = await fetchStationsList({
  *   lang: 'ru_RU',
  *   format: 'json'
- * })
+ * });
+ *
+ * if (result.success) {
+ *   const stationsData = result.data;
+ *   // Do something with the data
+ * } else {
+ *   console.error(result.message);
+ * }
  * ```
  */
-export const useStationsList = (
-  apiKey: string,
-  params?: StationsListParams
-) => {
-  return useQuery({
-    queryKey: ["stationsList", params],
-    queryFn: () => fetchStationsList(apiKey, params),
-    staleTime: 24 * 60 * 60 * 1000, // Consider data stale after 24 hours
-  });
+export const fetchStationsList = async (
+  params: StationsListParams
+): Promise<Result<StationsListResponse>> => {
+  return makeYandexApiRequest(
+    "stations_list",
+    stationsListResponseSchema,
+    params
+  );
 };
