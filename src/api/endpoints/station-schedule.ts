@@ -8,7 +8,7 @@ import {
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
-const stationScheduleParamsSchema = z.object({
+export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
   lang: z.string().optional().describe("Response language (e.g. 'ru_RU')"),
   format: z.enum(["json", "xml"]).optional().describe("Response format (json/xml)"),
@@ -29,9 +29,9 @@ const stationScheduleParamsSchema = z.object({
   direction: z.string().optional().describe("Direction filter (for suburban only)"),
   result_timezone: z.string().optional().describe("Response timezone"),
 });
-type StationScheduleParams = z.infer<typeof stationScheduleParamsSchema>;
+export type StationScheduleParams = z.infer<typeof stationScheduleParamsSchema>;
 
-const stationScheduleResponseSchema = z.object({
+export const stationScheduleResponseSchema = z.object({
   date: z
     .string()
     .nullable()

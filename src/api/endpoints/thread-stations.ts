@@ -1,12 +1,10 @@
-// thread-stations-endpoint.ts
-
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { threadSchema, intervalSchema } from "../base-schemas";
 import { threadStopSchema } from "../base-schemas";
 
-const threadStationsParamsSchema = z.object({
+export const threadStationsParamsSchema = z.object({
   uid: z
     .string()
     .max(100)
@@ -40,7 +38,7 @@ const threadStationsParamsSchema = z.object({
     .describe("Station coding systems to include in response"),
 });
 
-const threadStationsResponseSchema = z.object({
+export const threadStationsResponseSchema = z.object({
   except_days: z.string().describe("Days when thread does not run"),
   arrival_date: z.string().nullable().describe("Arrival date at destination"),
   from: z.string().nullable().describe("Departure point code"),
@@ -64,14 +62,14 @@ const threadStationsResponseSchema = z.object({
   express_type: threadSchema.shape.express_type,
 });
 
-type ThreadStationsParams = z.infer<typeof threadStationsParamsSchema>;
+export type ThreadStationsParams = z.infer<typeof threadStationsParamsSchema>;
 
 /**
  * Fetches list of stations for a specific thread
  * @param params - Thread stations request parameters
  * @returns Thread stations response data
  */
-const fetchThreadStations = async (params: ThreadStationsParams, apiKey: string) => {
+export const fetchThreadStations = async (params: ThreadStationsParams, apiKey: string) => {
   const response = await axios.get("https://api.rasp.yandex.net/v3.0/thread/", {
     params: {
         apikey: apiKey,

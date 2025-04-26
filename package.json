@@ -1,5 +1,8 @@
 {
   "type": "module",
+  "scripts": {
+    "validate": "NODE_OPTIONS='--loader ts-node/esm' node validate-schemas.ts"
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.73.3",
     "axios": "^1.8.4",

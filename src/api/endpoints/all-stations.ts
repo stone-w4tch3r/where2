@@ -1,17 +1,17 @@
 // stations-list-schemas.ts
 import axios from "axios";
 import { z } from "zod";
-import { countrySchema } from "../base-schemas";
 import { useQuery } from "@tanstack/react-query";
+import { countrySchema } from "../base-schemas";
 
-const stationsListParamsSchema = z.object({
+export const stationsListParamsSchema = z.object({
   /** Response language (e.g. "ru_RU", "uk_UA") */
   lang: z.string().optional(),
   /** Response format (json/xml) */
   format: z.enum(["json", "xml"]).optional(),
 });
 
-type StationsListParams = z.infer<typeof stationsListParamsSchema>;
+export type StationsListParams = z.infer<typeof stationsListParamsSchema>;
 
 export const stationsListResponseSchema = z.object({
   countries: z

@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { z } from "zod";
-import { paginationSchema, searchInfoSchema, segmentSchema } from "../base-schemas";
+import {
+  paginationSchema,
+  searchInfoSchema,
+  segmentSchema,
+} from "../base-schemas";
 
-const betweenStationsScheduleParamsSchema = z.object({
+export const betweenStationsScheduleParamsSchema = z.object({
   /** From station code */
   from: z.string(),
   /** To station code */
@@ -17,9 +21,11 @@ const betweenStationsScheduleParamsSchema = z.object({
   /** Show interval routes */
   show_intervals: z.boolean().optional(),
 });
-type BetweenStationsScheduleParams = z.infer<typeof betweenStationsScheduleParamsSchema>;
+export type BetweenStationsScheduleParams = z.infer<
+  typeof betweenStationsScheduleParamsSchema
+>;
 
-const betweenStationsScheduleResponseSchema = z.object({
+export const betweenStationsScheduleResponseSchema = z.object({
   pagination: paginationSchema,
   segments: z.array(segmentSchema).describe("List of found routes"),
   interval_segments: z
