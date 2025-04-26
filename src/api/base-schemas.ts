@@ -4,7 +4,7 @@ export const stationSchema = z.object({
   code: z.string().describe("Station code in Yandex Schedule system"),
   title: z.string().describe("Station name"),
   popular_title: z.string().nullable().describe("Common name of the station"),
-  short_title: z.string().describe("Short name of the station"),
+  short_title: z.string().nullable().describe("Short name of the station"),
   transport_type: z
     .enum(["plane", "train", "suburban", "bus", "water", "helicopter"])
     .describe("Type of transport"),
@@ -43,21 +43,26 @@ export const carrierCodesSchema = z.object({
 
 export const carrierSchema = z.object({
   code: z.number().describe("Carrier code in Yandex Schedule system"),
-  contacts: z.string().describe("Contact information"),
-  url: z.string().describe("Carrier website"),
-  logo_svg: z.string().nullable().describe("SVG logo URL"),
+  contacts: z.string().optional().describe("Contact information"),
+  url: z.string().optional().describe("Carrier website"),
+  logo_svg: z.string().nullable().optional().describe("SVG logo URL"),
   title: z.string().describe("Carrier name"),
-  phone: z.string().describe("Contact phone number"),
+  phone: z.string().optional().describe("Contact phone number"),
   codes: carrierCodesSchema,
-  address: z.string().describe("Legal address"),
-  logo: z.string().describe("Raster logo URL"),
+  address: z.string().optional().describe("Legal address"),
+  logo: z.string().optional().describe("Raster logo URL"),
   email: z
     .string()
     .email()
     .or(z.literal(""))
     .transform((val) => (val === "" ? null : val))
     .nullable()
+    .optional()
     .describe("Email address"),
+  thread_method_link: z
+    .string()
+    .optional()
+    .describe("URL for thread info request"),
 });
 
 export const transportSubtypeSchema = z.object({
@@ -74,7 +79,10 @@ export const threadSchema = z.object({
   title: z.string().describe("Thread name (full station names)"),
   number: z.string().describe("Route number"),
   short_title: z.string().describe("Thread name (short station names)"),
-  thread_method_link: z.string().describe("URL for thread info request"),
+  thread_method_link: z
+    .string()
+    .optional()
+    .describe("URL for thread info request"),
   carrier: carrierSchema,
   transport_type: z.enum([
     "plane",

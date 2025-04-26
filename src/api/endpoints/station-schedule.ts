@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  paginationSchema,  
+  paginationSchema,
   directionSchema,
   threadSchemaWithInterval,
   stationSchema,
@@ -11,7 +11,10 @@ import { useQuery } from "@tanstack/react-query";
 export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
   lang: z.string().optional().describe("Response language (e.g. 'ru_RU')"),
-  format: z.enum(["json", "xml"]).optional().describe("Response format (json/xml)"),
+  format: z
+    .enum(["json", "xml"])
+    .optional()
+    .describe("Response format (json/xml)"),
   date: z.string().optional().describe("Date in YYYY-MM-DD format"),
   transport_types: z
     .enum(["plane", "train", "suburban", "bus", "water", "helicopter"])
@@ -26,7 +29,10 @@ export const stationScheduleParamsSchema = z.object({
     .enum(["yandex", "esr", "all"])
     .optional()
     .describe("Response code systems"),
-  direction: z.string().optional().describe("Direction filter (for suburban only)"),
+  direction: z
+    .string()
+    .optional()
+    .describe("Direction filter (for suburban only)"),
   result_timezone: z.string().optional().describe("Response timezone"),
 });
 export type StationScheduleParams = z.infer<typeof stationScheduleParamsSchema>;
@@ -45,7 +51,7 @@ export const stationScheduleResponseSchema = z.object({
           .string()
           .nullable()
           .describe("Days when service does not run"),
-        arrival: z.string().describe("Arrival time in ISO 8601"),
+        arrival: z.string().nullable().describe("Arrival time in ISO 8601"),
         thread: threadSchemaWithInterval,
         is_fuzzy: z.boolean().describe("Whether times are approximate"),
         days: z.string().describe("Service days description"),

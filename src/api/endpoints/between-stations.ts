@@ -7,29 +7,20 @@ import {
   segmentSchema,
 } from "../base-schemas";
 
-export const betweenStationsScheduleParamsSchema = z
-  .object({
-    /** From station code */
-    fromCode: z.string(),
-    /** To station code */
-    toCode: z.string(),
-    /** Date in YYYY-MM-DD format */
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
-    /** Results offset */
-    offset: z.number().optional(),
-    /** Results per page */
-    limit: z.number().optional(),
-    /** Show interval routes */
-    show_intervals: z.boolean().optional(),
-  })
-  .transform((data) => ({
-    date: data.date,
-    offset: data.offset,
-    limit: data.limit,
-    show_intervals: data.show_intervals,
-    from: data.fromCode,
-    to: data.toCode,
-  }));
+export const betweenStationsScheduleParamsSchema = z.object({
+  /** From station code */
+  from: z.string(),
+  /** To station code */
+  to: z.string(),
+  /** Date in YYYY-MM-DD format */
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  /** Results offset */
+  offset: z.number().optional(),
+  /** Results per page */
+  limit: z.number().optional(),
+  /** Show interval routes */
+  show_intervals: z.boolean().optional(),
+});
 export type BetweenStationsScheduleParams = z.infer<
   typeof betweenStationsScheduleParamsSchema
 >;

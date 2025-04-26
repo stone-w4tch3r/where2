@@ -5,6 +5,8 @@ import {
   stationsListResponseSchema,
   betweenStationsScheduleResponseSchema,
   BetweenStationsScheduleParams,
+  stationScheduleResponseSchema,
+  StationScheduleParams,
 } from "./src/api";
 import { writeFileSync } from "fs";
 
@@ -32,14 +34,21 @@ const config: ValidationConfig = {
     //     lang: "ru_RU",
     //   },
     // },
+    // betweenStations: {
+    //   url: "https://api.rasp.yandex.net/v3.0/search/",
+    //   schema: betweenStationsScheduleResponseSchema,
+    //   params: {
+    //     from: "s9607404", // Екатеринбург-Пасс.
+    //     to: "s9607483", // Нижний Тагил
+    //     date: new Date().toISOString().split("T")[0],
+    //   } as BetweenStationsScheduleParams,
+    // },
     stationSchedule: {
-      url: "https://api.rasp.yandex.net/v3.0/search/",
-      schema: betweenStationsScheduleResponseSchema,
+      url: "https://api.rasp.yandex.net/v3.0/schedule/",
+      schema: stationScheduleResponseSchema,
       params: {
-        from: "s9607404", // Екатеринбург-Пасс.
-        to: "s9607483", // Нижний Тагил
-        date: new Date().toISOString().split("T")[0],
-      } as BetweenStationsScheduleParams,
+        station: "s9600213", // Sheremetyevo
+      } as StationScheduleParams,
     },
   },
 };
