@@ -1,4 +1,4 @@
-### Backend data structure
+## Backend data structure
 
 ```mermaid
 classDiagram
@@ -52,7 +52,7 @@ classDiagram
     Station "1" --o "*" Route : isStopOn >
 ```
 
-### Extract from Yandex API flow
+## Extract from Yandex API flow
 
 ```mermaid
 flowchart LR
