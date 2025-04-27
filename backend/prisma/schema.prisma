@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  id           String      @id @map("station_id")
+  fullName     String      @map("full_name")
+  popularName  String?     @map("popular_name")
+  shortName    String?     @map("short_name")
+  transportMode String      @map("transport_mode")
+  latitude     Float
+  longitude    Float
+  country      String
+  region       String
+  routeStops   RouteStop[]
+
+  @@map("stations")
+}
+
+model Route {
+  id           String      @id @map("route_id")
+  shortTitle   String      @map("short_title")
+  fullTitle    String      @map("full_title")
+  transportMode String      @map("transport_mode")
+  routeInfoUrl String?     @map("route_info_url")
+  routeStops   RouteStop[]
+
+  @@map("routes")
+}
+
+model RouteStop {
+  id           Int      @id @default(autoincrement())
+  routeId      String   @map("route_id")
+  stationId    String   @map("station_id")
+  stopPosition Int      @map("stop_position")
+  route        Route    @relation(fields: [routeId], references: [id])
+  station      Station  @relation(fields: [stationId], references: [id])
+
+  @@unique([routeId, stationId, stopPosition])
+  @@map("route_stops")
+}
