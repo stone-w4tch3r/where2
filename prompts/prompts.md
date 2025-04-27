@@ -1,3 +1,6 @@
+---
+---
+
 I need to build an application about suburban train routes. It displays stations and routes on a map and allows to calculate reachability between stations based on transfer count. App DOES NOT uses any scheduling/timetable system for simplicity.
 
 List if features:
@@ -22,3 +25,9 @@ Use mermaid diagrams
 In models avoid primitive obsession where possible and suitable, especially in codes/ids etc
 
 API structure:
+
+---
+
+Now you have full app's architecture and description.
+
+Convert this declarative/descriptive documentation

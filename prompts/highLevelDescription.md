@@ -1,5 +1,3 @@
-Help me to create architecture for my fullstack ts pet project. Time plan is one week. Use mermaid diagrams. Do not write any code.
-
 ## app description
 
 Embeddable map overlay with suburban trains data:
