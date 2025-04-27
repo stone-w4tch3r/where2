@@ -1,4 +1,4 @@
-### Overall data structure
+### Backend data structure
 
 ```mermaid
 classDiagram

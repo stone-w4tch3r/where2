@@ -9,6 +9,12 @@ General Style
 
 ---
 
+Avoid Primitive obsession
+
+- Create custom simple wrappers for types like YandexCode, RouteId etc
+
+---
+
 TypeScript
 
 - strict mode. Explicit return types on exports.

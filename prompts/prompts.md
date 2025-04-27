@@ -28,6 +28,12 @@ API structure:
 
 ---
 
-Now you have full app's architecture and description.
+You have full architecture and description of my application.
 
-Convert this declarative/descriptive documentation
+Convert this declarative/descriptive documentation to a step-by-step for AI developer agent.
+
+Note that I started writing backend, basic API client for Yandex and zod schemas for it are already implemented.
+
+Sprint 1: Build backend and super simple one-page draft UI to test backend
+Sprint 2: Build standalone UI app based on leaflet map
+Sprint 3: Make UI embeddable and convert app to browser extension compatible with any map. Add Dev mode that uses yandex map with leaflet plugin
