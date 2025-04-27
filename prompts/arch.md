@@ -1,4 +1,4 @@
-## Updated System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
@@ -43,7 +43,7 @@ flowchart TD
     API --> Cache
 ```
 
-## Updated Component Structure
+## UI Component Structure
 
 ```mermaid
 flowchart TD
@@ -96,58 +96,34 @@ flowchart TD
     TransferOptions --> useReachableStations
 ```
 
-## Enhanced API Structure
+## Backend API Layer
 
 ```mermaid
-flowchart LR
-    subgraph "API Endpoints"
-        stations["/api/stations"]
-        routes["/api/routes"]
-        routeById["/api/routes/:id"]
-        schedules["/api/schedules"]
-        stationSchedules["/api/stations/:id/schedules"]
-        reachableStations["/api/stations/:id/reachable"]
-    end
+flowchart TB
+  %% Batch import
+  subgraph Batch Processor
+    DataProcessor[Schedule Data Processor<br/>cron job]
+    ExternalAPI[Yandex.Rasp API]
+    DataProcessor --> ExternalAPI
+    DataProcessor --> DB[(Supabase/Prisma)]
+  end
 
-    subgraph "Controllers"
-        stationController[Station Controller]
-        routeController[Route Controller]
-        scheduleController[Schedule Controller]
-        reachabilityController[Reachability Controller]
-    end
+  %% Runtime API
+  subgraph Express Runtime
+    API[Express.js API]
+    API -->|GET /stations| StationCtrl[StationController]
+    API -->|GET /routes| RouteCtrl[RouteController]
+    API -->|GET /reachability| ReachCtrl[ReachabilityController]
 
-    subgraph "Services"
-        stationService[Station Service]
-        routeService[Route Service]
-        scheduleService[Schedule Service]
-        reachabilityService[Reachability Service]
-        transferService[Transfer Service]
-        yandexRaspService[Yandex.Rasp Service]
-        cacheService[Cache Service]
-    end
+    StationCtrl --> StationSvc[StationService]
+    RouteCtrl   --> RouteSvc[RouteService]
+    ReachCtrl   --> ReachSvc[TransferCalculator]
 
-    stations --> stationController
-    routes --> routeController
-    routeById --> routeController
-    schedules --> scheduleController
-    stationSchedules --> scheduleController
-    reachableStations --> reachabilityController
-
-    stationController --> stationService
-    routeController --> routeService
-    scheduleController --> scheduleService
-    reachabilityController --> reachabilityService
-    reachabilityController --> transferService
-
-    stationService --> yandexRaspService
-    routeService --> yandexRaspService
-    scheduleService --> yandexRaspService
-
-    stationService --> cacheService
-    routeService --> cacheService
-    scheduleService --> cacheService
-    reachabilityService --> cacheService
-    transferService --> cacheService
+    StationSvc  --> DB
+    RouteSvc    --> DB
+    ReachSvc    --> DB
+    ReachSvc    --> Cache[(Redis Cache)]
+  end
 ```
 
 ## Reachability Calculation Flow (Backend)
@@ -164,6 +140,46 @@ flowchart TD
 
     CalculateTransfers --> ReturnResults
     ReturnResults --> Highlight[Highlight stations on map]
+```
+
+## Frontend “Stations / Routes / Reachability” Data Flow
+
+```mermaid
+flowchart LR
+  %% User triggers
+  UI[User Interaction<br/>select station/route/toggle overlay] 
+
+  %% React hooks
+  subgraph Hooks
+    S[useStations]
+    R[useRoutes]
+    V[useReachableStations]
+  end
+
+  %% API client & storage
+  API[React Query<br/>API Client]
+  Store[Zustand Store]
+
+  %% Map overlays
+  Overlays[Map Overlays<br/>RoutesOverlay,<br/>CoverageCircle,<br/>ReachabilityHighlight]
+  Map[Leaflet Map]
+
+  %% Flow
+  UI --> S
+  UI --> R
+  UI --> V
+
+  S --> API
+  R --> API
+  V --> API
+
+  API -->|GET /stations| Backend
+  API -->|GET /routes?stationId=| Backend
+  API -->|GET /reachability?stationId=&maxTransfers=| Backend
+
+  API --> Store
+  Store --> Overlays
+  Overlays --> Map
 ```
 
 ## Feature Implementation Details
@@ -183,8 +199,6 @@ This feature shows which stations can be reached from a selected station:
 - Transfer connections: Stations reachable with N transfers (configurable by user)
 - The backend calculates this using a graph-based algorithm considering:
   - Routes that share stations (transfer points)
-  - Transfer time between stations (if available)
-- Results are cached for performance
 
 ### 3. Coverage Circle vs. Reachable Stations
 
