@@ -3,12 +3,12 @@ export type Success<T> = {
   data: T;
 };
 
-export type Failure = {
+export type Failure<E = string> = {
   success: false;
-  message: string;
+  error: E;
 };
 
-export type Result<T> = Success<T> | Failure;
+export type Result<T, E = string> = Success<T> | Failure<E>;
 
 export function createSuccess<T>(data: T): Success<T> {
   return {
@@ -17,9 +17,9 @@ export function createSuccess<T>(data: T): Success<T> {
   };
 }
 
-export function createFailure(message: string): Failure {
+export function createFailure<E = string>(error: E): Failure<E> {
   return {
     success: false,
-    message,
+    error,
   };
 }

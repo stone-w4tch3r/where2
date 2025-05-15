@@ -1,4 +1,4 @@
-import { fetchStationSchedule, fetchStationsList } from "./src/api";
+import { fetchStationSchedule, fetchStationsList } from "./src/yandex";
 import fs from "fs";
 
 async function saveXToJson() {

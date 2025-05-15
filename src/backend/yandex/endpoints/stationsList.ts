@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Result } from "../../utils/result";
-import { makeYandexApiRequest } from "../../utils/api-helpers";
+import { makeYandexApiRequest } from "../api-helpers";
 import { countrySchema } from "../baseSchemas";
 
 export const stationsListParamsSchema = z.object({

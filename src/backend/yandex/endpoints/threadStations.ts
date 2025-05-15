@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Result } from "../../utils/result";
-import { makeYandexApiRequest } from "../../utils/api-helpers";
+import { makeYandexApiRequest } from "../api-helpers";
 import { threadSchema, intervalSchema } from "../baseSchemas";
 import { threadStopSchema } from "../baseSchemas";
 

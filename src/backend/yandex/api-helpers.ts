@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { z } from "zod";
-import { Result, createSuccess, createFailure } from "./result";
-import config from "../config";
+import { Result, createSuccess, createFailure } from "../utils/result";
+import { yandexApiConfig } from "./apiConfig";
 
 /**
  * Makes an API request and handles common error patterns
@@ -58,13 +58,13 @@ export async function makeYandexApiRequest<T>(
   schema: z.ZodSchema<T>,
   params: Record<string, any> = {}
 ): Promise<Result<T>> {
-  const baseUrl = config.api.yandex.baseUrl;
-  const apiKey = config.api.yandex.apiKey;
+  const baseUrl = yandexApiConfig.baseUrl;
+  const apiKey = yandexApiConfig.apiKey;
 
   return makeApiRequest(baseUrl + endpoint, schema, {
     params: {
       apikey: apiKey,
-      ...config.api.yandex.defaultParams,
+      ...yandexApiConfig.defaultParams,
       ...params,
     },
   });

@@ -34,23 +34,24 @@
 ## File Structure
 
 ```
-/backend
-  /src/api/controllers
-  /src/api/routes
-  /src/api/schemas
-  /src/services
-  /src/external/yandex
-  /src/batch
-  /src/db
-  /src/utils
-  app.ts, server.ts
-/prisma
-/swagger
-/frontend
-  /src/pages/debug
-  /src/components
-  /src/api
-  /src/types
+/src
+  /backend
+    /api/controllers
+    /api/routes
+    /api/schemas
+    /services
+    /yandex
+    /batch
+    /db
+    /utils
+    /prisma
+    /swagger
+    app.ts, server.ts
+  /frontend
+    /pages/debug
+    /components
+    /api
+    /types
 ```
 
 ---
