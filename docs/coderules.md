@@ -13,9 +13,9 @@
 - strict mode. Explicit return types on exports.
 - Use type for unions/aliases, interface for objects.
 - No non-null assertions (!); handle undefined.
-- Apply Result<T, E> pattern for errors.
+- Apply `Result<T, E>` pattern for errors.
 
-### Frontend (React + Next.js)
+### Frontend (React)
 
 - Functional components with hooks.
 - React Query for data fetching; Zustand for UI state.
@@ -30,9 +30,9 @@
 
 ### Error Handling
 
-- Functions return Promise<Result<…>>, not throw.
+- Functions return `Promise<Result<…>>`, not throw.
 - throw/catch only for unrecoverable or global errors.
-- Error pattern in UI: if (!res.success) showError(res.error).
+- Error pattern in UI: `if (!res.success) showError(res.error)`.
 
 ### Backend (Express + Prisma)
 

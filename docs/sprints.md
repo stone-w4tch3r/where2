@@ -23,7 +23,7 @@
 
 ## Frontend
 
-- Create simple Next.js app.
+- Create simple React app.
 - No map, no stores.
 - Basic debug forms using Antd + React Hook Form + Zod:
   - **Load Stations**
@@ -59,7 +59,7 @@
 
 ## Frontend
 
-- Real Next.js page `/map`.
+- Real React page `/map`.
 - Leaflet map + OpenRailwayMap tiles.
 - Add:
   - Routes overlay

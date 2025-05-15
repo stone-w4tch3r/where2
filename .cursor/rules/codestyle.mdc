@@ -1,0 +1,6 @@
+---
+description: Always use when coding
+globs: 
+alwaysApply: false
+---
+[coderules.md](mdc:docs/coderules.md)

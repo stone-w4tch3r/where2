@@ -1,0 +1,6 @@
+---
+description: Use to learn proj high-level architecture
+globs: 
+alwaysApply: false
+---
+[arch.md](mdc:docs/arch.md)

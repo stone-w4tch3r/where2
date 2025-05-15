@@ -3,7 +3,7 @@
 ```mermaid
 flowchart TD
     subgraph "Frontend"
-        UI[Next.js UI]
+        UI[React UI]
         MapComponent[Leaflet Map Component]
         StateManagement[Zustand Store]
         APIClient[React Query API Client]
@@ -249,5 +249,3 @@ flowchart TD
     MaxTransfers --> ReachableStations
     CircleRadius --> HighlightedElements
 ```
-
-
