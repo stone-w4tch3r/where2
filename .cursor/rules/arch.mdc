@@ -1,6 +1,7 @@
 ---
-description: Use to learn proj high-level architecture
+description: Use to learn proj description and high-level architecture
 globs: 
 alwaysApply: false
 ---
 [arch.md](mdc:docs/arch.md)
+[highLevelDescription.md](mdc:docs/highLevelDescription.md)

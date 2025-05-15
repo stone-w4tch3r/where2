@@ -1,0 +1,6 @@
+---
+description: Use for backend-specific architecture
+globs: 
+alwaysApply: false
+---
+[apiToModelTransformation.md](mdc:docs/apiToModelTransformation.md)

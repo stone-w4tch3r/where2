@@ -23,7 +23,7 @@ Yandex Rasp has a lot of data, app will use only Sverdlovsk Region, Russia
 4. selecting a route in menu shows all other stations in this route
 5. user can highlight all stations reachable from this station
 6. option to account for changes
-7. each station shows "reachability" circle with configurable in main menu radius
+7. each station shows "coverage" circle with configurable in main menu radius
 
 ## front
 
