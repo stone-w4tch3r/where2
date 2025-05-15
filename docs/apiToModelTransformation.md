@@ -20,7 +20,7 @@ classDiagram
       Tram
       Metro
     }
-    
+
     %% === Domain Entities ===
     class Station {
       +StationCode id
@@ -47,7 +47,7 @@ classDiagram
       +Integer usedTransfers
       +List~Route~ connectedRoutes
     }
-    
+
     %% === Associations ===
     Station "1" --o "*" Route : isStopOn >
 ```
@@ -75,12 +75,12 @@ flowchart LR
       %% Fetch full thread info per UID
       TUIDs --> ThreadCall[call ThreadStations API<br/>for each UID]
       ThreadCall --> B1[parse ThreadStationsResponse]
-      B1 --> B2[map to Domain Route & stops]
+      B1 --> B2[map to Domain Route & stops\n(map thread_method_link to routeInfoUrl)]
     end
 
     subgraph Persistence
       A2 --> P1[persist Station ➔ STATIONS]
-      B2 --> P3[persist Route ➔ ROUTES]
+      B2 --> P3[persist Route ➔ ROUTES\n(include routeInfoUrl)]
       B2 --> P4[persist RouteStops ➔ ROUTE_STOPS]
     end
 
@@ -112,6 +112,7 @@ erDiagram
       short_title           VARCHAR
       full_title            VARCHAR
       transport_mode        VARCHAR
+      route_info_url        VARCHAR
     }
     ROUTE_STOPS {
       id                  BIGINT PK
