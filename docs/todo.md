@@ -1,1 +1,1 @@
-1. proper routes setup (now in index.ts)
+1. fix express in docs
