@@ -1,4 +1,7 @@
-import { fetchStationSchedule, fetchStationsList } from "./src/yandex";
+import {
+  fetchStationSchedule,
+  fetchStationsList,
+} from "./backend/src/yandex/endpoints";
 import fs from "fs";
 
 async function saveXToJson() {
@@ -12,7 +15,7 @@ async function saveXToJson() {
       fs.writeFileSync(fileName, JSON.stringify(stationsData, null, 2));
       console.log(`Data saved to ${fileName}`);
     } else {
-      console.error("Failed to fetch data:", result.message);
+      console.error("Failed to fetch data:", result.error);
     }
   } catch (error) {
     console.error("An error occurred:", error);

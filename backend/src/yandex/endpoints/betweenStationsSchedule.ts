@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Result } from "../../utils/result";
+import { Result } from "../../utils/Result";
 import { makeYandexApiRequest } from "../api-helpers";
 import {
   paginationSchema,
@@ -62,7 +62,7 @@ const SEARCH_ENDPOINT = "search";
  */
 export const fetchSchedule = async (
   params: BetweenStationsScheduleParams
-): Promise<Result<BetweenStationsScheduleResponse>> => {
+): Promise<Result<BetweenStationsScheduleResponse, string>> => {
   return makeYandexApiRequest(
     SEARCH_ENDPOINT,
     betweenStationsScheduleResponseSchema,

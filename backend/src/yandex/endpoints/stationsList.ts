@@ -1,44 +1,52 @@
-import { YandexRaspClient } from "../client";
-import { Station, StationsListResponse } from "../schemas";
+import { z } from "zod";
 import { Result } from "../../utils/Result";
+import { makeYandexApiRequest } from "../api-helpers";
+import { countrySchema } from "../baseSchemas";
 
-export async function getStationsList(
-  client: YandexRaspClient,
-  params: {
-    country_code?: string;
-    region?: string;
-    transport_type?: string;
-  }
-): Promise<Result<Station[], string>> {
-  const response = await client.getStationsList(params);
+export const stationsListParamsSchema = z.object({
+  /** Response language (e.g. "ru_RU", "uk_UA") */
+  lang: z.string().optional(),
+  /** Response format (json/xml) */
+  format: z.enum(["json", "xml"]).optional(),
+});
 
-  if (!response.success) {
-    return {
-      success: false,
-      error: response.error || "Unknown error",
-    };
-  }
+export type StationsListParams = z.infer<typeof stationsListParamsSchema>;
 
-  try {
-    const data = response.data as StationsListResponse;
+export const stationsListResponseSchema = z.object({
+  countries: z
+    .array(countrySchema)
+    .transform((arr) => arr.filter((c) => c.codes.yandex_code !== undefined))
+    .describe("List of countries with stations"),
+});
 
-    // Filter stations based on transport type if specified
-    let stations = data.stations;
-    if (params.transport_type) {
-      stations = stations.filter(
-        (station) => station.transport_type === params.transport_type
-      );
-    }
+export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
 
-    return {
-      success: true,
-      data: stations,
-    };
-  } catch (error) {
-    console.error("Error processing stations data:", error);
-    return {
-      success: false,
-      error: "Failed to process stations data",
-    };
-  }
-}
+/**
+ * Fetches complete stations list
+ * Note: Response is about 40MB in size, use with caution
+ * @param params - Request parameters
+ * @returns Result with stations list data or error message
+ * @example
+ * ```
+ * const result = await fetchStationsList({
+ *   lang: 'ru_RU',
+ *   format: 'json'
+ * });
+ *
+ * if (result.success) {
+ *   const stationsData = result.data;
+ *   // Do something with the data
+ * } else {
+ *   console.error(result.message);
+ * }
+ * ```
+ */
+export const fetchStationsList = async (
+  params: StationsListParams
+): Promise<Result<StationsListResponse, string>> => {
+  return makeYandexApiRequest(
+    "stations_list",
+    stationsListResponseSchema,
+    params
+  );
+};
