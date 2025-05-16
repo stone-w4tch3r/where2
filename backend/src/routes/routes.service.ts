@@ -1,29 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { RouteOrmService } from "../prisma/route-orm.service";
 
 @Injectable()
 export class RoutesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly routeOrm: RouteOrmService) {}
 
   async findByStation(stationId: string) {
     try {
-      // Get routes for this station
-      const routeStops = await this.prisma.routeStop.findMany({
-        where: { stationId },
-        include: {
-          route: {
-            include: {
-              stops: {
-                include: { station: true },
-                orderBy: { stopPosition: "asc" },
-              },
-            },
-          },
-        },
-      });
-
-      // Extract routes from route stops
-      return routeStops.map((rs) => rs.route);
+      return await this.routeOrm.findRoutesByStation(stationId);
     } catch (error) {
       throw new Error(`Failed to fetch routes: ${error}`);
     }
@@ -31,20 +15,10 @@ export class RoutesService {
 
   async findOne(id: string) {
     try {
-      const route = await this.prisma.route.findUnique({
-        where: { id },
-        include: {
-          stops: {
-            include: { station: true },
-            orderBy: { stopPosition: "asc" },
-          },
-        },
-      });
-
+      const route = await this.routeOrm.findRouteById(id);
       if (!route) {
         throw new Error(`Route not found: ${id}`);
       }
-
       return route;
     } catch (error) {
       throw new Error(`Failed to fetch route: ${error}`);
@@ -53,15 +27,7 @@ export class RoutesService {
 
   async findAll() {
     try {
-      // In a real implementation, this would be paginated
-      return await this.prisma.route.findMany({
-        include: {
-          stops: {
-            include: { station: true },
-            orderBy: { stopPosition: "asc" },
-          },
-        },
-      });
+      return await this.routeOrm.findAllRoutes();
     } catch (error) {
       throw new Error(`Failed to fetch routes: ${error}`);
     }

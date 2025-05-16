@@ -3,6 +3,8 @@ import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import { YandexService } from "../yandex/yandex.service";
 import { YandexStation } from "../yandex/entities/yandex-schemas";
+import { StationOrmService } from "../prisma/station-orm.service";
+import { RouteOrmService } from "../prisma/route-orm.service";
 
 enum TransportMode {
   Train = "train",
@@ -20,8 +22,9 @@ export class DataProcessorService {
   private readonly logger = new Logger(DataProcessorService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly yandexService: YandexService
+    private readonly yandexService: YandexService,
+    private readonly stationOrm: StationOrmService,
+    private readonly routeOrm: RouteOrmService
   ) {}
 
   @Cron("0 0 * * *") // Run daily at midnight
@@ -51,25 +54,14 @@ export class DataProcessorService {
 
       // Step 2: Save stations to database
       for (const yandexStation of sverdlovskStations) {
-        await this.prisma.station.upsert({
-          where: { id: yandexStation.code },
-          update: {
-            fullName: yandexStation.title,
-            transportMode: yandexStation.transport_type,
-            latitude: yandexStation.latitude,
-            longitude: yandexStation.longitude,
-            country: yandexStation.country,
-            region: yandexStation.region,
-          },
-          create: {
-            id: yandexStation.code,
-            fullName: yandexStation.title,
-            transportMode: yandexStation.transport_type,
-            latitude: yandexStation.latitude,
-            longitude: yandexStation.longitude,
-            country: yandexStation.country,
-            region: yandexStation.region,
-          },
+        await this.stationOrm.upsertStation({
+          id: yandexStation.code,
+          fullName: yandexStation.title,
+          transportMode: yandexStation.transport_type,
+          latitude: yandexStation.latitude,
+          longitude: yandexStation.longitude,
+          country: yandexStation.country ?? "",
+          region: yandexStation.region ?? "",
         });
       }
 
@@ -117,40 +109,13 @@ export class DataProcessorService {
               );
 
               // Start a transaction to save route and its stops
-              await this.prisma.$transaction(async (tx) => {
-                // Save the route
-                await tx.route.upsert({
-                  where: { id: threadUid },
-                  update: {
-                    shortTitle: thread.number,
-                    fullTitle: thread.title,
-                    transportMode: transportType,
-                    routeInfoUrl: thread.thread_method_link || null,
-                  },
-                  create: {
-                    id: threadUid,
-                    shortTitle: thread.number,
-                    fullTitle: thread.title,
-                    transportMode: transportType,
-                    routeInfoUrl: thread.thread_method_link || null,
-                  },
-                });
-
-                // Delete existing route stops
-                await tx.routeStop.deleteMany({
-                  where: { routeId: threadUid },
-                });
-
-                // Add new route stops
-                for (let i = 0; i < stopIds.length; i++) {
-                  await tx.routeStop.create({
-                    data: {
-                      routeId: threadUid,
-                      stationId: stopIds[i],
-                      stopPosition: i,
-                    },
-                  });
-                }
+              await this.routeOrm.upsertRouteWithStops({
+                threadUid,
+                shortTitle: thread.number,
+                fullTitle: thread.title,
+                transportType,
+                routeInfoUrl: thread.thread_method_link || null,
+                stopIds,
               });
 
               routeCount++;

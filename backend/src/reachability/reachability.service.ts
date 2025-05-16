@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { StationOrmService } from "../prisma/station-orm.service";
+import { RouteOrmService } from "../prisma/route-orm.service";
 
 export interface ReachabilityResult {
   origin: string;
@@ -16,7 +17,10 @@ export interface ReachabilityResult {
  */
 @Injectable()
 export class ReachabilityService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly stationOrm: StationOrmService,
+    private readonly routeOrm: RouteOrmService
+  ) {}
 
   /**
    * Calculate all stations reachable from a given origin station
@@ -28,19 +32,15 @@ export class ReachabilityService {
   ): Promise<ReachabilityResult> {
     try {
       // Get the origin station
-      const originStation = await this.prisma.station.findUnique({
-        where: { id: originId },
-      });
+      const originStation = await this.stationOrm.findOne(originId);
 
       if (!originStation) {
         throw new Error(`Origin station not found: ${originId}`);
       }
 
       // Get all routes that contain this station
-      const originRouteStops = await this.prisma.routeStop.findMany({
-        where: { stationId: originId },
-        include: { route: true },
-      });
+      const originRouteStops =
+        await this.routeOrm.findRouteStopsByStation(originId);
 
       const originRoutes = originRouteStops.map((rs) => rs.route);
 
@@ -60,11 +60,7 @@ export class ReachabilityService {
         const routeId = route.id;
 
         // Get all stops for this route
-        const routeStops = await this.prisma.routeStop.findMany({
-          where: { routeId },
-          include: { station: true },
-          orderBy: { stopPosition: "asc" },
-        });
+        const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
 
         for (const stop of routeStops) {
           const stopId = stop.stationId;
@@ -89,10 +85,8 @@ export class ReachabilityService {
         }
 
         // Get all routes for this station
-        const stationRouteStops = await this.prisma.routeStop.findMany({
-          where: { stationId },
-          include: { route: true },
-        });
+        const stationRouteStops =
+          await this.routeOrm.findRouteStopsByStation(stationId);
 
         const stationRoutes = stationRouteStops.map((rs) => rs.route);
 
@@ -110,11 +104,7 @@ export class ReachabilityService {
           updatedRoutes.add(routeId);
 
           // Get all stops for this route
-          const routeStops = await this.prisma.routeStop.findMany({
-            where: { routeId },
-            include: { station: true },
-            orderBy: { stopPosition: "asc" },
-          });
+          const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
 
           // For each stop in this route
           for (const stop of routeStops) {
@@ -149,9 +139,7 @@ export class ReachabilityService {
           continue;
         }
 
-        const station = await this.prisma.station.findUnique({
-          where: { id: stationId },
-        });
+        const station = await this.stationOrm.findOne(stationId);
 
         if (!station) {
           console.warn(
@@ -161,10 +149,8 @@ export class ReachabilityService {
         }
 
         // Get routes that connect this station
-        const routeStops = await this.prisma.routeStop.findMany({
-          where: { stationId },
-          include: { route: true },
-        });
+        const routeStops =
+          await this.routeOrm.findRouteStopsByStation(stationId);
 
         const routes = routeStops.map((rs) => rs.route);
 
