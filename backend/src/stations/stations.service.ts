@@ -1,10 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { BaseService } from "../utils/base.service.js";
-import { Result, ResultUtils } from "../utils/Result.js";
-import { Prisma, Station } from "@prisma/client";
-import { CreateStationDto } from "./dto/create-station.dto.js";
-import { UpdateStationDto } from "./dto/update-station.dto.js";
+import { Result } from "../utils/Result.js";
+import { Station } from "@prisma/client";
 
 @Injectable()
 export class StationsService extends BaseService {
@@ -39,81 +37,6 @@ export class StationsService extends BaseService {
         },
       });
     }, `Failed to find stations by name: ${name}`);
-  }
-
-  async create(data: CreateStationDto): Promise<Result<Station>> {
-    try {
-      const station = await this.prisma.station.create({
-        data,
-      });
-      return ResultUtils.success(station);
-    } catch (error: unknown) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === "P2002") {
-          return ResultUtils.error(
-            "A station with this identifier already exists",
-            "CONFLICT"
-          );
-        }
-      }
-
-      const err = error as Error;
-      this.logger.error(`Failed to create station: ${err.message}`, err.stack);
-      return ResultUtils.error("Failed to create station", "INTERNAL_ERROR");
-    }
-  }
-
-  async update(id: string, data: UpdateStationDto): Promise<Result<Station>> {
-    try {
-      // First check if the station exists
-      const existingStation = await this.prisma.station.findUnique({
-        where: { id },
-      });
-
-      if (!existingStation) {
-        return ResultUtils.error(
-          `Station with id ${id} not found`,
-          "NOT_FOUND"
-        );
-      }
-
-      const updatedStation = await this.prisma.station.update({
-        where: { id },
-        data,
-      });
-
-      return ResultUtils.success(updatedStation);
-    } catch (error: unknown) {
-      const err = error as Error;
-      this.logger.error(`Failed to update station: ${err.message}`, err.stack);
-      return ResultUtils.error("Failed to update station", "INTERNAL_ERROR");
-    }
-  }
-
-  async remove(id: string): Promise<Result<Station>> {
-    try {
-      // First check if the station exists
-      const existingStation = await this.prisma.station.findUnique({
-        where: { id },
-      });
-
-      if (!existingStation) {
-        return ResultUtils.error(
-          `Station with id ${id} not found`,
-          "NOT_FOUND"
-        );
-      }
-
-      const deletedStation = await this.prisma.station.delete({
-        where: { id },
-      });
-
-      return ResultUtils.success(deletedStation);
-    } catch (error: unknown) {
-      const err = error as Error;
-      this.logger.error(`Failed to delete station: ${err.message}`, err.stack);
-      return ResultUtils.error("Failed to delete station", "INTERNAL_ERROR");
-    }
   }
 
   async findByCoordinates(

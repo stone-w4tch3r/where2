@@ -1,11 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Param,
-  Put,
-  Delete,
   Query,
 } from "@nestjs/common";
 import {
@@ -16,8 +12,6 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { StationsService } from "./stations.service";
-import { CreateStationDto } from "./dto/create-station.dto";
-import { UpdateStationDto } from "./dto/update-station.dto";
 import { FindByLocationDto } from "./dto/find-by-location.dto";
 
 @ApiTags("stations")
@@ -62,47 +56,6 @@ export class StationsController {
       query.longitude,
       query.radius
     );
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
-  }
-
-  @ApiOperation({ summary: "Create a new station" })
-  @ApiResponse({ status: 201, description: "Station created successfully" })
-  @Post()
-  async create(@Body() createStationDto: CreateStationDto) {
-    const result = await this.stationsService.create(createStationDto);
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
-  }
-
-  @ApiOperation({ summary: "Update a station" })
-  @ApiParam({ name: "id", description: "Station ID" })
-  @ApiResponse({ status: 200, description: "Station updated successfully" })
-  @Put(":id")
-  async update(
-    @Param("id") id: string,
-    @Body() updateStationDto: UpdateStationDto
-  ) {
-    const result = await this.stationsService.update(id, updateStationDto);
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
-  }
-
-  @ApiOperation({ summary: "Delete a station" })
-  @ApiParam({ name: "id", description: "Station ID" })
-  @ApiResponse({ status: 200, description: "Station deleted successfully" })
-  @Delete(":id")
-  async remove(@Param("id") id: string) {
-    const result = await this.stationsService.remove(id);
     if (result.success) {
       return result.data;
     } else {
