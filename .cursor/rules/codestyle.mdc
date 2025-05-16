@@ -1,6 +1,6 @@
 ---
-description: Always use when coding
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 [coderules.md](mdc:docs/coderules.md)
