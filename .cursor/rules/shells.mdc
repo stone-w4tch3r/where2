@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+On macos/linux prefere bash/zsh instead of powershell
