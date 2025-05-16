@@ -1,10 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
-import { PrismaService } from "../prisma/prisma.service";
 import { YandexService } from "../yandex/yandex.service";
 import { YandexStation } from "../yandex/entities/yandex-schemas";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
+import { ConfigService } from "@nestjs/config";
 
 enum TransportMode {
   Train = "train",
@@ -24,10 +23,26 @@ export class DataProcessorService {
   constructor(
     private readonly yandexService: YandexService,
     private readonly stationOrm: StationOrmService,
-    private readonly routeOrm: RouteOrmService
+    private readonly routeOrm: RouteOrmService,
+    private readonly configService: ConfigService
   ) {}
 
-  @Cron("0 0 * * *") // Run daily at midnight
+  private cronJob: any;
+
+  onModuleInit() {
+    const cron = this.configService.get<string>("DATA_IMPORT_CRON") || "";
+    const enabled =
+      this.configService.get<string>("DATA_IMPORT_ENABLED") === "true" &&
+      cron !== "";
+    if (enabled) {
+      const schedule = require("@nestjs/schedule");
+      this.cronJob = schedule.Cron(cron, { timeZone: "UTC" })(
+        this,
+        "handleDailyDataProcessing"
+      );
+    }
+  }
+
   async handleDailyDataProcessing() {
     this.logger.log("Running daily data processing");
     await this.processAllData();
