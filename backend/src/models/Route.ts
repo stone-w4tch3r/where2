@@ -25,7 +25,8 @@ export class Route {
     public readonly number: string,
     public readonly title: string,
     public readonly transportType: TransportMode,
-    public readonly stops: StationId[]
+    public readonly stops: StationId[],
+    public readonly routeInfoUrl: string | null
   ) {}
 
   static fromYandexThread(thread: any, stops: StationId[]): Route {
@@ -34,7 +35,8 @@ export class Route {
       thread.number,
       thread.title,
       thread.transport_type as TransportMode,
-      stops
+      stops,
+      thread.thread_method_link || null
     );
   }
 
@@ -46,6 +48,7 @@ export class Route {
       title: this.title,
       transportType: this.transportType,
       stops: this.stops.map((s) => s.toString()),
+      routeInfoUrl: this.routeInfoUrl,
     };
   }
 }
@@ -57,6 +60,7 @@ export const RouteResponseSchema = z.object({
   title: z.string(),
   transportType: z.nativeEnum(TransportMode),
   stops: z.array(z.string()),
+  routeInfoUrl: z.string().nullable(),
 });
 
 export type RouteResponse = z.infer<typeof RouteResponseSchema>;

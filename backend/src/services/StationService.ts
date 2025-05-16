@@ -1,9 +1,9 @@
 import { Station, StationId } from "../models/Station";
-import { YandexRaspClient } from "../yandex/client";
+import { DatabaseService } from "./DatabaseService";
 import { Result, success, failure } from "../utils/Result";
 
 export class StationService {
-  constructor(private readonly yandexClient: YandexRaspClient) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   async getStations(params: {
     countryCode?: string;
@@ -11,18 +11,31 @@ export class StationService {
     transportType?: string;
   }): Promise<Result<Station[]>> {
     try {
-      const result = await this.yandexClient.getStationsList({
-        country_code: params.countryCode,
-        region: params.region,
-        transport_type: params.transportType,
-      });
+      // Get all stations from database
+      const stations = await this.dbService.getAllStations();
 
-      if (!result.success) {
-        return failure(new Error(result.error));
+      // Apply filters if provided
+      let filteredStations = stations;
+
+      if (params.countryCode) {
+        filteredStations = filteredStations.filter(
+          (s) => s.country === params.countryCode
+        );
       }
 
-      const stations = result.data.stations.map(Station.fromYandexStation);
-      return success(stations);
+      if (params.region) {
+        filteredStations = filteredStations.filter((s) =>
+          s.region?.toLowerCase().includes(params.region!.toLowerCase())
+        );
+      }
+
+      if (params.transportType) {
+        filteredStations = filteredStations.filter(
+          (s) => s.mode === params.transportType
+        );
+      }
+
+      return success(filteredStations);
     } catch (error) {
       return failure(new Error(`Failed to fetch stations: ${error}`));
     }
@@ -30,19 +43,7 @@ export class StationService {
 
   async getStationById(stationId: StationId): Promise<Result<Station>> {
     try {
-      // In a real app, this would query a database
-      // For now, we'll fetch all stations and find by ID
-      const stationsResult = await this.getStations({
-        region: "sverdlovsk", // Default to Sverdlovsk region
-      });
-
-      if (!stationsResult.success) {
-        return stationsResult;
-      }
-
-      const station = stationsResult.data.find(
-        (s) => s.id.toString() === stationId.toString()
-      );
+      const station = await this.dbService.getStationById(stationId.toString());
 
       if (!station) {
         return failure(new Error(`Station not found: ${stationId}`));

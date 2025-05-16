@@ -16,6 +16,7 @@ export type ScheduleItem = {
     };
     transport_type: string;
     vehicle: string | null;
+    thread_method_link?: string;
   };
   stops: string;
   departure: string;
@@ -34,4 +35,8 @@ export type YandexStation = {
   transport_type: string;
   latitude: number;
   longitude: number;
+  country?: string;
+  region?: string;
+  popular_title?: string;
+  short_title?: string;
 };

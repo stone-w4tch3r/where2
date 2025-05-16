@@ -18,6 +18,10 @@ export enum TransportMode {
   Bus = "bus",
   Tram = "tram",
   Metro = "metro",
+  Suburban = "suburban",
+  Water = "water",
+  Helicopter = "helicopter",
+  Plane = "plane",
 }
 
 export class Coordinates {

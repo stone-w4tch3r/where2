@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { TransferCalculator } from "../services/TransferCalculator";
-import { ReachabilityQuery } from "../models/Reachability";
 import { StationId } from "../models/Station";
 
 export class ReachabilityController {
@@ -19,12 +18,11 @@ export class ReachabilityController {
     try {
       const { stationId, maxTransfers } = reachabilitySchema.parse(req.query);
 
-      const query = new ReachabilityQuery(
-        new StationId(stationId),
-        maxTransfers
-      );
+      const stationIdObj = new StationId(stationId);
+
       const result = await this.transferCalculator.calculateReachableStations(
-        query
+        stationIdObj,
+        maxTransfers
       );
 
       if (result.success) {

@@ -8,6 +8,8 @@ import { StationController } from "./controllers/stationController";
 import { RouteController } from "./controllers/routeController";
 import { ReachabilityController } from "./controllers/reachabilityController";
 import { createApiRouter } from "./routes/api";
+import { DatabaseService } from "./services/DatabaseService";
+import { DataProcessor } from "./services/DataProcessor";
 import { YandexRaspClient } from "./yandex/client";
 
 // Load environment variables
@@ -28,10 +30,16 @@ if (!apiKey) {
 }
 const yandexClient = new YandexRaspClient(apiKey);
 
+// Initialize database service
+const databaseService = new DatabaseService();
+
+// Initialize data processor for batch imports
+const dataProcessor = new DataProcessor(yandexClient, databaseService);
+
 // Initialize services
-const stationService = new StationService(yandexClient);
-const routeService = new RouteService(yandexClient);
-const transferCalculator = new TransferCalculator(routeService);
+const stationService = new StationService(databaseService);
+const routeService = new RouteService(databaseService);
+const transferCalculator = new TransferCalculator(databaseService);
 
 // Initialize controllers
 const stationController = new StationController(stationService);
@@ -51,7 +59,29 @@ app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok" });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Initialize the database connection
+databaseService.init().then((connected) => {
+  if (connected) {
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    // Add route for manually triggering data processing
+    app.post(
+      "/api/admin/process-data",
+      async (_req: Request, res: Response) => {
+        const result = await dataProcessor.processAllData();
+
+        if (result.success) {
+          res.json({ success: true, message: result.data });
+        } else {
+          res.status(500).json({ success: false, error: result.error });
+        }
+      }
+    );
+  } else {
+    console.error("Failed to connect to database. Exiting...");
+    process.exit(1);
+  }
 });
