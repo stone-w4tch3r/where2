@@ -19,7 +19,7 @@ export interface ReachabilityResult {
 export class ReachabilityService {
   constructor(
     private readonly stationOrm: StationOrmService,
-    private readonly routeOrm: RouteOrmService
+    private readonly routeOrm: RouteOrmService,
   ) {}
 
   /**
@@ -28,7 +28,7 @@ export class ReachabilityService {
    */
   async calculateReachableStations(
     originId: string,
-    maxTransfers: number
+    maxTransfers: number,
   ): Promise<ReachabilityResult> {
     try {
       // Get the origin station
@@ -143,7 +143,7 @@ export class ReachabilityService {
 
         if (!station) {
           console.warn(
-            `Station ${stationId} not found in database but was in reachability results`
+            `Station ${stationId} not found in database but was in reachability results`,
           );
           continue;
         }

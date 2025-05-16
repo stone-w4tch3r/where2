@@ -16,7 +16,7 @@ export class PrismaService
       const result = spawn.sync("pnpm", [cmd, ...args], { stdio: "inherit" });
       if (result.status !== 0) {
         console.error(
-          `Failed to run: pnpm ${cmd} ${(args as string[]).join(" ")}`
+          `Failed to run: pnpm ${cmd} ${(args as string[]).join(" ")}`,
         );
         process.exit(result.status || 1);
       }

@@ -6,4 +6,3 @@ export enum TransportMode {
   SUBURBAN = "suburban",
   UNDERGROUND = "underground",
 }
-

@@ -58,7 +58,7 @@ export const stationScheduleResponseSchema = z.object({
         departure: z.string().describe("Departure time in ISO 8601"),
         terminal: z.string().nullable().describe("Airport terminal"),
         platform: z.string().describe("Platform or track number"),
-      })
+      }),
     )
     .describe("List of scheduled services"),
   interval_schedule: z
@@ -71,7 +71,7 @@ export const stationScheduleResponseSchema = z.object({
         stops: z.string().max(1000),
         terminal: z.string().nullable(),
         platform: z.string(),
-      })
+      }),
     )
     .describe("List of interval-based services"),
   schedule_direction: directionSchema
@@ -125,7 +125,7 @@ export const fetchStationSchedule = async (
     baseUrl: string;
     apiKey: string;
     defaultParams: Record<string, any>;
-  }
+  },
 ): Promise<Result<StationScheduleResponse>> => {
   const axios = (await import("axios")).default;
   const { baseUrl, apiKey, defaultParams } = config;

@@ -33,10 +33,10 @@ export class ResultInterceptor implements NestInterceptor {
                   ? result.error
                   : "Unknown error",
             },
-            HttpStatus.INTERNAL_SERVER_ERROR
+            HttpStatus.INTERNAL_SERVER_ERROR,
           );
         }
-      })
+      }),
     );
   }
 }

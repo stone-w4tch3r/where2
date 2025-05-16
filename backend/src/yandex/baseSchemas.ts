@@ -118,7 +118,7 @@ export const ticketsInfoSchema = z
       .array(
         placeSchema.extend({
           name: z.string().nullable().describe("Ticket type name"),
-        })
+        }),
       )
       .describe("Available ticket types and prices"),
   })
@@ -177,7 +177,7 @@ export const intervalSchema = z.object({
   density: z
     .string()
     .describe(
-      'Interval description (e.g. "маршрутное такси раз в 15-30 минут")'
+      'Interval description (e.g. "маршрутное такси раз в 15-30 минут")',
     ),
   begin_time: z.string().describe("Service begin time in ISO 8601"),
   end_time: z.string().describe("Service end time in ISO 8601"),
@@ -246,12 +246,10 @@ export const stationListItemSchema = z
     longitude: z
       .union([z.number(), z.literal("")])
       .describe("Station longitude"),
-    latitude: z
-      .union([z.number(), z.literal("")])
-      .describe("Station latitude"),
+    latitude: z.union([z.number(), z.literal("")]).describe("Station latitude"),
   })
   .describe(
-    'If a station has latitude or longitude equal to "", it is invalid'
+    'If a station has latitude or longitude equal to "", it is invalid',
   );
 
 // Settlement schema
@@ -266,7 +264,7 @@ export const settlementSchema = z.object({
   stations: z
     .array(stationListItemSchema)
     .transform((arr) =>
-      arr.filter((s) => s.latitude !== "" && s.longitude !== "")
+      arr.filter((s) => s.latitude !== "" && s.longitude !== ""),
     )
     .describe("List of stations in settlement"),
 });

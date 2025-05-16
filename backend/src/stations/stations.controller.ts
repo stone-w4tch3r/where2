@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Param, Query } from "@nestjs/common";
 import {
   ApiOperation,
   ApiParam,
@@ -54,7 +49,7 @@ export class StationsController {
     const result = await this.stationsService.findByCoordinates(
       query.latitude,
       query.longitude,
-      query.radius
+      query.radius,
     );
     if (result.success) {
       return result.data;

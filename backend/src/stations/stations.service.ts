@@ -11,7 +11,7 @@ export class StationsService {
 
   private async executeWithResult<T>(
     operation: () => Promise<T> | T,
-    errorMessage = "Operation failed"
+    errorMessage = "Operation failed",
   ): Promise<Result<T>> {
     try {
       const result = await operation();
@@ -26,7 +26,7 @@ export class StationsService {
   private handleNotFound<T>(
     data: T | null | undefined,
     entityName: string,
-    identifier?: string
+    identifier?: string,
   ): Result<T> {
     if (!data) {
       const idString = identifier ? ` with id ${identifier}` : "";
@@ -38,7 +38,7 @@ export class StationsService {
   async findAll(): Promise<Result<Station[]>> {
     return this.executeWithResult(
       () => this.stationOrm.findMany(),
-      "Failed to fetch stations"
+      "Failed to fetch stations",
     );
   }
 
@@ -56,7 +56,7 @@ export class StationsService {
   async findByCoordinates(
     latitude: number,
     longitude: number,
-    radiusKm: number
+    radiusKm: number,
   ): Promise<Result<Station[]>> {
     return this.executeWithResult(async () => {
       return this.stationOrm.findByCoordinates(latitude, longitude, radiusKm);

@@ -70,7 +70,7 @@ export const fetchSchedule = async (
     baseUrl: string;
     apiKey: string;
     defaultParams: Record<string, any>;
-  }
+  },
 ): Promise<Result<BetweenStationsScheduleResponse>> => {
   const axios = (await import("axios")).default;
   const { baseUrl, apiKey, defaultParams } = config;
@@ -83,7 +83,7 @@ export const fetchSchedule = async (
       },
     });
     const parsedData = betweenStationsScheduleResponseSchema.parse(
-      response.data
+      response.data,
     );
     return resultSuccess(parsedData);
   } catch (error: any) {

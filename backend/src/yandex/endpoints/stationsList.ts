@@ -51,7 +51,7 @@ export const fetchStationsList = async (
     baseUrl: string;
     apiKey: string;
     defaultParams: Record<string, any>;
-  }
+  },
 ): Promise<Result<StationsListResponse>> => {
   const axios = (await import("axios")).default;
   const { baseUrl, apiKey, defaultParams } = config;

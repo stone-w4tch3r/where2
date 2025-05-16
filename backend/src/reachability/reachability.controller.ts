@@ -21,12 +21,12 @@ export class ReachabilityController {
   })
   @Get()
   async getReachableStations(
-    @Query() query: ReachabilityQueryDto
+    @Query() query: ReachabilityQueryDto,
   ): Promise<ReachabilityResult> {
     try {
       return await this.reachabilityService.calculateReachableStations(
         query.stationId,
-        query.maxTransfers
+        query.maxTransfers,
       );
     } catch (error) {
       throw error;

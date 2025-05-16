@@ -59,7 +59,7 @@ export class StationOrmService {
   async findByCoordinates(
     latitude: number,
     longitude: number,
-    radiusKm: number
+    radiusKm: number,
   ) {
     const radiusDegrees = radiusKm / 111.32;
     return this.prisma.station.findMany({

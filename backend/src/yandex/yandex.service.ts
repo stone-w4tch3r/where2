@@ -62,7 +62,7 @@ export class YandexService {
           format: "json",
           lang: "ru_RU",
         },
-        this.getApiConfig()
+        this.getApiConfig(),
       );
       if (result.success) {
         return result.data;
@@ -86,7 +86,7 @@ export class YandexService {
           format: "json",
           lang: "ru_RU",
         },
-        this.getApiConfig()
+        this.getApiConfig(),
       );
       if (result.success) {
         return result.data;
@@ -109,7 +109,7 @@ export class YandexService {
           format: "json",
           lang: "ru_RU",
         },
-        this.getApiConfig()
+        this.getApiConfig(),
       );
       if (result.success) {
         // Transform the response to match the expected format with stations array
@@ -175,7 +175,7 @@ export class YandexService {
     try {
       const result = await fetchSchedule(
         { from, to, date },
-        this.getApiConfig()
+        this.getApiConfig(),
       );
       if (result.success) {
         return result.data;
@@ -204,7 +204,7 @@ export class YandexService {
           to: params.to,
           date: params.date,
         },
-        this.getApiConfig()
+        this.getApiConfig(),
       );
       if (result.success) {
         return result.data;

@@ -24,7 +24,7 @@ export class DataProcessorService {
     private readonly yandexService: YandexService,
     private readonly stationOrm: StationOrmService,
     private readonly routeOrm: RouteOrmService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   private cronJob: any;
@@ -38,7 +38,7 @@ export class DataProcessorService {
       const schedule = require("@nestjs/schedule");
       this.cronJob = schedule.Cron(cron, { timeZone: "UTC" })(
         this,
-        "handleDailyDataProcessing"
+        "handleDailyDataProcessing",
       );
     }
   }
@@ -60,11 +60,11 @@ export class DataProcessorService {
 
       // Filter stations for Sverdlovsk region
       const sverdlovskStations = stationsResponse.stations.filter(
-        (station: YandexStation) => station.region === "Свердловская область"
+        (station: YandexStation) => station.region === "Свердловская область",
       );
 
       this.logger.log(
-        `Found ${sverdlovskStations.length} stations in Sverdlovsk region`
+        `Found ${sverdlovskStations.length} stations in Sverdlovsk region`,
       );
 
       // Step 2: Save stations to database
@@ -120,7 +120,7 @@ export class DataProcessorService {
               const stopIds = threadData.stops.map((stop) => stop.station.code);
 
               const transportType = this.mapTransportType(
-                thread.transport_type
+                thread.transport_type,
               );
 
               // Start a transaction to save route and its stops
@@ -136,21 +136,21 @@ export class DataProcessorService {
               routeCount++;
             } catch (threadError) {
               this.logger.error(
-                `Failed to fetch thread ${threadUid}: ${threadError}`
+                `Failed to fetch thread ${threadUid}: ${threadError}`,
               );
               continue;
             }
           }
         } catch (scheduleError) {
           this.logger.error(
-            `Failed to fetch schedule for station ${stationId}: ${scheduleError}`
+            `Failed to fetch schedule for station ${stationId}: ${scheduleError}`,
           );
           continue;
         }
       }
 
       this.logger.log(
-        `Processed ${routeCount} routes from ${processedThreads.size} threads`
+        `Processed ${routeCount} routes from ${processedThreads.size} threads`,
       );
 
       return `Successfully processed ${sverdlovskStations.length} stations and ${routeCount} routes`;
