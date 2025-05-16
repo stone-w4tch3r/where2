@@ -1,30 +1,42 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import { YandexStation, ScheduleItem } from "./entities/yandex-schemas";
+import { StationsListResponse } from "./endpoints/stationsList";
 
-interface YandexStation {
-  title: string;
-  code: string;
-  station_type: string;
-  transport_type: string;
-  latitude: number;
-  longitude: number;
-  country?: string;
-  region?: string;
-}
+// Import endpoint handlers
+import { fetchStationSchedule } from "./endpoints/stationSchedule";
+import { fetchThreadStations } from "./endpoints/threadStations";
+import { fetchStationsList } from "./endpoints/stationsList";
+import { fetchSchedule } from "./endpoints/betweenStationsSchedule";
 
 @Injectable()
 export class YandexService {
   private apiKey: string;
   private baseUrl: string;
-  private defaultLang: "ru_RU" | "uk_UA";
-  private defaultFormat: "json" | "xml";
+  private readonly logger = new Logger(YandexService.name);
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>("YANDEX_API_KEY");
+    const apiKey = this.configService.get<string>("YANDEX_API_KEY");
+    if (!apiKey) {
+      throw new Error("YANDEX_API_KEY is not defined in environment variables");
+    }
+    this.apiKey = apiKey;
     this.baseUrl = "https://api.rasp.yandex.net/v3.0";
-    this.defaultLang = "ru_RU";
-    this.defaultFormat = "json";
+  }
+
+  /**
+   * Creates an axios instance with default configuration
+   */
+  private createApiInstance(): AxiosInstance {
+    return axios.create({
+      baseURL: this.baseUrl,
+      params: {
+        apikey: this.apiKey,
+        format: "json",
+        lang: "ru_RU",
+      },
+    });
   }
 
   /**
@@ -32,19 +44,20 @@ export class YandexService {
    */
   async getStationSchedule(params: { station: string; date?: string }) {
     try {
-      const response = await axios.get(`${this.baseUrl}/schedule`, {
-        params: {
-          apikey: this.apiKey,
-          station: params.station,
-          date: params.date,
-          lang: this.defaultLang,
-          format: this.defaultFormat,
-        },
+      const result = await fetchStationSchedule({
+        station: params.station,
+        date: params.date,
+        format: "json",
+        lang: "ru_RU",
       });
-
-      return response.data;
-    } catch (error) {
-      throw new Error(`Error fetching station schedule: ${error}`);
+      if (result.success) {
+        return result.data;
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error fetching station schedule: ${error.message}`);
+      throw new Error(`Error fetching station schedule: ${error.message}`);
     }
   }
 
@@ -53,18 +66,19 @@ export class YandexService {
    */
   async getThreadStations(params: { uid: string }) {
     try {
-      const response = await axios.get(`${this.baseUrl}/thread`, {
-        params: {
-          apikey: this.apiKey,
-          uid: params.uid,
-          lang: this.defaultLang,
-          format: this.defaultFormat,
-        },
+      const result = await fetchThreadStations({
+        uid: params.uid,
+        format: "json",
+        lang: "ru_RU",
       });
-
-      return response.data;
-    } catch (error) {
-      throw new Error(`Error fetching thread stations: ${error}`);
+      if (result.success) {
+        return result.data;
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error fetching thread stations: ${error.message}`);
+      throw new Error(`Error fetching thread stations: ${error.message}`);
     }
   }
 
@@ -73,43 +87,65 @@ export class YandexService {
    */
   async getStationsList(): Promise<{ stations: YandexStation[] }> {
     try {
-      const response = await axios.get(`${this.baseUrl}/stations_list`, {
-        params: {
-          apikey: this.apiKey,
-          lang: this.defaultLang,
-          format: this.defaultFormat,
-        },
+      const result = await fetchStationsList({
+        format: "json",
+        lang: "ru_RU",
       });
-
-      // Transform the response to match the expected format
-      const stations: YandexStation[] = [];
-
-      // Extract stations from the countries->regions->settlements->stations structure
-      response.data.countries.forEach((country) => {
-        country.regions.forEach((region) => {
-          region.settlements.forEach((settlement) => {
-            settlement.stations.forEach((station) => {
-              stations.push({
-                title: station.title,
-                code: station.codes.yandex_code || "",
-                station_type: station.station_type || "",
-                transport_type: station.transport_type,
-                latitude:
-                  typeof station.latitude === "number" ? station.latitude : 0,
-                longitude:
-                  typeof station.longitude === "number" ? station.longitude : 0,
-                country: country.title,
-                region: region.title,
-              });
-            });
-          });
-        });
-      });
-
-      return { stations };
-    } catch (error) {
-      throw new Error(`Error processing stations list: ${error}`);
+      if (result.success) {
+        // Transform the response to match the expected format with stations array
+        return this.transformStationsResponse(result.data);
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error fetching stations list: ${error.message}`);
+      throw new Error(`Error fetching stations list: ${error.message}`);
     }
+  }
+
+  /**
+   * Transform the stations list response into a flattened stations array
+   */
+  private transformStationsResponse(response: StationsListResponse): {
+    stations: YandexStation[];
+  } {
+    // Extract and flatten stations from all countries, regions, and settlements
+    const stations: YandexStation[] = [];
+
+    if (response.countries) {
+      response.countries.forEach((country) => {
+        if (country.regions) {
+          country.regions.forEach((region) => {
+            if (region.settlements) {
+              region.settlements.forEach((settlement) => {
+                if (settlement.stations) {
+                  settlement.stations.forEach((station) => {
+                    // Get the Yandex code from codes object
+                    const code =
+                      station.codes?.yandex_code ||
+                      station.codes?.esr_code ||
+                      `station_${stations.length}`;
+
+                    stations.push({
+                      code: code,
+                      title: station.title,
+                      station_type: station.station_type || "",
+                      transport_type: station.transport_type,
+                      latitude: station.latitude || 0,
+                      longitude: station.longitude || 0,
+                      country: country.title,
+                      region: region.title,
+                    });
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
+    return { stations };
   }
 
   /**
@@ -117,20 +153,41 @@ export class YandexService {
    */
   async getSchedule(from: string, to: string, date: string) {
     try {
-      const response = await axios.get(`${this.baseUrl}/search`, {
-        params: {
-          apikey: this.apiKey,
-          from,
-          to,
-          date,
-          lang: this.defaultLang,
-          format: this.defaultFormat,
-        },
-      });
+      const result = await fetchSchedule({ from, to, date });
+      if (result.success) {
+        return result.data;
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error fetching schedule: ${error.message}`);
+      throw new Error(`Error fetching schedule: ${error.message}`);
+    }
+  }
 
-      return response.data;
-    } catch (error) {
-      throw new Error(`Error fetching schedule: ${error}`);
+  /**
+   * Search for routes between stations with a departure date within the specified timeframe
+   */
+  async searchRoutes(params: {
+    from: string;
+    to: string;
+    date: string;
+    transport_types?: string;
+  }) {
+    try {
+      const result = await fetchSchedule({
+        from: params.from,
+        to: params.to,
+        date: params.date,
+      });
+      if (result.success) {
+        return result.data;
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error searching routes: ${error.message}`);
+      throw new Error(`Error searching routes: ${error.message}`);
     }
   }
 }

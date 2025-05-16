@@ -2,15 +2,19 @@
     "compilerOptions": {
         /* Basic Options */
         "target": "ES2022",
-        "module": "NodeNext",
+        "module": "ESNext",
         "outDir": "./dist",
         "sourceMap": true,
         "declaration": true,
         /* Module Resolution Options */
-        "moduleResolution": "NodeNext",
+        "moduleResolution": "Node",
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "typeRoots": [
+            "./node_modules/@types",
+            "./src/types"
+        ],
         /* Type Checking Options */
         "strict": true,
         "noImplicitReturns": true,
@@ -23,7 +27,11 @@
             "*": [
                 "node_modules/*"
             ]
-        }
+        },
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "emitDeclarationOnly": false,
+        "noEmit": true
     },
     "include": [
         "src/**/*"

@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { Result } from "./result";
+import { Result } from "./Result";
 
 @Injectable()
 export class ResultInterceptor implements NestInterceptor {

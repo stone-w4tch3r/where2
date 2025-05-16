@@ -6,18 +6,18 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-import { TransportMode } from "@prisma/client";
+import { TransportMode } from "../../shared/dto/transport-mode.dto";
 
 export class CreateStationDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  id: string;
+  id!: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  fullName: string;
+  fullName!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -31,15 +31,15 @@ export class CreateStationDto {
 
   @ApiProperty({ enum: TransportMode })
   @IsEnum(TransportMode)
-  transportMode: TransportMode;
+  transportMode!: TransportMode;
 
   @ApiProperty()
   @IsNumber()
-  latitude: number;
+  latitude!: number;
 
   @ApiProperty()
   @IsNumber()
-  longitude: number;
+  longitude!: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

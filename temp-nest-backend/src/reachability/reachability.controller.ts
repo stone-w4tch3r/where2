@@ -1,6 +1,9 @@
 import { Controller, Get, Query } from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ReachabilityService } from "./reachability.service";
+import {
+  ReachabilityService,
+  ReachabilityResult,
+} from "./reachability.service";
 import { ReachabilityQueryDto } from "./dto/reachability-query.dto";
 
 @ApiTags("reachability")
@@ -14,9 +17,12 @@ export class ReachabilityController {
   @ApiResponse({
     status: 200,
     description: "Returns reachable stations from the specified origin",
+    type: Object,
   })
   @Get()
-  async getReachableStations(@Query() query: ReachabilityQueryDto) {
+  async getReachableStations(
+    @Query() query: ReachabilityQueryDto
+  ): Promise<ReachabilityResult> {
     try {
       return await this.reachabilityService.calculateReachableStations(
         query.stationId,

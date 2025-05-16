@@ -13,7 +13,7 @@ export class ReachabilityQueryDto {
   @ApiProperty({ description: "Origin station ID" })
   @IsNotEmpty()
   @IsString()
-  stationId: string;
+  stationId!: string;
 
   @ApiProperty({
     description: "Maximum number of transfers",

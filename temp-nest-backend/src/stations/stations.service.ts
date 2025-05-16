@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { BaseService } from "../utils/base.service.js";
-import { Result, ResultUtils } from "../utils/result.js";
+import { Result, ResultUtils } from "../utils/Result";
 import { Prisma, Station } from "@prisma/client";
 import { CreateStationDto } from "./dto/create-station.dto";
 import { UpdateStationDto } from "./dto/update-station.dto";
@@ -47,7 +47,7 @@ export class StationsService extends BaseService {
         data,
       });
       return ResultUtils.success(station);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           return ResultUtils.error(
@@ -56,10 +56,9 @@ export class StationsService extends BaseService {
           );
         }
       }
-      this.logger.error(
-        `Failed to create station: ${error.message}`,
-        error.stack
-      );
+
+      const err = error as Error;
+      this.logger.error(`Failed to create station: ${err.message}`, err.stack);
       return ResultUtils.error("Failed to create station", "INTERNAL_ERROR");
     }
   }
@@ -84,11 +83,9 @@ export class StationsService extends BaseService {
       });
 
       return ResultUtils.success(updatedStation);
-    } catch (error) {
-      this.logger.error(
-        `Failed to update station: ${error.message}`,
-        error.stack
-      );
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`Failed to update station: ${err.message}`, err.stack);
       return ResultUtils.error("Failed to update station", "INTERNAL_ERROR");
     }
   }
@@ -112,11 +109,9 @@ export class StationsService extends BaseService {
       });
 
       return ResultUtils.success(deletedStation);
-    } catch (error) {
-      this.logger.error(
-        `Failed to delete station: ${error.message}`,
-        error.stack
-      );
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`Failed to delete station: ${err.message}`, err.stack);
       return ResultUtils.error("Failed to delete station", "INTERNAL_ERROR");
     }
   }

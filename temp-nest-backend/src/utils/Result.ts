@@ -1,3 +1,5 @@
+export * from './Result';
+
 export type ResultSuccess<T> = {
   success: true;
   data: T;

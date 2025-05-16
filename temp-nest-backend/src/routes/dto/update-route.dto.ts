@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
-import { TransportMode } from "@prisma/client";
+import { TransportMode } from "../../shared/dto/transport-mode.dto";
 
 export class UpdateRouteDto {
   @ApiProperty({ required: false })

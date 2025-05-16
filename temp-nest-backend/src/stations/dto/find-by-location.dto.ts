@@ -6,12 +6,12 @@ export class FindByLocationDto {
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  latitude: number;
+  latitude!: number;
 
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  longitude: number;
+  longitude!: number;
 
   @ApiProperty({ required: false, default: 5 })
   @IsOptional()

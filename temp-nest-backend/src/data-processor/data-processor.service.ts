@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import { YandexService } from "../yandex/yandex.service";
+import { YandexStation } from "../yandex/entities/yandex-schemas";
 
 enum TransportMode {
   Train = "train",
@@ -41,7 +42,7 @@ export class DataProcessorService {
 
       // Filter stations for Sverdlovsk region
       const sverdlovskStations = stationsResponse.stations.filter(
-        (station) => station.region === "Свердловская область"
+        (station: YandexStation) => station.region === "Свердловская область"
       );
 
       this.logger.log(

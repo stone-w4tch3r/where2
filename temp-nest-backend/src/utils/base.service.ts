@@ -1,5 +1,5 @@
 import { Logger } from "@nestjs/common";
-import { Result, ResultUtils } from "./result";
+import { Result, ResultUtils } from "./Result";
 
 export abstract class BaseService {
   protected readonly logger: Logger;
@@ -15,12 +15,13 @@ export abstract class BaseService {
     try {
       const result = await operation();
       return ResultUtils.success(result);
-    } catch (error) {
-      this.logger.error(`${errorMessage}: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error & { code?: string };
+      this.logger.error(`${errorMessage}: ${err.message}`, err.stack);
       return ResultUtils.error(
         errorMessage,
-        error.code || "INTERNAL_ERROR",
-        process.env.NODE_ENV === "development" ? error : undefined
+        err.code || "INTERNAL_ERROR",
+        process.env.NODE_ENV === "development" ? err : undefined
       );
     }
   }

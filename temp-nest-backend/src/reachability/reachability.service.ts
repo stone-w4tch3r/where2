@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
-interface ReachabilityResult {
+export interface ReachabilityResult {
   origin: string;
   maxTransfers: number;
   reachableStations: {
@@ -31,7 +31,7 @@ export class ReachabilityService {
       const originStation = await this.prisma.station.findUnique({
         where: { id: originId },
       });
-      
+
       if (!originStation) {
         throw new Error(`Origin station not found: ${originId}`);
       }
@@ -41,8 +41,8 @@ export class ReachabilityService {
         where: { stationId: originId },
         include: { route: true },
       });
-      
-      const originRoutes = originRouteStops.map(rs => rs.route);
+
+      const originRoutes = originRouteStops.map((rs) => rs.route);
 
       // Initialize visited stations map with distances
       const visited = new Map<string, number>();
@@ -58,14 +58,14 @@ export class ReachabilityService {
       // Initial state: all routes from origin station, 0 transfers
       for (const route of originRoutes) {
         const routeId = route.id;
-        
+
         // Get all stops for this route
         const routeStops = await this.prisma.routeStop.findMany({
           where: { routeId },
           include: { station: true },
-          orderBy: { stopPosition: 'asc' },
+          orderBy: { stopPosition: "asc" },
         });
-        
+
         for (const stop of routeStops) {
           const stopId = stop.stationId;
           if (stopId !== originId) {
@@ -93,8 +93,8 @@ export class ReachabilityService {
           where: { stationId },
           include: { route: true },
         });
-        
-        const stationRoutes = stationRouteStops.map(rs => rs.route);
+
+        const stationRoutes = stationRouteStops.map((rs) => rs.route);
 
         // For each route, add all stops that we haven't visited
         for (const route of stationRoutes) {
@@ -113,9 +113,9 @@ export class ReachabilityService {
           const routeStops = await this.prisma.routeStop.findMany({
             where: { routeId },
             include: { station: true },
-            orderBy: { stopPosition: 'asc' },
+            orderBy: { stopPosition: "asc" },
           });
-          
+
           // For each stop in this route
           for (const stop of routeStops) {
             const stopId = stop.stationId;
@@ -128,10 +128,7 @@ export class ReachabilityService {
             const newTransfers = transfers + 1;
 
             // If we haven't visited this station or we found a shorter path
-            if (
-              !visited.has(stopId) ||
-              visited.get(stopId)! > newTransfers
-            ) {
+            if (!visited.has(stopId) || visited.get(stopId)! > newTransfers) {
               visited.set(stopId, newTransfers);
               queue.push({
                 stationId: stopId,
@@ -155,7 +152,7 @@ export class ReachabilityService {
         const station = await this.prisma.station.findUnique({
           where: { id: stationId },
         });
-        
+
         if (!station) {
           console.warn(
             `Station ${stationId} not found in database but was in reachability results`
@@ -168,8 +165,8 @@ export class ReachabilityService {
           where: { stationId },
           include: { route: true },
         });
-        
-        const routes = routeStops.map(rs => rs.route);
+
+        const routes = routeStops.map((rs) => rs.route);
 
         reachableStations.push({
           station,
@@ -187,4 +184,4 @@ export class ReachabilityService {
       throw new Error(`Error calculating reachable stations: ${error}`);
     }
   }
-} 
+}
