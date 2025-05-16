@@ -11,6 +11,7 @@ import { createApiRouter } from "./routes/api";
 import { DatabaseService } from "./services/DatabaseService";
 import { DataProcessor } from "./services/DataProcessor";
 import { YandexRaspClient } from "./yandex/yandexRaspClient";
+import { CronJobManager } from "./utils/cronJobs";
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,9 @@ const databaseService = new DatabaseService();
 
 // Initialize data processor for batch imports
 const dataProcessor = new DataProcessor(yandexClient, databaseService);
+
+// Initialize cron job manager
+const cronJobManager = new CronJobManager(dataProcessor);
 
 // Initialize services
 const stationService = new StationService(databaseService);
@@ -61,6 +65,9 @@ databaseService.init().then((connected) => {
     // Start the server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+
+      // Start cron jobs after server is running
+      cronJobManager.startAll();
     });
 
     // Add route for manually triggering data processing
@@ -81,3 +88,19 @@ databaseService.init().then((connected) => {
     process.exit(1);
   }
 });
+
+// Setup graceful shutdown
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+
+function shutdown() {
+  console.log("Shutting down server...");
+
+  // Stop all cron jobs
+  cronJobManager.stopAll();
+
+  // Close database connections
+  databaseService.close();
+
+  process.exit(0);
+}

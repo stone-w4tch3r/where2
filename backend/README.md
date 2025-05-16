@@ -47,12 +47,19 @@ DATABASE_URL="postgresql://where2:where2pass@localhost:5432/where2db"
 DIRECT_URL="postgresql://where2:where2pass@localhost:5432/where2db"
 ```
 
-## Import Yandex.Rasp Data
+## Data Import
 
-Trigger import:
+### Automatic Import (Cron Job)
+
+The backend imports data from Yandex.Rasp API on a scheduled basis. By default, it runs at 2:00 AM daily.
+
+To configure the cron job, see .env.example
+
+### Manual Import
+
+You can also trigger data import manually:
 
 ```bash
 curl -X POST http://localhost:8080/api/admin/process-data
-```
 
 This fetches stations/routes and saves them to the database

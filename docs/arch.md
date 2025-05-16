@@ -15,6 +15,7 @@ flowchart TD
     subgraph "Backend"
         API[Express API]
         DataProcessor[Schedule Data Processor]
+        CronJobManager[Cron Job Manager]
         ExternalAPI[Yandex.Rasp API Client]
         Cache[Data Cache]
         DB[Supabase/Prisma]
@@ -36,6 +37,7 @@ flowchart TD
     API --> DataProcessor
     API --> RouteService
     API --> TransferCalculator
+    CronJobManager --> DataProcessor
     DataProcessor --> ExternalAPI
     ExternalAPI --> ExternalSources
     DataProcessor --> DB
@@ -102,8 +104,10 @@ flowchart TD
 flowchart TB
   %% Batch import
   subgraph Batch Processor
-    DataProcessor[Schedule Data Processor<br/>cron job]
+    CronJobManager[Cron Job Manager<br/>scheduled tasks]
+    DataProcessor[Schedule Data Processor]
     ExternalAPI[Yandex.Rasp API]
+    CronJobManager --> DataProcessor
     DataProcessor --> ExternalAPI
     DataProcessor --> DB[(Supabase/Prisma)]
   end
@@ -114,10 +118,16 @@ flowchart TB
     API -->|GET /stations| StationCtrl[StationController]
     API -->|GET /routes| RouteCtrl[RouteController]
     API -->|GET /reachability| ReachCtrl[ReachabilityController]
+    API -->|POST /admin/process-data| ManualImport[Manual Import]
+    API -->|POST /admin/cron/start| CronStart[Start Cron Jobs]
+    API -->|POST /admin/cron/stop| CronStop[Stop Cron Jobs]
 
     StationCtrl --> StationSvc[StationService]
     RouteCtrl   --> RouteSvc[RouteService]
     ReachCtrl   --> ReachSvc[TransferCalculator]
+    ManualImport --> DataProcessor
+    CronStart --> CronJobManager
+    CronStop --> CronJobManager
 
     StationSvc  --> DB
     RouteSvc    --> DB
@@ -142,12 +152,12 @@ flowchart TD
     ReturnResults --> Highlight[Highlight stations on map]
 ```
 
-## Frontend “Stations / Routes / Reachability” Data Flow
+## Frontend "Stations / Routes / Reachability" Data Flow
 
 ```mermaid
 flowchart LR
   %% User triggers
-  UI[User Interaction<br/>select station/route/toggle overlay] 
+  UI[User Interaction<br/>select station/route/toggle overlay]
 
   %% React hooks
   subgraph Hooks
