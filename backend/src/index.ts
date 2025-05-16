@@ -10,7 +10,7 @@ import { ReachabilityController } from "./controllers/reachabilityController";
 import { createApiRouter } from "./routes/api";
 import { DatabaseService } from "./services/DatabaseService";
 import { DataProcessor } from "./services/DataProcessor";
-import { YandexRaspClient } from "./yandex/client";
+import { YandexRaspClient } from "./yandex/yandexRaspClient";
 
 // Load environment variables
 dotenv.config();
@@ -24,11 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize Yandex API client
-const apiKey = process.env.YANDEX_API_KEY || "";
-if (!apiKey) {
-  console.warn("YANDEX_API_KEY not set, API functionality will be limited");
-}
-const yandexClient = new YandexRaspClient(apiKey);
+const yandexClient = new YandexRaspClient();
 
 // Initialize database service
 const databaseService = new DatabaseService();

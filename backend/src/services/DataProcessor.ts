@@ -1,4 +1,4 @@
-import { YandexRaspClient } from "../yandex/client";
+import { YandexRaspClient } from "../yandex/yandexRaspClient";
 import { DatabaseService } from "./DatabaseService";
 import { Station, StationId, TransportMode } from "../models/Station";
 import { Route, RouteId } from "../models/Route";
@@ -27,10 +27,7 @@ export class DataProcessor {
       console.log("Starting data processing...");
 
       // Step 1: Get stations in Sverdlovsk region
-      const stationsResult = await this.yandexClient.getStationsList({
-        lang: "ru_RU",
-        format: "json",
-      });
+      const stationsResult = await this.yandexClient.getStationsList();
 
       if (!stationsResult.success) {
         return failure(

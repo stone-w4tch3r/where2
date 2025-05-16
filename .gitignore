@@ -369,4 +369,5 @@ $RECYCLE.BIN/
 
 # custom
 
+.env
 /.hidden

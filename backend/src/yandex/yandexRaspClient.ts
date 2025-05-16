@@ -1,4 +1,5 @@
 import { Result, success, failure } from "../utils/Result";
+import { yandexApiConfig } from "./apiConfig";
 import {
   fetchStationsList,
   fetchStationSchedule,
@@ -16,17 +17,25 @@ import { YandexStation } from "./schemas";
  * Adapts the new endpoint API to match the old client API
  */
 export class YandexRaspClient {
-  private apiKey: string;
+  private lang: "ru_RU" | "uk_UA";
+  private format: "json" | "xml";
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor() {
+    this.lang = yandexApiConfig.defaultParams.lang;
+    this.format = yandexApiConfig.defaultParams.format;
   }
 
   /**
    * Fetch station schedule
    */
-  async getStationSchedule(params: StationScheduleParams) {
-    return fetchStationSchedule(params);
+  async getStationSchedule(
+    params: Omit<StationScheduleParams, "lang" | "format">
+  ) {
+    return fetchStationSchedule({
+      ...params,
+      lang: this.lang,
+      format: this.format,
+    });
   }
 
   /**
@@ -35,8 +44,8 @@ export class YandexRaspClient {
   async getThreadStations(params: { uid: string }) {
     const fullParams: ThreadStationsParams = {
       uid: params.uid,
-      lang: "ru_RU",
-      format: "json",
+      lang: this.lang,
+      format: this.format,
     };
     return fetchThreadStations(fullParams);
   }
@@ -45,13 +54,13 @@ export class YandexRaspClient {
    * Fetch stations list
    * Adapts the new API to return { stations: YandexStation[] } format
    */
-  async getStationsList(
-    params: any
-  ): Promise<Result<{ stations: YandexStation[] }, string>> {
+  async getStationsList(): Promise<
+    Result<{ stations: YandexStation[] }, string>
+  > {
     try {
       const parsedParams: StationsListParams = {
-        lang: params.lang || "ru_RU",
-        format: params.format || "json",
+        lang: this.lang,
+        format: this.format,
       };
 
       const result = await fetchStationsList(parsedParams);
