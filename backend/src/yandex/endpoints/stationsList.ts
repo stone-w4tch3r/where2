@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { Result } from "../../utils/Result";
-import { makeYandexApiRequest } from "../api-helpers";
 import { countrySchema } from "../baseSchemas";
 
 export const stationsListParamsSchema = z.object({
@@ -25,12 +24,17 @@ export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
  * Fetches complete stations list
  * Note: Response is about 40MB in size, use with caution
  * @param params - Request parameters
+ * @param config - Configuration object
  * @returns Result with stations list data or error message
  * @example
  * ```
  * const result = await fetchStationsList({
  *   lang: 'ru_RU',
  *   format: 'json'
+ * }, {
+ *   baseUrl: 'https://yandex.ru/api/',
+ *   apiKey: 'your-api-key',
+ *   defaultParams: {}
  * });
  *
  * if (result.success) {
@@ -42,11 +46,26 @@ export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
  * ```
  */
 export const fetchStationsList = async (
-  params: StationsListParams
+  params: StationsListParams,
+  config: {
+    baseUrl: string;
+    apiKey: string;
+    defaultParams: Record<string, any>;
+  }
 ): Promise<Result<StationsListResponse>> => {
-  return makeYandexApiRequest(
-    "stations_list",
-    stationsListResponseSchema,
-    params
-  );
+  const axios = (await import("axios")).default;
+  const { baseUrl, apiKey, defaultParams } = config;
+  try {
+    const response = await axios.get(baseUrl + "stations_list", {
+      params: {
+        apikey: apiKey,
+        ...defaultParams,
+        ...params,
+      },
+    });
+    const parsedData = stationsListResponseSchema.parse(response.data);
+    return { success: true, data: parsedData };
+  } catch (error: any) {
+    return { success: false, error: { message: error.message } };
+  }
 };

@@ -39,17 +39,31 @@ export class YandexService {
     });
   }
 
+  private getApiConfig() {
+    return {
+      baseUrl: this.baseUrl.endsWith("/") ? this.baseUrl : this.baseUrl + "/",
+      apiKey: this.apiKey,
+      defaultParams: {
+        format: "json",
+        lang: "ru_RU",
+      },
+    };
+  }
+
   /**
    * Fetch station schedule
    */
   async getStationSchedule(params: { station: string; date?: string }) {
     try {
-      const result = await fetchStationSchedule({
-        station: params.station,
-        date: params.date,
-        format: "json",
-        lang: "ru_RU",
-      });
+      const result = await fetchStationSchedule(
+        {
+          station: params.station,
+          date: params.date,
+          format: "json",
+          lang: "ru_RU",
+        },
+        this.getApiConfig()
+      );
       if (result.success) {
         return result.data;
       } else {
@@ -66,11 +80,14 @@ export class YandexService {
    */
   async getThreadStations(params: { uid: string }) {
     try {
-      const result = await fetchThreadStations({
-        uid: params.uid,
-        format: "json",
-        lang: "ru_RU",
-      });
+      const result = await fetchThreadStations(
+        {
+          uid: params.uid,
+          format: "json",
+          lang: "ru_RU",
+        },
+        this.getApiConfig()
+      );
       if (result.success) {
         return result.data;
       } else {
@@ -87,10 +104,13 @@ export class YandexService {
    */
   async getStationsList(): Promise<{ stations: YandexStation[] }> {
     try {
-      const result = await fetchStationsList({
-        format: "json",
-        lang: "ru_RU",
-      });
+      const result = await fetchStationsList(
+        {
+          format: "json",
+          lang: "ru_RU",
+        },
+        this.getApiConfig()
+      );
       if (result.success) {
         // Transform the response to match the expected format with stations array
         return this.transformStationsResponse(result.data);
@@ -153,7 +173,10 @@ export class YandexService {
    */
   async getSchedule(from: string, to: string, date: string) {
     try {
-      const result = await fetchSchedule({ from, to, date });
+      const result = await fetchSchedule(
+        { from, to, date },
+        this.getApiConfig()
+      );
       if (result.success) {
         return result.data;
       } else {
@@ -175,11 +198,14 @@ export class YandexService {
     transport_types?: string;
   }) {
     try {
-      const result = await fetchSchedule({
-        from: params.from,
-        to: params.to,
-        date: params.date,
-      });
+      const result = await fetchSchedule(
+        {
+          from: params.from,
+          to: params.to,
+          date: params.date,
+        },
+        this.getApiConfig()
+      );
       if (result.success) {
         return result.data;
       } else {

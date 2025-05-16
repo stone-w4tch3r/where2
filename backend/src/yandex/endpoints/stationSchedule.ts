@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { Result } from "../../utils/Result";
-import { makeYandexApiRequest } from "../api-helpers";
 import {
   paginationSchema,
   directionSchema,
@@ -93,6 +92,7 @@ const SCHEDULE_ENDPOINT = "schedule";
 /**
  * Fetches station schedule from Yandex.Rasp API
  * @param params - Schedule search parameters
+ * @param config - Configuration object containing baseUrl, apiKey, and defaultParams
  * @returns Result with station schedule data or error message
  * @example
  * ```
@@ -101,6 +101,14 @@ const SCHEDULE_ENDPOINT = "schedule";
  *   date: '2024-01-20',
  *   transport_types: 'plane',
  *   event: 'departure'
+ * }, {
+ *   baseUrl: 'https://rasp.yandex.net/',
+ *   apiKey: 'your-api-key',
+ *   defaultParams: {
+ *     lang: 'ru_RU',
+ *     format: 'json',
+ *     result_timezone: 'Europe/Moscow'
+ *   }
  * });
  *
  * if (result.success) {
@@ -112,11 +120,26 @@ const SCHEDULE_ENDPOINT = "schedule";
  * ```
  */
 export const fetchStationSchedule = async (
-  params: StationScheduleParams
+  params: StationScheduleParams,
+  config: {
+    baseUrl: string;
+    apiKey: string;
+    defaultParams: Record<string, any>;
+  }
 ): Promise<Result<StationScheduleResponse>> => {
-  return makeYandexApiRequest(
-    SCHEDULE_ENDPOINT,
-    stationScheduleResponseSchema,
-    params
-  );
+  const axios = (await import("axios")).default;
+  const { baseUrl, apiKey, defaultParams } = config;
+  try {
+    const response = await axios.get(baseUrl + SCHEDULE_ENDPOINT, {
+      params: {
+        apikey: apiKey,
+        ...defaultParams,
+        ...params,
+      },
+    });
+    const parsedData = stationScheduleResponseSchema.parse(response.data);
+    return { success: true, data: parsedData };
+  } catch (error: any) {
+    return { success: false, error: { message: error.message } };
+  }
 };

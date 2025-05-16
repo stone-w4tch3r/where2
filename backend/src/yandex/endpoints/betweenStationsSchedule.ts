@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { Result } from "../../utils/Result";
-import { makeYandexApiRequest } from "../api-helpers";
 import {
   paginationSchema,
   searchInfoSchema,
@@ -43,6 +42,7 @@ const SEARCH_ENDPOINT = "search";
 /**
  * Fetches schedule between stations
  * @param params - Schedule search parameters
+ * @param config - Configuration object
  * @returns Result with schedule data or error message
  * @example
  * ```
@@ -50,6 +50,10 @@ const SEARCH_ENDPOINT = "search";
  *   from: 's9600396', // Simferopol
  *   to: 's9600213',   // Sheremetyevo
  *   date: '2024-01-20'
+ * }, {
+ *   baseUrl: 'https://yandex.ru/api/',
+ *   apiKey: 'your-api-key',
+ *   defaultParams: {}
  * });
  *
  * if (result.success) {
@@ -61,11 +65,28 @@ const SEARCH_ENDPOINT = "search";
  * ```
  */
 export const fetchSchedule = async (
-  params: BetweenStationsScheduleParams
+  params: BetweenStationsScheduleParams,
+  config: {
+    baseUrl: string;
+    apiKey: string;
+    defaultParams: Record<string, any>;
+  }
 ): Promise<Result<BetweenStationsScheduleResponse>> => {
-  return makeYandexApiRequest(
-    SEARCH_ENDPOINT,
-    betweenStationsScheduleResponseSchema,
-    params
-  );
+  const axios = (await import("axios")).default;
+  const { baseUrl, apiKey, defaultParams } = config;
+  try {
+    const response = await axios.get(baseUrl + SEARCH_ENDPOINT, {
+      params: {
+        apikey: apiKey,
+        ...defaultParams,
+        ...params,
+      },
+    });
+    const parsedData = betweenStationsScheduleResponseSchema.parse(
+      response.data
+    );
+    return { success: true, data: parsedData };
+  } catch (error: any) {
+    return { success: false, error: { message: error.message } };
+  }
 };
