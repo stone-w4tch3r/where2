@@ -26,5 +26,5 @@ export class ReachabilityQueryDto {
   @Min(0)
   @Max(3)
   @Type(() => Number)
-  maxTransfers: number = 1;
+  maxTransfers = 1;
 }

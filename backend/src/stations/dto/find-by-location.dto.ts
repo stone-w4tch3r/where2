@@ -19,5 +19,5 @@ export class FindByLocationDto {
   @Min(0.1)
   @Max(50)
   @Type(() => Number)
-  radius: number = 5;
+  radius = 5;
 }
