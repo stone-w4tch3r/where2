@@ -1,30 +1,37 @@
-// Result pattern for error handling
-export type Result<T, E = Error> = Success<T> | Failure<E>;
+export * from './Result';
 
-export interface Success<T> {
+export type ResultSuccess<T> = {
   success: true;
   data: T;
-}
+};
 
-export interface Failure<E> {
+export type ResultError = {
   success: false;
-  error: E;
-}
+  error: {
+    message: string;
+    code?: string;
+    details?: any;
+  };
+};
 
-// Helper functions to create results
-export function success<T>(data: T): Success<T> {
-  return { success: true, data };
-}
+export type Result<T> = ResultSuccess<T> | ResultError;
 
-export function failure<E>(error: E): Failure<E> {
-  return { success: false, error };
-}
+export class ResultUtils {
+  static success<T>(data: T): ResultSuccess<T> {
+    return {
+      success: true,
+      data,
+    };
+  }
 
-// Type guard functions
-export function isSuccess<T, E>(result: Result<T, E>): result is Success<T> {
-  return result.success === true;
-}
-
-export function isFailure<T, E>(result: Result<T, E>): result is Failure<E> {
-  return result.success === false;
+  static error(message: string, code?: string, details?: any): ResultError {
+    return {
+      success: false,
+      error: {
+        message,
+        code,
+        details,
+      },
+    };
+  }
 }

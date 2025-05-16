@@ -113,7 +113,7 @@ const SCHEDULE_ENDPOINT = "schedule";
  */
 export const fetchStationSchedule = async (
   params: StationScheduleParams
-): Promise<Result<StationScheduleResponse>> => {
+): Promise<Result<StationScheduleResponse, string>> => {
   return makeYandexApiRequest(
     SCHEDULE_ENDPOINT,
     stationScheduleResponseSchema,

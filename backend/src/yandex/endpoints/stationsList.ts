@@ -43,7 +43,7 @@ export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
  */
 export const fetchStationsList = async (
   params: StationsListParams
-): Promise<Result<StationsListResponse, string>> => {
+): Promise<Result<StationsListResponse>> => {
   return makeYandexApiRequest(
     "stations_list",
     stationsListResponseSchema,

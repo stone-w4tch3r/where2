@@ -9,29 +9,13 @@
         /* Module Resolution Options */
         "moduleResolution": "Node",
         "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "typeRoots": [
-            "./node_modules/@types",
-            "./src/types"
-        ],
         /* Type Checking Options */
         "strict": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         /* Advanced Options */
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": "./",
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        },
-        "allowImportingTsExtensions": true,
-        "resolveJsonModule": true,
-        "emitDeclarationOnly": false,
-        "noEmit": true
+        "forceConsistentCasingInFileNames": true
     },
     "include": [
         "src/**/*"

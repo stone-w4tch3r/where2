@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { z } from "zod";
-import { Result, success, failure } from "../utils/Result";
+import { Result, ResultUtils } from "../utils/Result";
 import { yandexApiConfig } from "./apiConfig";
 
 /**
@@ -14,14 +14,14 @@ export async function makeApiRequest<T>(
   url: string,
   schema: z.ZodSchema<T>,
   requestConfig: AxiosRequestConfig
-): Promise<Result<T, string>> {
+): Promise<Result<T>> {
   try {
     const response = await axios.get(url, requestConfig);
     const parsedData = schema.parse(response.data);
-    return success(parsedData);
+    return ResultUtils.success(parsedData);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return failure(`Data validation error: ${error.message}`);
+      return ResultUtils.error(`Data validation error: ${error.message}`);
     }
 
     if (axios.isAxiosError(error)) {
@@ -30,19 +30,19 @@ export async function makeApiRequest<T>(
 
       // Handle common API errors with more specific messages
       if (statusCode === 401) {
-        return failure("API key is invalid or missing");
+        return ResultUtils.error("API key is invalid or missing");
       } else if (statusCode === 404) {
-        return failure("Requested resource not found");
+        return ResultUtils.error("Requested resource not found");
       } else if (statusCode === 429) {
-        return failure("Rate limit exceeded. Try again later.");
+        return ResultUtils.error("Rate limit exceeded. Try again later.");
       }
 
       // General error with response details when available
       const errorMessage = responseData?.error?.text || error.message;
-      return failure(`API request failed: ${errorMessage}`);
+      return ResultUtils.error(`API request failed: ${errorMessage}`);
     }
 
-    return failure(`Unknown error: ${String(error)}`);
+    return ResultUtils.error(`Unknown error: ${String(error)}`);
   }
 }
 
@@ -57,7 +57,7 @@ export async function makeYandexApiRequest<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
   params: Record<string, any> = {}
-): Promise<Result<T, string>> {
+): Promise<Result<T>> {
   const baseUrl = yandexApiConfig.baseUrl;
   const apiKey = yandexApiConfig.apiKey;
 

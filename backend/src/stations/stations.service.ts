@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { BaseService } from "../utils/base.service.js";
-import { Result, ResultUtils } from "../utils/Result";
+import { Result, ResultUtils } from "../utils/Result.js";
 import { Prisma, Station } from "@prisma/client";
-import { CreateStationDto } from "./dto/create-station.dto";
-import { UpdateStationDto } from "./dto/update-station.dto";
+import { CreateStationDto } from "./dto/create-station.dto.js";
+import { UpdateStationDto } from "./dto/update-station.dto.js";
 
 @Injectable()
 export class StationsService extends BaseService {

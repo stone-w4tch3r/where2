@@ -62,7 +62,7 @@ const SEARCH_ENDPOINT = "search";
  */
 export const fetchSchedule = async (
   params: BetweenStationsScheduleParams
-): Promise<Result<BetweenStationsScheduleResponse>> => {
+): Promise<Result<BetweenStationsScheduleResponse, string>> => {
   return makeYandexApiRequest(
     SEARCH_ENDPOINT,
     betweenStationsScheduleResponseSchema,

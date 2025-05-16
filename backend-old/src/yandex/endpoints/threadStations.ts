@@ -91,7 +91,7 @@ const THREAD_ENDPOINT = "thread";
  */
 export const fetchThreadStations = async (
   params: ThreadStationsParams
-): Promise<Result<ThreadStationsResponse>> => {
+): Promise<Result<ThreadStationsResponse, string>> => {
   return makeYandexApiRequest(
     THREAD_ENDPOINT,
     threadStationsResponseSchema,
