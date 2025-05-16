@@ -1,0 +1,1 @@
+1. proper routes setup (now in index.ts)
