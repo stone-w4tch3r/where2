@@ -6,6 +6,9 @@ import {
   Coordinates,
 } from "../models/Station";
 import { Route, RouteId } from "../models/Route";
+import { execSync } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
 
 export class DatabaseService {
   private prisma: PrismaClient;
@@ -16,12 +19,43 @@ export class DatabaseService {
 
   async init() {
     try {
+      await this.runMigrations();
       await this.prisma.$connect();
       console.log("Connected to database");
       return true;
     } catch (error) {
       console.error("Failed to connect to database:", error);
       return false;
+    }
+  }
+
+  async runMigrations() {
+    try {
+      console.log("Running database migrations...");
+      // Get directory path in ESM
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+
+      const prismaPath = path.resolve(__dirname, "../../../prisma");
+      execSync(
+        `npx prisma migrate deploy --schema=${prismaPath}/schema.prisma`,
+        {
+          stdio: "inherit",
+        }
+      );
+      console.log("Migrations completed successfully");
+
+      // Generate Prisma client
+      console.log("Generating Prisma client...");
+      execSync(`npx prisma generate --schema=${prismaPath}/schema.prisma`, {
+        stdio: "inherit",
+      });
+      console.log("Prisma client generated successfully");
+
+      return true;
+    } catch (error) {
+      console.error("Failed to run migrations:", error);
+      throw error;
     }
   }
 

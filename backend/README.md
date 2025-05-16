@@ -10,20 +10,6 @@ This is the backend service for the Where2 application, providing API endpoints 
 - PNPM package manager
 - PostgreSQL database
 
-### Setup
-
-1. Create and migrate the database
-
-```bash
-npx prisma migrate dev --name init
-```
-
-2. Generate Prisma client
-
-```bash
-npx prisma generate
-```
-
 ### Running the Service
 
 #### Development Mode
