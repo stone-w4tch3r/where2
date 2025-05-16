@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Result } from "../../utils/Result";
+import { Result, resultSuccess, resultError } from "../../utils/Result";
 import {
   paginationSchema,
   searchInfoSchema,
@@ -85,8 +85,8 @@ export const fetchSchedule = async (
     const parsedData = betweenStationsScheduleResponseSchema.parse(
       response.data
     );
-    return { success: true, data: parsedData };
+    return resultSuccess(parsedData);
   } catch (error: any) {
-    return { success: false, error: { message: error.message } };
+    return resultError(error.message);
   }
 };

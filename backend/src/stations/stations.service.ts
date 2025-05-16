@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
-import { Result, ResultUtils } from "../utils/Result.js";
+import { Result, resultSuccess, resultError } from "../utils/Result.js";
 import { Station } from "@prisma/client";
 
 @Injectable()
@@ -15,15 +15,11 @@ export class StationsService {
   ): Promise<Result<T>> {
     try {
       const result = await operation();
-      return ResultUtils.success(result);
+      return resultSuccess(result);
     } catch (error: unknown) {
       const err = error as Error & { code?: string };
       this.logger.error(`${errorMessage}: ${err.message}`, err.stack);
-      return ResultUtils.error(
-        errorMessage,
-        err.code || "INTERNAL_ERROR",
-        process.env.NODE_ENV === "development" ? err : undefined
-      );
+      return resultError(errorMessage);
     }
   }
 
@@ -34,12 +30,9 @@ export class StationsService {
   ): Result<T> {
     if (!data) {
       const idString = identifier ? ` with id ${identifier}` : "";
-      return ResultUtils.error(
-        `${entityName}${idString} not found`,
-        "NOT_FOUND"
-      );
+      return resultError(`${entityName}${idString} not found`);
     }
-    return ResultUtils.success(data);
+    return resultSuccess(data);
   }
 
   async findAll(): Promise<Result<Station[]>> {

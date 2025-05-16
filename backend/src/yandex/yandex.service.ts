@@ -67,7 +67,7 @@ export class YandexService {
       if (result.success) {
         return result.data;
       } else {
-        throw new Error(result.error.message);
+        throw new Error(result.error);
       }
     } catch (error: any) {
       this.logger.error(`Error fetching station schedule: ${error.message}`);
@@ -91,7 +91,7 @@ export class YandexService {
       if (result.success) {
         return result.data;
       } else {
-        throw new Error(result.error.message);
+        throw new Error(result.error);
       }
     } catch (error: any) {
       this.logger.error(`Error fetching thread stations: ${error.message}`);
@@ -115,7 +115,7 @@ export class YandexService {
         // Transform the response to match the expected format with stations array
         return this.transformStationsResponse(result.data);
       } else {
-        throw new Error(result.error.message);
+        throw new Error(result.error);
       }
     } catch (error: any) {
       this.logger.error(`Error fetching stations list: ${error.message}`);
@@ -180,7 +180,7 @@ export class YandexService {
       if (result.success) {
         return result.data;
       } else {
-        throw new Error(result.error.message);
+        throw new Error(result.error);
       }
     } catch (error: any) {
       this.logger.error(`Error fetching schedule: ${error.message}`);
@@ -209,7 +209,7 @@ export class YandexService {
       if (result.success) {
         return result.data;
       } else {
-        throw new Error(result.error.message);
+        throw new Error(result.error);
       }
     } catch (error: any) {
       this.logger.error(`Error searching routes: ${error.message}`);

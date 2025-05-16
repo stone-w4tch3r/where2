@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Result } from "../../utils/Result";
+import { Result, resultSuccess, resultError } from "../../utils/Result";
 import { threadSchema, intervalSchema } from "../baseSchemas";
 import { threadStopSchema } from "../baseSchemas";
 
@@ -115,8 +115,8 @@ export const fetchThreadStations = async (
       },
     });
     const parsedData = threadStationsResponseSchema.parse(response.data);
-    return { success: true, data: parsedData };
+    return resultSuccess(parsedData);
   } catch (error: any) {
-    return { success: false, error: { message: error.message } };
+    return resultError(error.message);
   }
 };

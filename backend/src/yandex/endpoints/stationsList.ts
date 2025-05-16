@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Result } from "../../utils/Result";
+import { Result, resultSuccess, resultError } from "../../utils/Result";
 import { countrySchema } from "../baseSchemas";
 
 export const stationsListParamsSchema = z.object({
@@ -64,8 +64,8 @@ export const fetchStationsList = async (
       },
     });
     const parsedData = stationsListResponseSchema.parse(response.data);
-    return { success: true, data: parsedData };
+    return resultSuccess(parsedData);
   } catch (error: any) {
-    return { success: false, error: { message: error.message } };
+    return resultError(error.message);
   }
 };

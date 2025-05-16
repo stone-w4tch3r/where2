@@ -25,35 +25,15 @@ export class ResultInterceptor implements NestInterceptor {
         if (result.success) {
           return result.data;
         } else {
-          // Map common error codes to HTTP status codes
-          let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-
-          switch (result.error.code) {
-            case "NOT_FOUND":
-              statusCode = HttpStatus.NOT_FOUND;
-              break;
-            case "INVALID_INPUT":
-            case "VALIDATION_ERROR":
-              statusCode = HttpStatus.BAD_REQUEST;
-              break;
-            case "UNAUTHORIZED":
-              statusCode = HttpStatus.UNAUTHORIZED;
-              break;
-            case "FORBIDDEN":
-              statusCode = HttpStatus.FORBIDDEN;
-              break;
-            case "CONFLICT":
-              statusCode = HttpStatus.CONFLICT;
-              break;
-          }
-
+          // No error code, always use INTERNAL_SERVER_ERROR
           throw new HttpException(
             {
-              message: result.error.message,
-              code: result.error.code,
-              details: result.error.details,
+              message:
+                typeof result.error === "string"
+                  ? result.error
+                  : "Unknown error",
             },
-            statusCode
+            HttpStatus.INTERNAL_SERVER_ERROR
           );
         }
       })
