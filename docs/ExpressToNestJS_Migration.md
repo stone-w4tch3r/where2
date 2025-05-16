@@ -45,6 +45,8 @@ This document outlines the step-by-step process to migrate the current Express.j
    }
    ```
 
+4. Ensure to run `pnpm update --latest`
+
 ### 2. Setup NestJS Module Structure
 
 Create the following structure:

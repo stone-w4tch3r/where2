@@ -1,0 +1,46 @@
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { ValidationPipe } from "@nestjs/common";
+import { AppModule } from "./app.module";
+import { ResultInterceptor } from "./utils/result.interceptor";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // Enable CORS
+  app.enableCors();
+
+  // Setup validation
+  app.useGlobalPipes(new ValidationPipe());
+
+  // Use Result interceptor globally
+  app.useGlobalInterceptors(new ResultInterceptor());
+
+  // Setup Swagger
+  const config = new DocumentBuilder()
+    .setTitle("Where2 API")
+    .setDescription("API for the Where2 application")
+    .setVersion("1.0")
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("api/docs", app, document);
+
+  // Start the server
+  const port = process.env.PORT || 8080;
+  await app.listen(port);
+  console.log(`Application is running on: http://localhost:${port}`);
+
+  // Handle shutdown signals
+  process.on("SIGTERM", async () => {
+    console.log("SIGTERM received, shutting down gracefully");
+    await app.close();
+    process.exit(0);
+  });
+
+  process.on("SIGINT", async () => {
+    console.log("SIGINT received, shutting down gracefully");
+    await app.close();
+    process.exit(0);
+  });
+}
+bootstrap();
