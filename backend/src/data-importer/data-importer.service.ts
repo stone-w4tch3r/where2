@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { YandexService } from "../yandex/yandex.service";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
@@ -6,54 +6,78 @@ import { ConfigService } from "@nestjs/config";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 import { InternalError } from "../utils/errors";
 import { AppError } from "../utils/errors";
+import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { SchedulerRegistry } from "@nestjs/schedule";
+import { CronJob } from "cron";
 
-enum TransportMode {
-  Train = "train",
-  Suburban = "suburban",
-  Bus = "bus",
-  Tram = "tram",
-  Metro = "metro",
-  Water = "water",
-  Helicopter = "helicopter",
-  Plane = "plane",
-}
+const REGION = "Свердловская область";
 
 @Injectable()
-export class DataImporterService {
+export class DataImporterService implements OnModuleInit {
   private readonly logger = new Logger(DataImporterService.name);
+  private readonly isImportEnabled: boolean;
+  private readonly importCronSchedule: string | undefined;
 
   constructor(
     private readonly yandexService: YandexService,
     private readonly stationOrm: StationOrmService,
     private readonly routeOrm: RouteOrmService,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly schedulerRegistry: SchedulerRegistry,
+  ) {
+    this.isImportEnabled =
+      this.configService.get<string>("DATA_IMPORT_ENABLED") === "true";
+    this.importCronSchedule =
+      this.configService.get<string>("DATA_IMPORT_CRON") || undefined;
 
-  private cronJob: (() => void) | null = null;
+    if (this.isImportEnabled) {
+      this.logger.log(
+        `Data import is enabled with schedule: ${this.importCronSchedule || "not specified"}`,
+      );
+    } else {
+      this.logger.log("Automatic data import is disabled");
+    }
+  }
 
-  onModuleInit() {
-    const cron = this.configService.get<string>("DATA_IMPORT_CRON") || "";
-    const enabled =
-      this.configService.get<string>("DATA_IMPORT_ENABLED") === "true" &&
-      cron !== "";
-    if (enabled) {
-      throw new Error(
-        "Schedule module is not properly injected. Please refactor to use dependency injection for scheduling.",
+  async onModuleInit() {
+    if (this.isImportEnabled && this.importCronSchedule) {
+      // Create a cron job with the schedule from the environment variable
+      const job = new CronJob(this.importCronSchedule, () => {
+        this.handleDailyDataImport();
+      });
+
+      // Register the cron job with a name
+      this.schedulerRegistry.addCronJob("data-import", job);
+
+      // Start the job
+      job.start();
+      this.logger.log(
+        `Scheduled data import with cron: ${this.importCronSchedule}`,
       );
     }
   }
 
   async handleDailyDataImport() {
-    this.logger.log("Running daily data import");
-    await this.importAllData();
+    try {
+      this.logger.log("Running daily data import");
+      const result = await this.importAllData();
+
+      if (result.success) {
+        this.logger.log(`Data import completed successfully: ${result.data}`);
+      } else {
+        this.logger.error(`Data import failed: ${result.error}`);
+      }
+    } catch (error) {
+      this.logger.error("Error during data import", error);
+    }
   }
 
   /**
-   * Import all stations in Sverdlovsk region and their routes
+   * Import all stations in a region and their routes
    */
   async importAllData(): Promise<Result<string, AppError>> {
     this.logger.log("Starting data import...");
-    // Step 1: Get stations in Sverdlovsk region
+    // Step 1: Get all stations
     const stationsResponseResult = await this.yandexService.getStationsList();
     if (!stationsResponseResult.success) {
       this.logger.error(
@@ -68,36 +92,49 @@ export class DataImporterService {
     }
     const stationsResponse = stationsResponseResult.data;
 
-    // Filter stations for Sverdlovsk region
-    const sverdlovskStations = stationsResponse.stations.filter(
-      (station) => station.region === "Свердловская область",
+    this.logger.log(`Found ${stationsResponse.stations.length} stations total`);
+
+    // Step 2: Save stations to database
+    // Note: we need to save ALL, not only REGION
+    this.logger.log("Saving stations to database...");
+    const stations = stationsResponse.stations.map((station) => ({
+      id: station.codes.yandex_code,
+      fullName: station.title,
+      popularName: null, // TODO REMOVE THIS PROPERTY LATER
+      shortName: null, // TODO REMOVE THIS PROPERTY LATER
+      transportMode: station.transport_type,
+      latitude: station.latitude === "" ? null : station.latitude,
+      longitude: station.longitude === "" ? null : station.longitude,
+      country: station.country,
+      region: station.region,
+    }));
+    await this.stationOrm.upsertStations(stations);
+
+    this.logger.log("All stations saved to database");
+    // throw new Error("Stop here");
+
+    // Filter stations for REGION
+    const filteredStations = stationsResponse.stations.filter(
+      (station) => station.region === REGION,
     );
 
     this.logger.log(
-      `Found ${sverdlovskStations.length} stations in Sverdlovsk region`,
+      `Found ${filteredStations.length} stations in ${REGION} region`,
     );
-
-    // Step 2: Save stations to database
-    for (const yandexStation of sverdlovskStations) {
-      await this.stationOrm.upsertStation({
-        id: yandexStation.codes.yandex_code,
-        fullName: yandexStation.title,
-        transportMode: yandexStation.transport_type,
-        latitude: yandexStation.latitude === "" ? null : yandexStation.latitude,
-        longitude:
-          yandexStation.longitude === "" ? null : yandexStation.longitude,
-        country: yandexStation.country ?? "",
-        region: yandexStation.region ?? "",
-      });
-    }
-
-    this.logger.log("All stations saved to database");
 
     // Step 3: For each station, get schedules to extract threads
     const importedThreads = new Set<string>();
     let routeCount = 0;
 
-    for (const yandexStation of sverdlovskStations) {
+    for (const yandexStation of filteredStations) {
+      routeCount++;
+      const progress = (routeCount / filteredStations.length) * 100;
+      this.logger.log(
+        `Importing station ${routeCount}/${filteredStations.length} (${progress.toFixed(
+          2,
+        )}%)`,
+      );
+
       const stationId = yandexStation.codes.yandex_code;
 
       const scheduleResult = await this.yandexService.getStationSchedule({
@@ -152,8 +189,6 @@ export class DataImporterService {
           routeInfoUrl: thread.thread_method_link || null,
           stopIds,
         });
-
-        routeCount++;
       }
     }
 
@@ -162,7 +197,7 @@ export class DataImporterService {
     );
 
     return resultSuccess(
-      `Successfully imported ${sverdlovskStations.length} stations and ${routeCount} routes`,
+      `Successfully imported ${filteredStations.length} stations and ${routeCount} routes`,
     );
   }
 

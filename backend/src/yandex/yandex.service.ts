@@ -29,8 +29,8 @@ import {
 
 // Define a type for transformed station data that includes region/country
 type StationWithRegion = StationListItemContract & {
-  region?: string;
-  country?: string;
+  region: string;
+  country: string;
 };
 
 @Injectable()

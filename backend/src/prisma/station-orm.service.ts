@@ -6,37 +6,6 @@ import { Station } from "./models";
 export class StationOrmService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async upsertStation(station: {
-    id: string;
-    fullName: string;
-    transportMode: string;
-    latitude: number | null;
-    longitude: number | null;
-    country: string;
-    region: string;
-  }): Promise<Station> {
-    return this.prisma.station.upsert({
-      where: { id: station.id },
-      update: {
-        fullName: station.fullName,
-        transportMode: station.transportMode,
-        latitude: station.latitude,
-        longitude: station.longitude,
-        country: station.country,
-        region: station.region,
-      },
-      create: {
-        id: station.id,
-        fullName: station.fullName,
-        transportMode: station.transportMode,
-        latitude: station.latitude,
-        longitude: station.longitude,
-        country: station.country,
-        region: station.region,
-      },
-    });
-  }
-
   async findOne(id: string): Promise<Station | null> {
     return this.prisma.station.findUnique({ where: { id } });
   }
@@ -75,5 +44,95 @@ export class StationOrmService {
         },
       },
     });
+  }
+
+  /**
+   * Bulk upsert stations efficiently.
+   * - Only updates if content changed (smart JSON compare)
+   * - Uses createMany for new stations
+   * - Batches updates for changed stations
+   * - Returns all upserted stations
+   */
+  async upsertStations(stations: Array<Station>): Promise<Station[]> {
+    if (stations.length === 0) return [];
+
+    // Fetch all existing stations in one query
+    const ids = stations.map((s) => s.id);
+    const existingStations = await this.prisma.station.findMany({
+      where: { id: { in: ids } },
+    });
+    const existingMap = new Map(existingStations.map((s) => [s.id, s]));
+
+    // Helper for normalization
+    const normalize = (s: {
+      fullName: string;
+      transportMode: string;
+      latitude: number | null;
+      longitude: number | null;
+      country: string | null;
+      region: string | null;
+    }) => ({
+      fullName: s.fullName,
+      transportMode: s.transportMode,
+      latitude: s.latitude,
+      longitude: s.longitude,
+      country: s.country,
+      region: s.region,
+    });
+
+    const toCreate: Array<{
+      id: string;
+      fullName: string;
+      transportMode: string;
+      latitude: number | null;
+      longitude: number | null;
+      country: string | null;
+      region: string | null;
+    }> = [];
+    const toUpdate: Array<{
+      id: string;
+      data: {
+        fullName: string;
+        transportMode: string;
+        latitude: number | null;
+        longitude: number | null;
+        country: string | null;
+        region: string | null;
+      };
+    }> = [];
+
+    for (const station of stations) {
+      const existing = existingMap.get(station.id);
+      const newData = normalize(station);
+      const existingData = existing ? normalize(existing) : null;
+      if (!existingData) {
+        toCreate.push({ id: station.id, ...newData });
+      } else if (JSON.stringify(existingData) !== JSON.stringify(newData)) {
+        toUpdate.push({ id: station.id, data: newData });
+      }
+      // else: no change, skip
+    }
+
+    // Bulk create new stations
+    if (toCreate.length > 0) {
+      await this.prisma.station.createMany({
+        data: toCreate,
+        skipDuplicates: true,
+      });
+    }
+
+    // Batch updates for changed stations (Prisma does not support updateMany with different data, so we do them in parallel, batching for efficiency)
+    const BATCH_SIZE = 1000;
+    for (let i = 0; i < toUpdate.length; i += BATCH_SIZE) {
+      const batch = toUpdate.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map((u) =>
+          this.prisma.station.update({ where: { id: u.id }, data: u.data }),
+        ),
+      );
+    }
+
+    // Return all upserted stations
+    return this.prisma.station.findMany({ where: { id: { in: ids } } });
   }
 }
