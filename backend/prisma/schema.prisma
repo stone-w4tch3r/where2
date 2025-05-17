@@ -46,6 +46,5 @@ model RouteStop {
   route         Route    @relation(fields: [routeId], references: [id])
   station       Station  @relation(fields: [stationId], references: [id])
 
-  @@unique([routeId, stationId])
   @@map("route_stops")
 } 
