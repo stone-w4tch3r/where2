@@ -53,7 +53,7 @@ DIRECT_URL="<your-supabase-direct-connection-string>"
 
 ### Local Postgres with Docker
 
-Run in `backend/`: `docker compose up -d -f docker-comose-db.yml`
+Run in `backend/`: `docker compose -f docker-compose-db.yml up -d`
 
 Use these in `.env`:
 
