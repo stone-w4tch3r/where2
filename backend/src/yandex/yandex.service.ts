@@ -4,12 +4,22 @@ import axios, { AxiosInstance } from "axios";
 import { YandexStation, ScheduleItem } from "./entities/yandex-schemas";
 import { StationsListResponse } from "./endpoints/stationsList";
 import { getErrorMessage } from "../utils/errorHelpers";
+import { Result, resultSuccess, resultError } from "../utils/Result";
 
 // Import endpoint handlers
-import { fetchStationSchedule } from "./endpoints/stationSchedule";
-import { fetchThreadStations } from "./endpoints/threadStations";
+import {
+  fetchStationSchedule,
+  StationScheduleResponse,
+} from "./endpoints/stationSchedule";
+import {
+  fetchThreadStations,
+  ThreadStationsResponse,
+} from "./endpoints/threadStations";
 import { fetchStationsList } from "./endpoints/stationsList";
-import { fetchSchedule } from "./endpoints/betweenStationsSchedule";
+import {
+  fetchSchedule,
+  BetweenStationsScheduleResponse,
+} from "./endpoints/betweenStationsSchedule";
 
 @Injectable()
 export class YandexService {
@@ -54,7 +64,10 @@ export class YandexService {
   /**
    * Fetch station schedule
    */
-  async getStationSchedule(params: { station: string; date?: string }) {
+  async getStationSchedule(params: {
+    station: string;
+    date?: string;
+  }): Promise<Result<StationScheduleResponse>> {
     try {
       const result = await fetchStationSchedule(
         {
@@ -66,21 +79,23 @@ export class YandexService {
         this.getApiConfig(),
       );
       if (result.success) {
-        return result.data;
+        return resultSuccess(result.data);
       } else {
-        throw new Error(result.error);
+        return resultError(result.error);
       }
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching station schedule: ${message}`);
-      throw new Error(`Error fetching station schedule: ${message}`);
+      return resultError(message);
     }
   }
 
   /**
    * Fetch thread stations
    */
-  async getThreadStations(params: { uid: string }) {
+  async getThreadStations(params: {
+    uid: string;
+  }): Promise<Result<ThreadStationsResponse>> {
     try {
       const result = await fetchThreadStations(
         {
@@ -91,21 +106,21 @@ export class YandexService {
         this.getApiConfig(),
       );
       if (result.success) {
-        return result.data;
+        return resultSuccess(result.data);
       } else {
-        throw new Error(result.error);
+        return resultError(result.error);
       }
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching thread stations: ${message}`);
-      throw new Error(`Error fetching thread stations: ${message}`);
+      return resultError(message);
     }
   }
 
   /**
    * Fetch stations list
    */
-  async getStationsList(): Promise<{ stations: YandexStation[] }> {
+  async getStationsList(): Promise<Result<{ stations: YandexStation[] }>> {
     try {
       const result = await fetchStationsList(
         {
@@ -116,14 +131,14 @@ export class YandexService {
       );
       if (result.success) {
         // Transform the response to match the expected format with stations array
-        return this.transformStationsResponse(result.data);
+        return resultSuccess(this.transformStationsResponse(result.data));
       } else {
-        throw new Error(result.error);
+        return resultError(result.error);
       }
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching stations list: ${message}`);
-      throw new Error(`Error fetching stations list: ${message}`);
+      return resultError(message);
     }
   }
 
@@ -175,21 +190,25 @@ export class YandexService {
   /**
    * Fetch schedule between stations
    */
-  async getSchedule(from: string, to: string, date: string) {
+  async getSchedule(
+    from: string,
+    to: string,
+    date: string,
+  ): Promise<Result<BetweenStationsScheduleResponse>> {
     try {
       const result = await fetchSchedule(
         { from, to, date },
         this.getApiConfig(),
       );
       if (result.success) {
-        return result.data;
+        return resultSuccess(result.data);
       } else {
-        throw new Error(result.error);
+        return resultError(result.error);
       }
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching schedule: ${message}`);
-      throw new Error(`Error fetching schedule: ${message}`);
+      return resultError(message);
     }
   }
 
@@ -201,7 +220,7 @@ export class YandexService {
     to: string;
     date: string;
     transport_types?: string;
-  }) {
+  }): Promise<Result<BetweenStationsScheduleResponse>> {
     try {
       const result = await fetchSchedule(
         {
@@ -212,14 +231,14 @@ export class YandexService {
         this.getApiConfig(),
       );
       if (result.success) {
-        return result.data;
+        return resultSuccess(result.data);
       } else {
-        throw new Error(result.error);
+        return resultError(result.error);
       }
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error searching routes: ${message}`);
-      throw new Error(`Error searching routes: ${message}`);
+      return resultError(message);
     }
   }
 }
