@@ -47,7 +47,7 @@ export class ReachabilityService {
       const originRouteStops =
         await this.routeOrm.findRouteStopsByStation(originId);
 
-      const originRoutes = originRouteStops.map((rs) => rs.route);
+      const originRoutes = originRouteStops.map((rs) => rs.routeId);
 
       // Initialize visited stations map with distances
       const visited = new Map<string, number>();
@@ -62,7 +62,7 @@ export class ReachabilityService {
 
       // Initial state: all routes from origin station, 0 transfers
       for (const route of originRoutes) {
-        const routeId = route.id;
+        const routeId = route;
 
         // Get all stops for this route
         const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
@@ -93,11 +93,11 @@ export class ReachabilityService {
         const stationRouteStops =
           await this.routeOrm.findRouteStopsByStation(stationId);
 
-        const stationRoutes = stationRouteStops.map((rs) => rs.route);
+        const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
 
         // For each route, add all stops that we haven't visited
         for (const route of stationRoutes) {
-          const routeId = route.id;
+          const routeId = route;
 
           // Skip routes we've already taken
           if (routesSoFar.has(routeId)) {
@@ -157,7 +157,15 @@ export class ReachabilityService {
         const routeStops =
           await this.routeOrm.findRouteStopsByStation(stationId);
 
-        const routes = routeStops.map((rs) => rs.route);
+        // Fetch full Route objects for each routeId
+        const routeIds = routeStops.map((rs) => rs.routeId);
+        const routes: Route[] = [];
+        for (const routeId of routeIds) {
+          const route = await this.routeOrm.findRouteByIdSimple(routeId);
+          if (route) {
+            routes.push(route);
+          }
+        }
 
         reachableStations.push({
           station,
