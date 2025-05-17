@@ -20,6 +20,7 @@ export class ReachabilityQueryDto {
     default: 1,
     minimum: 0,
     maximum: 3,
+    type: Number,
   })
   @IsOptional()
   @IsNumber()

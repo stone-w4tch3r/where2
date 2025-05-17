@@ -21,14 +21,6 @@ export class StationsController {
     return this.stationsService.findAll();
   }
 
-  @ApiOperation({ summary: "Get station by ID" })
-  @ApiParam({ name: "id", description: "Station ID" })
-  @ApiResponse({ status: 200, description: "Returns the station" })
-  @Get(":id")
-  async findOne(@Param("id") id: string) {
-    return this.stationsService.findOne(id);
-  }
-
   @ApiOperation({ summary: "Get stations by location" })
   @ApiResponse({
     status: 200,
@@ -41,6 +33,14 @@ export class StationsController {
       query.longitude,
       query.radius,
     );
+  }
+
+  @ApiOperation({ summary: "Get station by ID" })
+  @ApiParam({ name: "id", description: "Station ID" })
+  @ApiResponse({ status: 200, description: "Returns the station" })
+  @Get(":id")
+  async findOne(@Param("id") id: string) {
+    return this.stationsService.findOne(id);
   }
 
   @ApiOperation({ summary: "Find stations by name" })
