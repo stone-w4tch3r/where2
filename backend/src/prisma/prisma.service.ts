@@ -8,9 +8,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit() {
-    const commands: [string, string[]][] = [
-      ["prisma", ["migrate", "deploy"]],
-    ];
+    const commands: [string, string[]][] = [["prisma", ["migrate", "deploy"]]];
     for (const [cmd, args] of commands) {
       const result = spawn.sync("pnpm", [cmd, ...args], { stdio: "inherit" });
       if (result.status !== 0) {
