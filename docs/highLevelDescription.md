@@ -43,7 +43,7 @@ Yandex Rasp has a lot of data, app will use only Sverdlovsk Region, Russia
 ## back
 
 1. typescript
-2. express
+2. nestjs
 3. prisma
 4. supabase
 5. zod

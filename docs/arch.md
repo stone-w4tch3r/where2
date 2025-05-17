@@ -13,8 +13,8 @@ flowchart TD
     end
 
     subgraph "Backend"
-        API[Express API]
-        DataProcessor[Schedule Data Processor]
+        API[NestJS API]
+        DataImporter[Schedule Data Importer]
         CronJobManager[Cron Job Manager]
         ExternalAPI[Yandex.Rasp API Client]
         Cache[Data Cache]
@@ -34,13 +34,13 @@ flowchart TD
     MapPlugins --> MapProviders
     StateManagement --> APIClient
     APIClient --> API
-    API --> DataProcessor
+    API --> DataImporter
     API --> RouteService
     API --> TransferCalculator
-    CronJobManager --> DataProcessor
-    DataProcessor --> ExternalAPI
+    CronJobManager --> DataImporter
+    DataImporter --> ExternalAPI
     ExternalAPI --> ExternalSources
-    DataProcessor --> DB
+    DataImporter --> DB
     API --> DB
     API --> Cache
 ```
@@ -105,16 +105,16 @@ flowchart TB
   %% Batch import
   subgraph Batch Processor
     CronJobManager[Cron Job Manager<br/>scheduled tasks]
-    DataProcessor[Schedule Data Processor]
+    DataImporter[Schedule Data Importer]
     ExternalAPI[Yandex.Rasp API]
-    CronJobManager --> DataProcessor
-    DataProcessor --> ExternalAPI
-    DataProcessor --> DB[(Supabase/Prisma)]
+    CronJobManager --> DataImporter
+    DataImporter --> ExternalAPI
+    DataImporter --> DB[(Supabase/Prisma)]
   end
 
   %% Runtime API
-  subgraph Express Runtime
-    API[Express.js API]
+  subgraph NestJS Runtime
+    API[NestJS API]
     API -->|GET /stations| StationCtrl[StationController]
     API -->|GET /routes| RouteCtrl[RouteController]
     API -->|GET /reachability| ReachCtrl[ReachabilityController]
@@ -125,7 +125,7 @@ flowchart TB
     StationCtrl --> StationSvc[StationService]
     RouteCtrl   --> RouteSvc[RouteService]
     ReachCtrl   --> ReachSvc[TransferCalculator]
-    ManualImport --> DataProcessor
+    ManualImport --> DataImporter
     CronStart --> CronJobManager
     CronStop --> CronJobManager
 

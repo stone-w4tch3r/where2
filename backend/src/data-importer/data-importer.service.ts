@@ -20,8 +20,8 @@ enum TransportMode {
 }
 
 @Injectable()
-export class DataProcessorService {
-  private readonly logger = new Logger(DataProcessorService.name);
+export class DataImporterService {
+  private readonly logger = new Logger(DataImporterService.name);
 
   constructor(
     private readonly yandexService: YandexService,
@@ -44,16 +44,16 @@ export class DataProcessorService {
     }
   }
 
-  async handleDailyDataProcessing() {
-    this.logger.log("Running daily data processing");
-    await this.processAllData();
+  async handleDailyDataImport() {
+    this.logger.log("Running daily data import");
+    await this.importAllData();
   }
 
   /**
-   * Process all stations in Sverdlovsk region and their routes
+   * Import all stations in Sverdlovsk region and their routes
    */
-  async processAllData(): Promise<Result<string, AppError>> {
-    this.logger.log("Starting data processing...");
+  async importAllData(): Promise<Result<string, AppError>> {
+    this.logger.log("Starting data import...");
     // Step 1: Get stations in Sverdlovsk region
     const stationsResponseResult = await this.yandexService.getStationsList();
     if (!stationsResponseResult.success) {
@@ -94,7 +94,7 @@ export class DataProcessorService {
     this.logger.log("All stations saved to database");
 
     // Step 3: For each station, get schedules to extract threads
-    const processedThreads = new Set<string>();
+    const importedThreads = new Set<string>();
     let routeCount = 0;
 
     for (const yandexStation of sverdlovskStations) {
@@ -116,17 +116,17 @@ export class DataProcessorService {
         (item: ScheduleItem) => item.thread,
       );
 
-      // Process each thread (route)
+      // Import each thread (route)
       for (const thread of threads) {
         const threadUid = thread.uid;
 
-        // Skip if we've already processed this thread
-        if (processedThreads.has(threadUid)) {
+        // Skip if we've already imported this thread
+        if (importedThreads.has(threadUid)) {
           continue;
         }
 
-        // Mark as processed
-        processedThreads.add(threadUid);
+        // Mark as imported
+        importedThreads.add(threadUid);
 
         const threadResult = await this.yandexService.getThreadStations({
           uid: threadUid,
@@ -161,11 +161,11 @@ export class DataProcessorService {
     }
 
     this.logger.log(
-      `Processed ${routeCount} routes from ${processedThreads.size} threads`,
+      `Imported ${routeCount} routes from ${importedThreads.size} threads`,
     );
 
     return resultSuccess(
-      `Successfully processed ${sverdlovskStations.length} stations and ${routeCount} routes`,
+      `Successfully imported ${sverdlovskStations.length} stations and ${routeCount} routes`,
     );
   }
 

@@ -34,7 +34,7 @@
 - throw/catch only for unrecoverable or global errors.
 - Error pattern in UI: `if (!res.success) showError(res.error)`.
 
-### Backend (Express + Prisma)
+### Backend (NestJS + Prisma)
 
 - Zod DTOs for request/response schemas.
 - Prisma models + migrations in Git.

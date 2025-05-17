@@ -6,7 +6,7 @@ import { StationsModule } from "./stations/stations.module";
 import { RoutesModule } from "./routes/routes.module";
 import { ReachabilityModule } from "./reachability/reachability.module";
 import { YandexModule } from "./yandex/yandex.module";
-import { DataProcessorModule } from "./data-processor/data-processor.module";
+import { DataImporterModule } from "./data-importer/data-importer.module";
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { DataProcessorModule } from "./data-processor/data-processor.module";
     RoutesModule,
     ReachabilityModule,
     YandexModule,
-    DataProcessorModule,
+    DataImporterModule,
   ],
 })
 export class AppModule {}
