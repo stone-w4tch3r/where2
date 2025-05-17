@@ -1,7 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
-import { Result, resultSuccess, resultError } from "../utils/Result.js";
+import { Result, resultSuccess, resultError } from "../utils/Result";
 import { Station } from "@prisma/client";
+import { AppError, NotFoundError, InternalError } from "../utils/errors";
 
 @Injectable()
 export class StationsService {
@@ -12,14 +13,14 @@ export class StationsService {
   private async executeWithResult<T>(
     operation: () => Promise<T> | T,
     errorMessage = "Operation failed",
-  ): Promise<Result<T>> {
+  ): Promise<Result<T, AppError>> {
     try {
       const result = await operation();
       return resultSuccess(result);
     } catch (error: unknown) {
       const err = error as Error & { code?: string };
       this.logger.error(`${errorMessage}: ${err.message}`, err.stack);
-      return resultError(errorMessage);
+      return resultError(new InternalError(errorMessage));
     }
   }
 
@@ -27,27 +28,29 @@ export class StationsService {
     data: T | null | undefined,
     entityName: string,
     identifier?: string,
-  ): Result<T> {
+  ): Result<T, AppError> {
     if (!data) {
       const idString = identifier ? ` with id ${identifier}` : "";
-      return resultError(`${entityName}${idString} not found`);
+      return resultError(
+        new NotFoundError(`${entityName}${idString} not found`),
+      );
     }
     return resultSuccess(data);
   }
 
-  async findAll(): Promise<Result<Station[]>> {
+  async findAll(): Promise<Result<Station[], AppError>> {
     return this.executeWithResult(
       () => this.stationOrm.findMany(),
       "Failed to fetch stations",
     );
   }
 
-  async findOne(id: string): Promise<Result<Station>> {
+  async findOne(id: string): Promise<Result<Station, AppError>> {
     const station = await this.stationOrm.findOne(id);
     return this.handleNotFound(station, "Station", id);
   }
 
-  async findByName(name: string): Promise<Result<Station[]>> {
+  async findByName(name: string): Promise<Result<Station[], AppError>> {
     return this.executeWithResult(async () => {
       return this.stationOrm.findByName(name);
     }, `Failed to find stations by name: ${name}`);
@@ -57,7 +60,7 @@ export class StationsService {
     latitude: number,
     longitude: number,
     radiusKm: number,
-  ): Promise<Result<Station[]>> {
+  ): Promise<Result<Station[], AppError>> {
     return this.executeWithResult(async () => {
       return this.stationOrm.findByCoordinates(latitude, longitude, radiusKm);
     }, "Failed to find stations by coordinates");

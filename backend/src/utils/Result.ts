@@ -1,13 +1,11 @@
-export * from "./Result";
-
-export type Result<T, E = string> =
+export type Result<T, E> =
   | { success: true; data: T }
   | { success: false; error: E };
 
-export function resultSuccess<T>(data: T): Result<T> {
+export function resultSuccess<T, E>(data: T): Result<T, never> {
   return { success: true, data };
 }
 
-export function resultError<E = string>(error: E): Result<never, E> {
+export function resultError<E>(error: E): Result<never, E> {
   return { success: false, error };
 }

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Result, resultSuccess, resultError } from "../../utils/Result";
 import { countrySchema } from "../baseSchemas";
 import { getErrorMessage } from "../../utils/errorHelpers";
+import { AppError, InternalError } from "../../utils/errors";
 
 export const stationsListParamsSchema = z.object({
   /** Response language (e.g. "ru_RU", "uk_UA") */
@@ -54,7 +55,7 @@ export const fetchStationsList = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultParams: Record<string, any>;
   },
-): Promise<Result<StationsListResponse>> => {
+): Promise<Result<StationsListResponse, AppError>> => {
   const axios = (await import("axios")).default;
   const { baseUrl, apiKey, defaultParams } = config;
   try {
@@ -69,6 +70,6 @@ export const fetchStationsList = async (
     return resultSuccess(parsedData);
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    return resultError(message);
+    return resultError(new InternalError(message));
   }
 };

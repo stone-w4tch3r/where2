@@ -5,6 +5,8 @@ import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
 import { ConfigService } from "@nestjs/config";
 import { Result, resultSuccess, resultError } from "../utils/Result";
+import { InternalError } from "../utils/errors";
+import { AppError } from "../utils/errors";
 
 enum TransportMode {
   Train = "train",
@@ -50,9 +52,8 @@ export class DataProcessorService {
   /**
    * Process all stations in Sverdlovsk region and their routes
    */
-  async processAllData(): Promise<Result<string>> {
+  async processAllData(): Promise<Result<string, AppError>> {
     this.logger.log("Starting data processing...");
-
     // Step 1: Get stations in Sverdlovsk region
     const stationsResponseResult = await this.yandexService.getStationsList();
     if (!stationsResponseResult.success) {
@@ -61,7 +62,9 @@ export class DataProcessorService {
         stationsResponseResult.error,
       );
       return resultError(
-        `Error fetching stations list: ${stationsResponseResult.error}`,
+        new InternalError(
+          `Error fetching stations list: ${stationsResponseResult.error}`,
+        ),
       );
     }
     const stationsResponse = stationsResponseResult.data;

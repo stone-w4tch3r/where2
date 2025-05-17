@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Result, resultSuccess, resultError } from "../../utils/Result";
+import { AppError, InternalError } from "../../utils/errors";
 import {
   paginationSchema,
   searchInfoSchema,
@@ -73,7 +74,7 @@ export const fetchSchedule = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultParams: Record<string, any>;
   },
-): Promise<Result<BetweenStationsScheduleResponse>> => {
+): Promise<Result<BetweenStationsScheduleResponse, AppError>> => {
   const axios = (await import("axios")).default;
   const { baseUrl, apiKey, defaultParams } = config;
   try {
@@ -90,6 +91,6 @@ export const fetchSchedule = async (
     return resultSuccess(parsedData);
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    return resultError(message);
+    return resultError(new InternalError(message));
   }
 };

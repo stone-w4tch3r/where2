@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
 import { Station, Route } from "@prisma/client";
+import { NotFoundError, InternalError, AppError } from "../utils/errors";
+import { Result, resultSuccess, resultError } from "../utils/Result";
 
 export interface ReachabilityResult {
   origin: string;
@@ -30,13 +32,15 @@ export class ReachabilityService {
   async calculateReachableStations(
     originId: string,
     maxTransfers: number,
-  ): Promise<ReachabilityResult> {
+  ): Promise<Result<ReachabilityResult, AppError>> {
     try {
       // Get the origin station
       const originStation = await this.stationOrm.findOne(originId);
 
       if (!originStation) {
-        throw new Error(`Origin station not found: ${originId}`);
+        return resultError(
+          new NotFoundError(`Origin station not found: ${originId}`),
+        );
       }
 
       // Get all routes that contain this station
@@ -162,13 +166,15 @@ export class ReachabilityService {
         });
       }
 
-      return {
+      return resultSuccess({
         origin: originId,
         maxTransfers,
         reachableStations,
-      };
+      });
     } catch (error) {
-      throw new Error(`Error calculating reachable stations: ${error}`);
+      return resultError(
+        new InternalError(`Error calculating reachable stations: ${error}`),
+      );
     }
   }
 }

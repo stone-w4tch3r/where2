@@ -5,6 +5,12 @@ import { YandexStation, ScheduleItem } from "./entities/yandex-schemas";
 import { StationsListResponse } from "./endpoints/stationsList";
 import { getErrorMessage } from "../utils/errorHelpers";
 import { Result, resultSuccess, resultError } from "../utils/Result";
+import {
+  AppError,
+  NotFoundError,
+  InternalError,
+  ValidationError,
+} from "../utils/errors";
 
 // Import endpoint handlers
 import {
@@ -67,7 +73,7 @@ export class YandexService {
   async getStationSchedule(params: {
     station: string;
     date?: string;
-  }): Promise<Result<StationScheduleResponse>> {
+  }): Promise<Result<StationScheduleResponse, AppError>> {
     try {
       const result = await fetchStationSchedule(
         {
@@ -86,7 +92,7 @@ export class YandexService {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching station schedule: ${message}`);
-      return resultError(message);
+      return resultError(new InternalError(message));
     }
   }
 
@@ -95,7 +101,7 @@ export class YandexService {
    */
   async getThreadStations(params: {
     uid: string;
-  }): Promise<Result<ThreadStationsResponse>> {
+  }): Promise<Result<ThreadStationsResponse, AppError>> {
     try {
       const result = await fetchThreadStations(
         {
@@ -113,14 +119,16 @@ export class YandexService {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching thread stations: ${message}`);
-      return resultError(message);
+      return resultError(new InternalError(message));
     }
   }
 
   /**
    * Fetch stations list
    */
-  async getStationsList(): Promise<Result<{ stations: YandexStation[] }>> {
+  async getStationsList(): Promise<
+    Result<{ stations: YandexStation[] }, AppError>
+  > {
     try {
       const result = await fetchStationsList(
         {
@@ -138,7 +146,7 @@ export class YandexService {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching stations list: ${message}`);
-      return resultError(message);
+      return resultError(new InternalError(message));
     }
   }
 
@@ -194,7 +202,7 @@ export class YandexService {
     from: string,
     to: string,
     date: string,
-  ): Promise<Result<BetweenStationsScheduleResponse>> {
+  ): Promise<Result<BetweenStationsScheduleResponse, AppError>> {
     try {
       const result = await fetchSchedule(
         { from, to, date },
@@ -208,7 +216,7 @@ export class YandexService {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error fetching schedule: ${message}`);
-      return resultError(message);
+      return resultError(new InternalError(message));
     }
   }
 
@@ -220,7 +228,7 @@ export class YandexService {
     to: string;
     date: string;
     transport_types?: string;
-  }): Promise<Result<BetweenStationsScheduleResponse>> {
+  }): Promise<Result<BetweenStationsScheduleResponse, AppError>> {
     try {
       const result = await fetchSchedule(
         {
@@ -238,7 +246,7 @@ export class YandexService {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       this.logger.error(`Error searching routes: ${message}`);
-      return resultError(message);
+      return resultError(new InternalError(message));
     }
   }
 }

@@ -23,9 +23,14 @@ export class ReachabilityController {
   async getReachableStations(
     @Query() query: ReachabilityQueryDto,
   ): Promise<ReachabilityResult> {
-    return this.reachabilityService.calculateReachableStations(
+    const result = await this.reachabilityService.calculateReachableStations(
       query.stationId,
       query.maxTransfers,
     );
+    if (result.success) {
+      return result.data;
+    } else {
+      throw result.error;
+    }
   }
 }
