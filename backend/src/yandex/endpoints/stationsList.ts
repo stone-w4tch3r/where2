@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Result, resultSuccess, resultError } from "../../utils/Result";
 import { countrySchema } from "../baseSchemas";
+import { getErrorMessage } from "../../utils/errorHelpers";
 
 export const stationsListParamsSchema = z.object({
   /** Response language (e.g. "ru_RU", "uk_UA") */
@@ -50,6 +51,7 @@ export const fetchStationsList = async (
   config: {
     baseUrl: string;
     apiKey: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultParams: Record<string, any>;
   },
 ): Promise<Result<StationsListResponse>> => {
@@ -65,7 +67,8 @@ export const fetchStationsList = async (
     });
     const parsedData = stationsListResponseSchema.parse(response.data);
     return resultSuccess(parsedData);
-  } catch (error: any) {
-    return resultError(error.message);
+  } catch (error: unknown) {
+    const message = getErrorMessage(error);
+    return resultError(message);
   }
 };

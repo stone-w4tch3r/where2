@@ -12,7 +12,7 @@ import { Result } from "./Result";
 
 @Injectable()
 export class ResultInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       map((data) => {
         // If the data is not a Result object, return it as is
@@ -20,7 +20,7 @@ export class ResultInterceptor implements NestInterceptor {
           return data;
         }
 
-        const result = data as Result<any>;
+        const result = data as Result<unknown>;
 
         if (result.success) {
           return result.data;

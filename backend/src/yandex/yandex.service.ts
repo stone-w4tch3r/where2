@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import axios, { AxiosInstance } from "axios";
 import { YandexStation, ScheduleItem } from "./entities/yandex-schemas";
 import { StationsListResponse } from "./endpoints/stationsList";
+import { getErrorMessage } from "../utils/errorHelpers";
 
 // Import endpoint handlers
 import { fetchStationSchedule } from "./endpoints/stationSchedule";
@@ -69,9 +70,10 @@ export class YandexService {
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
-      this.logger.error(`Error fetching station schedule: ${error.message}`);
-      throw new Error(`Error fetching station schedule: ${error.message}`);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      this.logger.error(`Error fetching station schedule: ${message}`);
+      throw new Error(`Error fetching station schedule: ${message}`);
     }
   }
 
@@ -93,9 +95,10 @@ export class YandexService {
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
-      this.logger.error(`Error fetching thread stations: ${error.message}`);
-      throw new Error(`Error fetching thread stations: ${error.message}`);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      this.logger.error(`Error fetching thread stations: ${message}`);
+      throw new Error(`Error fetching thread stations: ${message}`);
     }
   }
 
@@ -117,9 +120,10 @@ export class YandexService {
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
-      this.logger.error(`Error fetching stations list: ${error.message}`);
-      throw new Error(`Error fetching stations list: ${error.message}`);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      this.logger.error(`Error fetching stations list: ${message}`);
+      throw new Error(`Error fetching stations list: ${message}`);
     }
   }
 
@@ -182,9 +186,10 @@ export class YandexService {
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
-      this.logger.error(`Error fetching schedule: ${error.message}`);
-      throw new Error(`Error fetching schedule: ${error.message}`);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      this.logger.error(`Error fetching schedule: ${message}`);
+      throw new Error(`Error fetching schedule: ${message}`);
     }
   }
 
@@ -211,9 +216,10 @@ export class YandexService {
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
-      this.logger.error(`Error searching routes: ${error.message}`);
-      throw new Error(`Error searching routes: ${error.message}`);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      this.logger.error(`Error searching routes: ${message}`);
+      throw new Error(`Error searching routes: ${message}`);
     }
   }
 }

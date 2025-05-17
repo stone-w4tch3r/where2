@@ -11,11 +11,7 @@ export class RoutesController {
   @ApiResponse({ status: 200, description: "Returns all routes" })
   @Get()
   async findAll() {
-    try {
-      return await this.routesService.findAll();
-    } catch (error) {
-      throw error;
-    }
+    return this.routesService.findAll();
   }
 
   @ApiOperation({ summary: "Get route by ID" })
@@ -23,11 +19,7 @@ export class RoutesController {
   @ApiResponse({ status: 200, description: "Returns the route" })
   @Get(":id")
   async findOne(@Param("id") id: string) {
-    try {
-      return await this.routesService.findOne(id);
-    } catch (error) {
-      throw error;
-    }
+    return this.routesService.findOne(id);
   }
 
   @ApiOperation({ summary: "Get routes by station ID" })
@@ -35,10 +27,6 @@ export class RoutesController {
   @ApiResponse({ status: 200, description: "Returns routes for the station" })
   @Get("by-station/:stationId")
   async findByStation(@Param("stationId") stationId: string) {
-    try {
-      return await this.routesService.findByStation(stationId);
-    } catch (error) {
-      throw error;
-    }
+    return this.routesService.findByStation(stationId);
   }
 }

@@ -1,14 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
+import { Station, Route } from "@prisma/client";
 
 export interface ReachabilityResult {
   origin: string;
   maxTransfers: number;
   reachableStations: {
-    station: any;
+    station: Station;
     transferCount: number;
-    routes: any[];
+    routes: Route[];
   }[];
 }
 

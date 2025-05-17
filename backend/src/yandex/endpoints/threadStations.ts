@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Result, resultSuccess, resultError } from "../../utils/Result";
 import { threadSchema, intervalSchema } from "../baseSchemas";
 import { threadStopSchema } from "../baseSchemas";
+import { getErrorMessage } from "../../utils/errorHelpers";
 
 export const threadStationsParamsSchema = z.object({
   uid: z
@@ -101,6 +102,7 @@ export const fetchThreadStations = async (
   config: {
     baseUrl: string;
     apiKey: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultParams: Record<string, any>;
   },
 ): Promise<Result<ThreadStationsResponse>> => {
@@ -116,7 +118,8 @@ export const fetchThreadStations = async (
     });
     const parsedData = threadStationsResponseSchema.parse(response.data);
     return resultSuccess(parsedData);
-  } catch (error: any) {
-    return resultError(error.message);
+  } catch (error: unknown) {
+    const message = getErrorMessage(error);
+    return resultError(message);
   }
 };

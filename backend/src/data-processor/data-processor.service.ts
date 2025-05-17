@@ -27,7 +27,7 @@ export class DataProcessorService {
     private readonly configService: ConfigService,
   ) {}
 
-  private cronJob: any;
+  private cronJob: (() => void) | null = null;
 
   onModuleInit() {
     const cron = this.configService.get<string>("DATA_IMPORT_CRON") || "";
@@ -35,10 +35,8 @@ export class DataProcessorService {
       this.configService.get<string>("DATA_IMPORT_ENABLED") === "true" &&
       cron !== "";
     if (enabled) {
-      const schedule = require("@nestjs/schedule");
-      this.cronJob = schedule.Cron(cron, { timeZone: "UTC" })(
-        this,
-        "handleDailyDataProcessing",
+      throw new Error(
+        "Schedule module is not properly injected. Please refactor to use dependency injection for scheduling.",
       );
     }
   }

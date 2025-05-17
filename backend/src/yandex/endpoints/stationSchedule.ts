@@ -6,6 +6,7 @@ import {
   threadSchemaWithInterval,
   stationSchema,
 } from "../baseSchemas";
+import { getErrorMessage } from "../../utils/errorHelpers";
 
 export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
@@ -124,6 +125,7 @@ export const fetchStationSchedule = async (
   config: {
     baseUrl: string;
     apiKey: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultParams: Record<string, any>;
   },
 ): Promise<Result<StationScheduleResponse>> => {
@@ -139,7 +141,8 @@ export const fetchStationSchedule = async (
     });
     const parsedData = stationScheduleResponseSchema.parse(response.data);
     return resultSuccess(parsedData);
-  } catch (error: any) {
-    return resultError(error.message);
+  } catch (error: unknown) {
+    const message = getErrorMessage(error);
+    return resultError(message);
   }
 };
