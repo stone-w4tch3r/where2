@@ -27,7 +27,7 @@ Backend API for stations, routes, reachability, and data import.
 
 4. **Start server:**
    ```bash
-   pnpm prebuild # only first time
+   pnpm build:prisma # only first time
    pnpm build
    pnpm start:watch
    ```

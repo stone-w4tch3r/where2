@@ -2,7 +2,7 @@
   "name": "where2-backend",
   "version": "1.0.0",
   "scripts": {
-    "prebuild": "prisma generate",
+    "build:prisma": "prisma generate",
     "build": "nest build",
     "start": "nest start",
     "start:watch": "nest start --watch",
