@@ -68,9 +68,21 @@ export class DatabaseMaintenanceService implements OnModuleInit {
       this.logger.log("ANALYZE completed successfully");
 
       // REINDEX to rebuild indexes which can become fragmented
-      await this.prisma.$executeRawUnsafe(
-        "REINDEX DATABASE CONCURRENTLY current_database()",
-      );
+      // Extract database name from DATABASE_URL
+      const databaseUrl = this.configService.get<string>("DATABASE_URL");
+      let dbName = "";
+      if (databaseUrl) {
+        // Match the last path segment before the ? or end of string
+        const match = databaseUrl.match(/\/([^/?]+)(?:\?|$)/);
+        if (match) {
+          dbName = match[1];
+        } else {
+          throw new Error("Could not parse database name from DATABASE_URL");
+        }
+      } else {
+        throw new Error("DATABASE_URL is not set");
+      }
+      await this.prisma.$executeRawUnsafe(`REINDEX DATABASE "${dbName}"`);
       this.logger.log("REINDEX completed successfully");
 
       return true;

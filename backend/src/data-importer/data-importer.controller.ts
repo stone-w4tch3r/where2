@@ -1,7 +1,7 @@
 import { Controller, Post, HttpCode, HttpStatus, Logger } from "@nestjs/common";
 import { DataImporterService } from "./data-importer.service";
 
-@Controller("api/admin")
+@Controller("admin/importer")
 export class DataImporterController {
   constructor(private readonly dataImporterService: DataImporterService) {}
 

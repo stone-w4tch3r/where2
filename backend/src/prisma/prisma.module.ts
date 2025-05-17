@@ -3,6 +3,7 @@ import { PrismaService } from "./prisma.service";
 import { StationOrmService } from "./station-orm.service";
 import { RouteOrmService } from "./route-orm.service";
 import { DatabaseMaintenanceService } from "./database-maintenance.service";
+import { DatabaseMaintenanceController } from "./database-maintenance.controller";
 
 @Module({
   providers: [
@@ -17,5 +18,6 @@ import { DatabaseMaintenanceService } from "./database-maintenance.service";
     RouteOrmService,
     DatabaseMaintenanceService,
   ],
+  controllers: [DatabaseMaintenanceController],
 })
 export class PrismaModule {}
