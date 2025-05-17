@@ -10,8 +10,8 @@ export class StationOrmService {
     id: string;
     fullName: string;
     transportMode: string;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
     country: string;
     region: string;
   }): Promise<Station> {

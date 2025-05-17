@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { YandexService } from "../yandex/yandex.service";
-import { YandexStation, ScheduleItem } from "../yandex/entities/yandex-schemas";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
 import { ConfigService } from "@nestjs/config";
@@ -71,7 +70,7 @@ export class DataImporterService {
 
     // Filter stations for Sverdlovsk region
     const sverdlovskStations = stationsResponse.stations.filter(
-      (station: YandexStation) => station.region === "Свердловская область",
+      (station) => station.region === "Свердловская область",
     );
 
     this.logger.log(
@@ -81,11 +80,12 @@ export class DataImporterService {
     // Step 2: Save stations to database
     for (const yandexStation of sverdlovskStations) {
       await this.stationOrm.upsertStation({
-        id: yandexStation.code,
+        id: yandexStation.codes.yandex_code,
         fullName: yandexStation.title,
         transportMode: yandexStation.transport_type,
-        latitude: yandexStation.latitude,
-        longitude: yandexStation.longitude,
+        latitude: yandexStation.latitude === "" ? null : yandexStation.latitude,
+        longitude:
+          yandexStation.longitude === "" ? null : yandexStation.longitude,
         country: yandexStation.country ?? "",
         region: yandexStation.region ?? "",
       });
@@ -98,7 +98,7 @@ export class DataImporterService {
     let routeCount = 0;
 
     for (const yandexStation of sverdlovskStations) {
-      const stationId = yandexStation.code;
+      const stationId = yandexStation.codes.yandex_code;
 
       const scheduleResult = await this.yandexService.getStationSchedule({
         station: stationId,
@@ -112,12 +112,11 @@ export class DataImporterService {
       const scheduleData = scheduleResult.data;
 
       // Extract thread UIDs from schedule
-      const threads = scheduleData.schedule.map(
-        (item: ScheduleItem) => item.thread,
-      );
+      const threads = scheduleData.schedule;
 
       // Import each thread (route)
-      for (const thread of threads) {
+      for (const item of threads) {
+        const thread = item.thread;
         const threadUid = thread.uid;
 
         // Skip if we've already imported this thread
@@ -140,9 +139,7 @@ export class DataImporterService {
         const threadData = threadResult.data;
 
         // Extract route stops
-        const stopIds = threadData.stops.map(
-          (stop: { station: { code: string } }) => stop.station.code,
-        );
+        const stopIds = threadData.stops.map((stop) => stop.station.code);
 
         const transportType = this.mapTransportType(thread.transport_type);
 

@@ -6,8 +6,8 @@ export type Station = {
   popularName: string | null;
   shortName: string | null;
   transportMode: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   country: string | null;
   region: string | null;
 };

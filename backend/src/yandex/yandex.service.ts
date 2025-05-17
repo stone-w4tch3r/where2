@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import axios, { AxiosInstance } from "axios";
-import { YandexStation, ScheduleItem } from "./entities/yandex-schemas";
+import { StationListItemContract } from "./baseSchemas";
 import { StationsListResponse } from "./endpoints/stationsList";
 import { getErrorMessage } from "../utils/errorHelpers";
 import { Result, resultSuccess, resultError } from "../utils/Result";
@@ -26,6 +26,12 @@ import {
   fetchSchedule,
   BetweenStationsScheduleResponse,
 } from "./endpoints/betweenStationsSchedule";
+
+// Define a type for transformed station data that includes region/country
+type StationWithRegion = StationListItemContract & {
+  region?: string;
+  country?: string;
+};
 
 @Injectable()
 export class YandexService {
@@ -127,7 +133,7 @@ export class YandexService {
    * Fetch stations list
    */
   async getStationsList(): Promise<
-    Result<{ stations: YandexStation[] }, AppError>
+    Result<{ stations: StationWithRegion[] }, AppError>
   > {
     try {
       const result = await fetchStationsList(
@@ -154,10 +160,10 @@ export class YandexService {
    * Transform the stations list response into a flattened stations array
    */
   private transformStationsResponse(response: StationsListResponse): {
-    stations: YandexStation[];
+    stations: StationWithRegion[];
   } {
     // Extract and flatten stations from all countries, regions, and settlements
-    const stations: YandexStation[] = [];
+    const stations: StationWithRegion[] = [];
 
     if (response.countries) {
       response.countries.forEach((country) => {
@@ -167,22 +173,13 @@ export class YandexService {
               region.settlements.forEach((settlement) => {
                 if (settlement.stations) {
                   settlement.stations.forEach((station) => {
-                    // Get the Yandex code from codes object
-                    const code =
-                      station.codes?.yandex_code ||
-                      station.codes?.esr_code ||
-                      `station_${stations.length}`;
-
-                    stations.push({
-                      code: code,
-                      title: station.title,
-                      station_type: station.station_type || "",
-                      transport_type: station.transport_type,
-                      latitude: station.latitude || 0,
-                      longitude: station.longitude || 0,
+                    // Create a station object with region/country metadata
+                    const extendedStation: StationWithRegion = {
+                      ...station,
                       country: country.title,
                       region: region.title,
-                    });
+                    };
+                    stations.push(extendedStation);
                   });
                 }
               });

@@ -17,8 +17,8 @@ model Station {
   popularName  String?
   shortName    String?
   transportMode String
-  latitude     Float
-  longitude    Float
+  latitude     Float?
+  longitude    Float?
   country      String?
   region       String?
   routeStops   RouteStop[]
