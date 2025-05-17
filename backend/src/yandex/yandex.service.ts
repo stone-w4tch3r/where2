@@ -48,20 +48,6 @@ export class YandexService {
     this.baseUrl = "https://api.rasp.yandex.net/v3.0";
   }
 
-  /**
-   * Creates an axios instance with default configuration
-   */
-  private createApiInstance(): AxiosInstance {
-    return axios.create({
-      baseURL: this.baseUrl,
-      params: {
-        apikey: this.apiKey,
-        format: "json",
-        lang: "ru_RU",
-      },
-    });
-  }
-
   private getApiConfig() {
     return {
       baseUrl: this.baseUrl.endsWith("/") ? this.baseUrl : this.baseUrl + "/",

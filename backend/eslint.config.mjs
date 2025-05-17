@@ -26,6 +26,7 @@ export default [
       'no-unused-vars': ['off'],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-inferrable-types': 'error',
+      'no-unreachable': 'off',
       // You can add more rules as needed
     },
     settings: {},

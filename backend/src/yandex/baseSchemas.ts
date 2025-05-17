@@ -27,6 +27,7 @@ export const stationSchema = z.object({
       "wharf",
       "river_port",
       "marine_station",
+      ""
     ])
     .describe("Type of station"),
   station_type_name: z
@@ -83,7 +84,7 @@ export const threadSchema = z.object({
     .string()
     .optional()
     .describe("URL for thread info request"),
-  carrier: carrierSchema,
+  carrier: carrierSchema.nullable(),
   transport_type: z.enum([
     "plane",
     "train",
