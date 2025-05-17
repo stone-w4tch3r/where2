@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { Result, resultSuccess, resultError } from "../../utils/Result";
+import { Result } from "../../utils/Result";
 import { countrySchema } from "../baseSchemas";
-import { getErrorMessage } from "../../utils/errorHelpers";
-import { AppError, InternalError } from "../../utils/errors";
+import { AppError } from "../../utils/errors";
+import { makeApiRequest } from "../utils/apiRequest";
 
 export const stationsListParamsSchema = z.object({
   /** Response language (e.g. "ru_RU", "uk_UA") */
@@ -21,6 +21,8 @@ export const stationsListResponseSchema = z.object({
 });
 
 export type StationsListResponse = z.infer<typeof stationsListResponseSchema>;
+
+const STATIONS_LIST_ENDPOINT = "stations_list";
 
 /**
  * Fetches complete stations list
@@ -56,20 +58,10 @@ export const fetchStationsList = async (
     defaultParams: Record<string, any>;
   },
 ): Promise<Result<StationsListResponse, AppError>> => {
-  const axios = (await import("axios")).default;
-  const { baseUrl, apiKey, defaultParams } = config;
-  try {
-    const response = await axios.get(baseUrl + "stations_list", {
-      params: {
-        apikey: apiKey,
-        ...defaultParams,
-        ...params,
-      },
-    });
-    const parsedData = stationsListResponseSchema.parse(response.data);
-    return resultSuccess(parsedData);
-  } catch (error: unknown) {
-    const message = getErrorMessage(error);
-    return resultError(new InternalError(message));
-  }
+  return makeApiRequest(
+    STATIONS_LIST_ENDPOINT,
+    params,
+    stationsListResponseSchema,
+    config,
+  );
 };

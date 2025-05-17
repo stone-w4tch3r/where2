@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { Result, resultSuccess, resultError } from "../../utils/Result";
-import { AppError, InternalError } from "../../utils/errors";
+import { Result } from "../../utils/Result";
+import { AppError } from "../../utils/errors";
 import {
   paginationSchema,
   directionSchema,
   threadSchemaWithInterval,
   stationSchema,
 } from "../baseSchemas";
-import { getErrorMessage } from "../../utils/errorHelpers";
+import { makeApiRequest } from "../utils/apiRequest";
 
 export const stationScheduleParamsSchema = z.object({
   station: z.string().describe("Station code"),
@@ -130,20 +130,10 @@ export const fetchStationSchedule = async (
     defaultParams: Record<string, any>;
   },
 ): Promise<Result<StationScheduleResponse, AppError>> => {
-  const axios = (await import("axios")).default;
-  const { baseUrl, apiKey, defaultParams } = config;
-  try {
-    const response = await axios.get(baseUrl + SCHEDULE_ENDPOINT, {
-      params: {
-        apikey: apiKey,
-        ...defaultParams,
-        ...params,
-      },
-    });
-    const parsedData = stationScheduleResponseSchema.parse(response.data);
-    return resultSuccess(parsedData);
-  } catch (error: unknown) {
-    const message = getErrorMessage(error);
-    return resultError(new InternalError(message));
-  }
+  return makeApiRequest(
+    SCHEDULE_ENDPOINT,
+    params,
+    stationScheduleResponseSchema,
+    config,
+  );
 };
