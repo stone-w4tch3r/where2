@@ -81,38 +81,83 @@ export class RouteOrmService {
     stopIds: string[];
   }) {
     await this.prisma.$transaction(async (tx) => {
-      // Save the route
-      await tx.route.upsert({
+      // Get existing route
+      const existingRoute = await tx.route.findUnique({
         where: { id: threadUid },
-        update: {
-          shortTitle,
-          fullTitle,
-          transportMode: transportType,
-          routeInfoUrl,
-        },
-        create: {
-          id: threadUid,
-          shortTitle,
-          fullTitle,
-          transportMode: transportType,
-          routeInfoUrl,
-        },
       });
 
-      // Delete existing route stops
-      await tx.routeStop.deleteMany({
-        where: { routeId: threadUid },
-      });
+      // Create comparison objects with exactly the same structure
+      const existingRouteData = existingRoute
+        ? {
+            shortTitle: existingRoute.shortTitle,
+            fullTitle: existingRoute.fullTitle,
+            transportMode: existingRoute.transportMode,
+            routeInfoUrl: existingRoute.routeInfoUrl,
+          }
+        : null;
 
-      // Add new route stops
-      for (let i = 0; i < stopIds.length; i++) {
-        await tx.routeStop.create({
-          data: {
-            routeId: threadUid,
-            stationId: stopIds[i],
-            stopPosition: i,
+      const newRouteData = {
+        shortTitle,
+        fullTitle,
+        transportMode: transportType,
+        routeInfoUrl,
+      };
+
+      // Check if route needs to be created or updated by comparing the objects
+      const routeChanged =
+        !existingRouteData ||
+        JSON.stringify(existingRouteData) !== JSON.stringify(newRouteData);
+
+      // Only upsert the route if something has changed
+      if (routeChanged) {
+        await tx.route.upsert({
+          where: { id: threadUid },
+          update: newRouteData,
+          create: {
+            id: threadUid,
+            ...newRouteData,
           },
         });
+      }
+
+      // Get existing route stops
+      const existingStops = await tx.routeStop.findMany({
+        where: { routeId: threadUid },
+        orderBy: { stopPosition: "asc" },
+      });
+
+      // Create a normalized representation of existing stops for comparison
+      const existingStopsData = existingStops.map((stop, index) => ({
+        stationId: stop.stationId,
+        position: stop.stopPosition,
+      }));
+
+      // Create a normalized representation of new stops for comparison
+      const newStopsData = stopIds.map((stationId, index) => ({
+        stationId,
+        position: index,
+      }));
+
+      // Compare the serialized structures
+      const stopsChanged =
+        JSON.stringify(existingStopsData) !== JSON.stringify(newStopsData);
+
+      if (stopsChanged) {
+        // Delete existing route stops
+        await tx.routeStop.deleteMany({
+          where: { routeId: threadUid },
+        });
+
+        // Add new route stops
+        for (let i = 0; i < stopIds.length; i++) {
+          await tx.routeStop.create({
+            data: {
+              routeId: threadUid,
+              stationId: stopIds[i],
+              stopPosition: i,
+            },
+          });
+        }
       }
     });
   }
