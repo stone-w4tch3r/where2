@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
+import { Route, RouteStop } from "./models";
 
 @Injectable()
 export class RouteOrmService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findRoutesByStation(stationId: string) {
+  async findRoutesByStation(stationId: string): Promise<Route[]> {
     const routeStops = await this.prisma.routeStop.findMany({
       where: { stationId },
       include: {
@@ -22,7 +23,7 @@ export class RouteOrmService {
     return routeStops.map((rs) => rs.route);
   }
 
-  async findRouteById(id: string) {
+  async findRouteById(id: string): Promise<Route | null> {
     return this.prisma.route.findUnique({
       where: { id },
       include: {
@@ -34,7 +35,7 @@ export class RouteOrmService {
     });
   }
 
-  async findAllRoutes() {
+  async findAllRoutes(): Promise<Route[]> {
     return this.prisma.route.findMany({
       include: {
         stops: {
@@ -45,14 +46,14 @@ export class RouteOrmService {
     });
   }
 
-  async findRouteStopsByStation(stationId: string) {
+  async findRouteStopsByStation(stationId: string): Promise<RouteStop[]> {
     return this.prisma.routeStop.findMany({
       where: { stationId },
       include: { route: true },
     });
   }
 
-  async findRouteStopsByRoute(routeId: string) {
+  async findRouteStopsByRoute(routeId: string): Promise<RouteStop[]> {
     return this.prisma.routeStop.findMany({
       where: { routeId },
       include: { station: true },
@@ -60,7 +61,7 @@ export class RouteOrmService {
     });
   }
 
-  async findRouteByIdSimple(id: string) {
+  async findRouteByIdSimple(id: string): Promise<Route | null> {
     return this.prisma.route.findUnique({ where: { id } });
   }
 

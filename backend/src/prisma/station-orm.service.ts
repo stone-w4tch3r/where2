@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
+import { Station } from "./models";
 
 @Injectable()
 export class StationOrmService {
@@ -13,7 +14,7 @@ export class StationOrmService {
     longitude: number;
     country: string;
     region: string;
-  }) {
+  }): Promise<Station> {
     return this.prisma.station.upsert({
       where: { id: station.id },
       update: {
@@ -36,15 +37,15 @@ export class StationOrmService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Station | null> {
     return this.prisma.station.findUnique({ where: { id } });
   }
 
-  async findMany() {
+  async findMany(): Promise<Station[]> {
     return this.prisma.station.findMany();
   }
 
-  async findByName(name: string) {
+  async findByName(name: string): Promise<Station[]> {
     return this.prisma.station.findMany({
       where: {
         OR: [
@@ -60,7 +61,7 @@ export class StationOrmService {
     latitude: number,
     longitude: number,
     radiusKm: number,
-  ) {
+  ): Promise<Station[]> {
     const radiusDegrees = radiusKm / 111.32;
     return this.prisma.station.findMany({
       where: {
