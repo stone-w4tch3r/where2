@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe, Logger } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { ResultInterceptor } from "./utils/result.interceptor";
 
@@ -28,17 +28,20 @@ async function bootstrap() {
   // Start the server
   const port = process.env.PORT || 8080;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  Logger.log(
+    `Application is running on: http://localhost:${port}`,
+    "Bootstrap",
+  );
 
   // Handle shutdown signals
   process.on("SIGTERM", async () => {
-    console.log("SIGTERM received, shutting down gracefully");
+    Logger.log("SIGTERM received, shutting down gracefully", "Bootstrap");
     await app.close();
     process.exit(0);
   });
 
   process.on("SIGINT", async () => {
-    console.log("SIGINT received, shutting down gracefully");
+    Logger.log("SIGINT received, shutting down gracefully", "Bootstrap");
     await app.close();
     process.exit(0);
   });
