@@ -9,7 +9,6 @@ export class PrismaService
 {
   async onModuleInit() {
     const commands: [string, string[]][] = [
-      ["prisma", ["generate"]],
       ["prisma", ["migrate", "deploy"]],
     ];
     for (const [cmd, args] of commands) {

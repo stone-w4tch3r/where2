@@ -2,7 +2,7 @@
     "compilerOptions": {
         /* Basic Options */
         "target": "ES2022",
-        "module": "ESNext",
+        "module": "CommonJS",
         "outDir": "./dist",
         "sourceMap": true,
         "declaration": true,
@@ -28,10 +28,8 @@
                 "node_modules/*"
             ]
         },
-        "allowImportingTsExtensions": true,
         "resolveJsonModule": true,
-        "emitDeclarationOnly": false,
-        "noEmit": true
+        "emitDeclarationOnly": false
     },
     "include": [
         "src/**/*"

@@ -24,13 +24,12 @@ Backend API for stations, routes, reachability, and data import.
 3. **Database:**
    - Set up Supabase or local Postgres.
    - Update `DATABASE_URL` and `DIRECT_URL` in `.env`.
-   - Run migrations:
-     ```bash
-     pnpm exec prisma migrate deploy
-     ```
+
 4. **Start server:**
    ```bash
-   pnpm start:dev
+   pnpm prebuild # only first time
+   pnpm build
+   pnpm start:watch
    ```
    Runs at http://localhost:8080
 
