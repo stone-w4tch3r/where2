@@ -20,12 +20,7 @@ export class RoutesController {
   @ApiResponse({ status: 200, description: "Returns the route" })
   @Get(":id")
   async findOne(@Param("id") id: string) {
-    const result = await this.routesService.findOne(id);
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
+    return this.routesService.findOne(id);
   }
 
   @ApiOperation({ summary: "Get routes by station ID" })

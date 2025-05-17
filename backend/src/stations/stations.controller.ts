@@ -18,12 +18,7 @@ export class StationsController {
   @ApiResponse({ status: 200, description: "Returns all stations" })
   @Get()
   async findAll() {
-    const result = await this.stationsService.findAll();
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
+    return this.stationsService.findAll();
   }
 
   @ApiOperation({ summary: "Get station by ID" })
@@ -31,12 +26,7 @@ export class StationsController {
   @ApiResponse({ status: 200, description: "Returns the station" })
   @Get(":id")
   async findOne(@Param("id") id: string) {
-    const result = await this.stationsService.findOne(id);
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
+    return this.stationsService.findOne(id);
   }
 
   @ApiOperation({ summary: "Get stations by location" })
@@ -46,16 +36,11 @@ export class StationsController {
   })
   @Get("by-location")
   async findByLocation(@Query() query: FindByLocationDto) {
-    const result = await this.stationsService.findByCoordinates(
+    return this.stationsService.findByCoordinates(
       query.latitude,
       query.longitude,
       query.radius,
     );
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
   }
 
   @ApiOperation({ summary: "Find stations by name" })
@@ -66,11 +51,6 @@ export class StationsController {
   })
   @Get("search/name")
   async findByName(@Query("name") name: string) {
-    const result = await this.stationsService.findByName(name);
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
+    return this.stationsService.findByName(name);
   }
 }

@@ -5,6 +5,8 @@ import {
   ReachabilityResult,
 } from "./reachability.service";
 import { ReachabilityQueryDto } from "./dto/reachability-query.dto";
+import { Result } from "../utils/Result";
+import { AppError } from "../utils/errors";
 
 @ApiTags("reachability")
 @Controller("reachability")
@@ -22,15 +24,10 @@ export class ReachabilityController {
   @Get()
   async getReachableStations(
     @Query() query: ReachabilityQueryDto,
-  ): Promise<ReachabilityResult> {
-    const result = await this.reachabilityService.calculateReachableStations(
+  ): Promise<Result<ReachabilityResult, AppError>> {
+    return this.reachabilityService.calculateReachableStations(
       query.stationId,
       query.maxTransfers,
     );
-    if (result.success) {
-      return result.data;
-    } else {
-      throw result.error;
-    }
   }
 }
