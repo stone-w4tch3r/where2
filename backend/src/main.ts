@@ -5,7 +5,7 @@ import { AppModule } from "./app.module";
 import { AppErrorMappingInterceptor } from "./utils/app-error-mapping.interceptor";
 import { ResultUnwrapInterceptor } from "./utils/result-unwrap.interceptor";
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS

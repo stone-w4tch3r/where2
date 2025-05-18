@@ -4,7 +4,7 @@ import { AppModule } from "../app.module";
 import { dump } from "js-yaml";
 import { writeFileSync } from "fs";
 
-async function generateSwagger() {
+async function generateSwagger(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()

@@ -45,7 +45,7 @@ export class DataImporterService implements OnModuleInit {
     }
   }
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     if (this.isImportEnabled && this.importCronSchedule) {
       // Create a cron job with the schedule from the environment variable
       const job = new CronJob(this.importCronSchedule, () => {
@@ -63,7 +63,7 @@ export class DataImporterService implements OnModuleInit {
     }
   }
 
-  async handleDailyDataImport() {
+  async handleDailyDataImport(): Promise<void> {
     try {
       this.logger.log("Running daily data import");
       const result = await this.importAllData();

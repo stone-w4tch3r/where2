@@ -100,7 +100,7 @@ export class RouteOrmService {
     transportType: TransportMode;
     routeInfoUrl: string | null;
     stopIds: string[];
-  }) {
+  }): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       // Get existing route
       const existingRoute = await tx.route.findUnique({

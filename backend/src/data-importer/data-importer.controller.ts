@@ -9,7 +9,7 @@ export class DataImporterController {
 
   @Post("import-yandex-data")
   @HttpCode(HttpStatus.OK)
-  async importYandexData() {
+  async importYandexData(): Promise<{ message: string }> {
     DataImporterController.logger.log(
       "Requested Yandex data import via admin endpoint",
     );

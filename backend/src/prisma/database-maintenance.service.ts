@@ -33,7 +33,7 @@ export class DatabaseMaintenanceService implements OnModuleInit {
   /**
    * Set up the cron job with the schedule from the environment variable
    */
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     if (this.isMaintenanceEnabled && this.maintenanceCronSchedule) {
       // Create a cron job with the schedule from the environment variable
       const job = new CronJob(this.maintenanceCronSchedule, () => {

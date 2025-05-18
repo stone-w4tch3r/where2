@@ -7,7 +7,7 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const commands: [string, string[]][] = [["prisma", ["migrate", "deploy"]]];
     for (const [cmd, args] of commands) {
       const result = spawn.sync("pnpm", [cmd, ...args], { stdio: "inherit" });
@@ -21,7 +21,7 @@ export class PrismaService
     await this.$connect();
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
   }
 }

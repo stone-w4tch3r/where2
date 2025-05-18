@@ -9,7 +9,7 @@ export class DatabaseMaintenanceController {
 
   @Post("run")
   @HttpCode(HttpStatus.OK)
-  async runMaintenance() {
+  async runMaintenance(): Promise<{ success: boolean; message: string }> {
     const result = await this.maintenanceService.performMaintenance();
     if (result) {
       return {
