@@ -56,9 +56,17 @@ export class ReachabilityService {
       const originRoutes = originRouteStops.map((rs) => rs.routeId);
       this.logger.log(`Origin routes: ${JSON.stringify(originRoutes)}`);
 
-      // Initialize visited stations map with distances
-      const visited = new Map<string, number>();
-      visited.set(originId, 0);
+      // Initialize visited map: stationId -> Set of unique keys (transfers + routesSoFar)
+      const visited = new Map<string, Set<string>>();
+      // Helper to create a unique key for visited state
+      const makeVisitedKey = (
+        transfers: number,
+        routesSoFar: Set<string>,
+      ): string => {
+        return `${transfers}|${[...routesSoFar].sort().join(",")}`;
+      };
+      // Mark origin as visited with 0 transfers and no routes
+      visited.set(originId, new Set([makeVisitedKey(0, new Set())]));
 
       // Initialize queue with origin station and its routes
       const queue: Array<{
@@ -70,32 +78,35 @@ export class ReachabilityService {
       // Initial state: all routes from origin station, 0 transfers
       for (const route of originRoutes) {
         const routeId = route;
-
-        // Get all stops for this route
         const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
         this.logger.log(
           `Route ${routeId} has stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
         );
-
         for (const stop of routeStops) {
           const stopId = stop.stationId;
           if (stopId !== originId) {
-            queue.push({
-              stationId: stopId,
-              transfers: 0,
-              routesSoFar: new Set([routeId]),
-            });
-            visited.set(stopId, 0);
-            this.logger.log(
-              `Enqueued initial station: ${stopId} via route ${routeId}`,
-            );
+            const routesSoFar = new Set([routeId]);
+            const key = makeVisitedKey(0, routesSoFar);
+            if (!visited.has(stopId)) visited.set(stopId, new Set());
+            if (!visited.get(stopId)!.has(key)) {
+              queue.push({
+                stationId: stopId,
+                transfers: 0,
+                routesSoFar,
+              });
+              visited.get(stopId)!.add(key);
+              this.logger.log(
+                `Enqueued initial station: ${stopId} via route ${routeId}`,
+              );
+            }
           }
         }
       }
 
       // BFS to find reachable stations
       let iterations = 0;
-      const MAX_ITERATIONS = 10000;
+      const MAX_ITERATIONS = 1000;
+      const MAX_QUEUE_SIZE = 1000;
       while (queue.length > 0) {
         iterations++;
         if (iterations > MAX_ITERATIONS) {
@@ -104,7 +115,7 @@ export class ReachabilityService {
           );
           break;
         }
-        if (queue.length > 10000) {
+        if (queue.length > MAX_QUEUE_SIZE) {
           this.logger.warn(
             `Queue size unusually large (${queue.length}). Possible data issue or loop.`,
           );
@@ -113,63 +124,40 @@ export class ReachabilityService {
         this.logger.log(
           `Visiting station: ${stationId}, transfers: ${transfers}, routesSoFar: [${[...routesSoFar].join(", ")}]`,
         );
-
-        // Skip if we've exceeded max transfers
         if (transfers >= maxTransfers) {
           this.logger.log(
             `Skipping station ${stationId} due to transfer limit (${transfers} >= ${maxTransfers})`,
           );
           continue;
         }
-
-        // Get all routes for this station
         const stationRouteStops =
           await this.routeOrm.findRouteStopsByStation(stationId);
-
         const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
         this.logger.log(
           `Station ${stationId} is on routes: ${JSON.stringify(stationRoutes)}`,
         );
-
-        // For each route, add all stops that we haven't visited
         for (const route of stationRoutes) {
           const routeId = route;
-
-          // Skip routes we've already taken
           if (routesSoFar.has(routeId)) {
             this.logger.log(`Already took route ${routeId}, skipping.`);
             continue;
           }
-
-          // Add new route to routes so far
           const updatedRoutes = new Set(routesSoFar);
           updatedRoutes.add(routeId);
-
-          // Get all stops for this route
           const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
           this.logger.log(
             `Exploring route ${routeId} from station ${stationId}, stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
           );
-
-          // For each stop in this route
           for (const stop of routeStops) {
             const stopId = stop.stationId;
-
-            // Skip the current station
             if (stopId === stationId) {
               continue;
             }
-
             const newTransfers = transfers + 1;
-
-            // If we haven't visited this station or we found a shorter path
-            if (!visited.has(stopId) || visited.get(stopId)! > newTransfers) {
-              if (visited.has(stopId)) {
-                this.logger.warn(
-                  `Found shorter path to station ${stopId}: previous transfers ${visited.get(stopId)}, new transfers ${newTransfers}`,
-                );
-              }
-              visited.set(stopId, newTransfers);
+            const key = makeVisitedKey(newTransfers, updatedRoutes);
+            if (!visited.has(stopId)) visited.set(stopId, new Set());
+            if (!visited.get(stopId)!.has(key)) {
+              visited.get(stopId)!.add(key);
               queue.push({
                 stationId: stopId,
                 transfers: newTransfers,
@@ -177,10 +165,6 @@ export class ReachabilityService {
               });
               this.logger.log(
                 `Enqueued station: ${stopId} with transfers: ${newTransfers}, routes: [${[...updatedRoutes].join(", ")}]`,
-              );
-            } else {
-              this.logger.log(
-                `Already visited station ${stopId} with equal or fewer transfers (${visited.get(stopId)}), skipping.`,
               );
             }
           }
@@ -190,26 +174,26 @@ export class ReachabilityService {
       // Build result by fetching full station objects
       const reachableStations: ReachabilityResult["reachableStations"] = [];
 
-      for (const [stationId, transferCount] of visited.entries()) {
-        // Skip the origin station
-        if (stationId === originId) {
-          continue;
+      // For each station, find the minimum transfer count among all visited states
+      for (const [stationId, visitedStates] of visited.entries()) {
+        if (stationId === originId) continue;
+        // Find the minimum transfer count from the visited keys
+        let minTransferCount = Infinity;
+        for (const key of visitedStates) {
+          const transferCount = parseInt(key.split("|")[0], 10);
+          if (transferCount < minTransferCount)
+            minTransferCount = transferCount;
         }
-
+        if (minTransferCount === Infinity) continue;
         const station = await this.stationOrm.findOne(stationId);
-
         if (!station) {
           this.logger.warn(
             `Station ${stationId} not found in database but was in reachability results`,
           );
           continue;
         }
-
-        // Get routes that connect this station
         const routeStops =
           await this.routeOrm.findRouteStopsByStation(stationId);
-
-        // Fetch full Route objects for each routeId
         const routeIds = routeStops.map((rs) => rs.routeId);
         const routes: Route[] = [];
         for (const routeId of routeIds) {
@@ -218,10 +202,9 @@ export class ReachabilityService {
             routes.push(route);
           }
         }
-
         reachableStations.push({
           station,
-          transferCount,
+          transferCount: minTransferCount,
           routes,
         });
       }
