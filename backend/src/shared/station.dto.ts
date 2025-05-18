@@ -12,16 +12,16 @@ export class StationDto {
   @ApiProperty({ enum: TransportMode })
   transportMode: TransportMode;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ type: Number, nullable: true })
   latitude: number | null;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ type: Number, nullable: true })
   longitude: number | null;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   country: string | null;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   region: string | null;
 
   constructor(station: Station) {

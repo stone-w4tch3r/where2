@@ -10,42 +10,10 @@ import {
   ApiParam,
   ApiTags,
   ApiOkResponse,
-  ApiProperty,
 } from "@nestjs/swagger";
 import { RoutesService } from "./routes.service";
 import { RouteFilterDto } from "./route-filter.dto";
-import { TransportMode } from "../shared/transport-mode.dto";
-
-export class RouteDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  shortTitle: string;
-
-  @ApiProperty()
-  fullTitle: string;
-
-  @ApiProperty({ enum: TransportMode })
-  transportMode: TransportMode;
-
-  @ApiProperty({ required: false, nullable: true })
-  routeInfoUrl: string | null;
-
-  constructor(route: {
-    id: string;
-    shortTitle: string;
-    fullTitle: string;
-    transportMode: TransportMode;
-    routeInfoUrl: string | null;
-  }) {
-    this.id = route.id;
-    this.shortTitle = route.shortTitle;
-    this.fullTitle = route.fullTitle;
-    this.transportMode = route.transportMode;
-    this.routeInfoUrl = route.routeInfoUrl;
-  }
-}
+import { RouteDto } from "./route.dto";
 
 @ApiTags("routes")
 @Controller("routes")
