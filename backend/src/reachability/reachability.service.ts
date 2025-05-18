@@ -5,6 +5,23 @@ import { Station, Route } from "../prisma/models";
 import { NotFoundError, InternalError, AppError } from "../utils/errors";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 
+// -----------------------------------------------------------------------------
+// Helper types
+// -----------------------------------------------------------------------------
+type RouteStopMin = {
+  stationId: string;
+  stopPosition: number;
+};
+
+// Raw row as returned by Prisma for station‑route lookup
+// (keep it in one place so tests can stub it easily)
+type RouteStopRaw = {
+  routeId: string;
+  stationId: string;
+  id: number;
+  stopPosition: number;
+};
+
 export interface ReachabilityResult {
   origin: string;
   maxTransfers: number;
@@ -15,291 +32,225 @@ export interface ReachabilityResult {
   }[];
 }
 
-/**
- * Service for calculating transfer routes between stations
- */
-@Injectable()
-export class ReachabilityService {
-  private readonly logger = new Logger(ReachabilityService.name);
-
-  public readonly MAX_ITERATIONS = 1000;
-  public readonly MAX_QUEUE_SIZE = 1000;
-
+// -----------------------------------------------------------------------------
+// Data‑access layer (all caching / Prisma calls live here)
+// -----------------------------------------------------------------------------
+export class ReachabilityData {
   constructor(
     private readonly stationOrm: StationOrmService,
     private readonly routeOrm: RouteOrmService,
   ) {}
 
-  /**
-   * Calculate all stations reachable from a given origin station
-   * within a maximum number of transfers
-   */
+  private readonly stationCache = new Map<string, Station | null>();
+  private readonly routeStopsCache = new Map<string, RouteStopMin[]>();
+  private readonly stationRouteStopsCache = new Map<string, RouteStopRaw[]>();
+
+  async getStation(id: string): Promise<Station | null> {
+    if (!this.stationCache.has(id)) {
+      this.stationCache.set(id, await this.stationOrm.findOne(id));
+    }
+    return this.stationCache.get(id) ?? null;
+  }
+
+  async getRouteStops(routeId: string): Promise<RouteStopMin[]> {
+    if (!this.routeStopsCache.has(routeId)) {
+      const rows = await this.routeOrm.findRouteStopsByRoute(routeId);
+      this.routeStopsCache.set(
+        routeId,
+        rows.map(({ stationId, stopPosition }) => ({
+          stationId,
+          stopPosition,
+        })),
+      );
+    }
+    return this.routeStopsCache.get(routeId)!;
+  }
+
+  async getStationRouteStops(stationId: string): Promise<RouteStopRaw[]> {
+    if (!this.stationRouteStopsCache.has(stationId)) {
+      this.stationRouteStopsCache.set(
+        stationId,
+        await this.routeOrm.findRouteStopsByStation(stationId),
+      );
+    }
+    return this.stationRouteStopsCache.get(stationId)!;
+  }
+
+  async getRoutesForStation(stationId: string): Promise<string[]> {
+    const rows = await this.getStationRouteStops(stationId);
+    return rows.map((r) => r.routeId);
+  }
+
+  async getRoute(routeId: string): Promise<Route | null> {
+    return this.routeOrm.findRouteByIdSimple(routeId);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Reachability algorithm (pure BFS)
+// -----------------------------------------------------------------------------
+@Injectable()
+export class ReachabilityService {
+  private readonly logger = new Logger(ReachabilityService.name);
+
+  public readonly MAX_ITERATIONS = 1_000;
+  public readonly MAX_QUEUE_SIZE = 1_000;
+
+  private readonly db: ReachabilityData;
+
+  constructor(stationOrm: StationOrmService, routeOrm: RouteOrmService) {
+    this.db = new ReachabilityData(stationOrm, routeOrm);
+  }
+
   async calculateReachableStations(
     originId: string,
     maxTransfers: number,
   ): Promise<Result<ReachabilityResult, AppError>> {
+    this.logger.log(
+      `Calculating reachable stations for origin ${originId} with maxTransfers ${maxTransfers}`,
+    );
     try {
-      this.logger.log(
-        `Starting calculation from origin: ${originId}, maxTransfers: ${maxTransfers}`,
-      );
-
-      /* -----------------------------------------------------------------
-       * 0. Fetch origin station
-       * ----------------------------------------------------------------- */
-      const originStation = await this.stationOrm.findOne(originId);
-
+      // --- 0. Origin ----------------------------------------------------
+      const originStation = await this.db.getStation(originId);
       if (!originStation) {
         this.logger.warn(`Origin station not found: ${originId}`);
         return resultError(
           new NotFoundError(`Origin station not found: ${originId}`),
         );
       }
+      this.logger.debug(`Origin station: ${JSON.stringify(originStation)}`);
 
-      /* -----------------------------------------------------------------
-       * 1. Lightweight in-memory caches for DB look-ups
-       * ----------------------------------------------------------------- */
-      // routeId  ->  minimal list of {stationId, stopPosition}
-      const routeStopsCache = new Map<
-        string,
-        Array<{ stationId: string; stopPosition: number }>
-      >();
-
-      // stationId -> all route-stop rows for that station
-      const stationRouteStopsCache = new Map<
-        string,
-        Array<{
-          routeId: string;
-          stationId: string;
-          id: number;
-          stopPosition: number;
-        }>
-      >();
-
-      const getStationRouteStops = async (
-        sId: string,
-      ): Promise<
-        Array<{
-          routeId: string;
-          stationId: string;
-          id: number;
-          stopPosition: number;
-        }>
-      > => {
-        if (!stationRouteStopsCache.has(sId)) {
-          stationRouteStopsCache.set(
-            sId,
-            await this.routeOrm.findRouteStopsByStation(sId),
-          );
-        }
-        return stationRouteStopsCache.get(sId)!;
-      };
-
-      /* -----------------------------------------------------------------
-       * 2. Routes that start at the origin
-       * ----------------------------------------------------------------- */
-      const originRouteStops = await getStationRouteStops(originId);
-      const originRoutes = originRouteStops.map((rs) => rs.routeId);
-
-      this.logger.log(`Origin routes: ${JSON.stringify(originRoutes)}`);
-
-      // Pre-fill routeStopsCache for those routes
-      for (const routeId of originRoutes) {
-        const stops = await this.routeOrm.findRouteStopsByRoute(routeId);
-        routeStopsCache.set(
-          routeId,
-          stops.map(({ stationId, stopPosition }) => ({
-            stationId,
-            stopPosition,
-          })),
-        );
-      }
-
-      /* -----------------------------------------------------------------
-       * 3. State tracking:  visitedTransfers  **fixes the explosion**
-       * -----------------------------------------------------------------
-       *   stationId -> minimal number of transfers seen so far
-       *   We enqueue a station again only if we can reach it with *fewer*
-       *   transfers than before.  This alone eliminates the “one entry
-       *   per distinct routeSet” blow-up that caused the old loop.
-       * ----------------------------------------------------------------- */
-      const visitedTransfers = new Map<string, number>();
-      visitedTransfers.set(originId, 0);
-
-      interface QueueItem {
+      // --- 1. BFS setup ------------------------------------------------
+      type QueueItem = {
         stationId: string;
         transfers: number;
-        routesSoFar: Set<string>;
-      }
+        usedRoutes: Set<string>;
+      };
 
       const queue: QueueItem[] = [];
+      const bestTransfers = new Map<string, number>().set(originId, 0);
 
-      // seed queue: every stop (≠ origin) of each origin route
-      for (const routeId of originRoutes) {
-        const stops = routeStopsCache.get(routeId)!;
+      const enqueue = (
+        stationId: string,
+        transfers: number,
+        usedRoutes: Set<string>,
+      ): void => {
+        const best = bestTransfers.get(stationId);
+        if (best === undefined || transfers < best) {
+          bestTransfers.set(stationId, transfers);
+          queue.push({ stationId, transfers, usedRoutes });
+          this.logger.debug(
+            `Enqueued station ${stationId} with ${transfers} transfers. Queue size: ${queue.length}`,
+          );
+        }
+      };
 
-        this.logger.log(
-          `Route ${routeId} has stops: ${JSON.stringify(stops.map((s) => s.stationId))}`,
-        );
-
+      const seedRoutes = await this.db.getRoutesForStation(originId);
+      this.logger.debug(
+        `Found ${seedRoutes.length} seed routes for origin ${originId}`,
+      );
+      for (const routeId of seedRoutes) {
+        const stops = await this.db.getRouteStops(routeId);
         for (const stop of stops) {
-          if (stop.stationId === originId) continue;
-
-          if (!visitedTransfers.has(stop.stationId)) {
-            visitedTransfers.set(stop.stationId, 0);
-            queue.push({
-              stationId: stop.stationId,
-              transfers: 0,
-              routesSoFar: new Set([routeId]),
-            });
-            this.logger.log(
-              `Enqueued initial station: ${stop.stationId} via route ${routeId}`,
-            );
+          if (stop.stationId !== originId) {
+            enqueue(stop.stationId, 0, new Set([routeId]));
           }
         }
       }
 
-      /* -----------------------------------------------------------------
-       * 4. Breadth-first search
-       * ----------------------------------------------------------------- */
+      // --- 2. BFS loop -------------------------------------------------
       let iterations = 0;
-      const processedStationsInBfs = new Set<string>();
-
+      this.logger.log(`Starting BFS. Initial queue size: ${queue.length}`);
       while (queue.length) {
-        iterations++;
-        if (iterations > this.MAX_ITERATIONS) {
+        if (++iterations > this.MAX_ITERATIONS) {
           this.logger.error(
-            `Exceeded max iterations (${this.MAX_ITERATIONS}). Possible loop detected. Breaking out.`,
+            `Exceeded MAX_ITERATIONS (${this.MAX_ITERATIONS}), breaking`,
           );
           break;
         }
         if (queue.length > this.MAX_QUEUE_SIZE) {
           this.logger.warn(
-            `Queue size unusually large (${queue.length}). Possible data issue or loop.`,
+            `Queue size ${queue.length} exceeds MAX_QUEUE_SIZE (${this.MAX_QUEUE_SIZE})`,
           );
         }
 
-        const { stationId, transfers, routesSoFar } = queue.shift()!;
-
-        this.logger.log(
-          `Visiting station: ${stationId}, transfers: ${transfers}, routesSoFar: [${[
-            ...routesSoFar,
-          ].join(", ")}]`,
+        const { stationId, transfers, usedRoutes } = queue.shift()!;
+        this.logger.debug(
+          `Processing station ${stationId} with ${transfers} transfers. Queue size: ${queue.length}`,
         );
-
         if (transfers >= maxTransfers) {
-          this.logger.log(
-            `Skipping station ${stationId} due to transfer limit (${transfers} >= ${maxTransfers})`,
+          this.logger.debug(
+            `Skipping station ${stationId}: transfers (${transfers}) >= maxTransfers (${maxTransfers})`,
           );
           continue;
         }
 
-        // Fetch this station’s route list once per BFS run
-        if (!processedStationsInBfs.has(stationId)) {
-          processedStationsInBfs.add(stationId);
-
-          const stationRouteStops = await getStationRouteStops(stationId);
-          const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
-
-          this.logger.log(
-            `Station ${stationId} is on routes: ${JSON.stringify(stationRoutes)}`,
-          );
-
-          for (const routeId of stationRoutes) {
-            if (routesSoFar.has(routeId)) {
-              this.logger.log(`Already took route ${routeId}, skipping.`);
-              continue;
-            }
-
-            const nextTransfers = transfers + 1;
-            if (nextTransfers > maxTransfers) continue;
-
-            if (!routeStopsCache.has(routeId)) {
-              const stops = await this.routeOrm.findRouteStopsByRoute(routeId);
-              routeStopsCache.set(
-                routeId,
-                stops.map(({ stationId, stopPosition }) => ({
-                  stationId,
-                  stopPosition,
-                })),
-              );
-            }
-
-            const routeStops = routeStopsCache.get(routeId)!;
-
-            this.logger.log(
-              `Exploring route ${routeId} from station ${stationId}, stops: ${JSON.stringify(
-                routeStops.map((s) => s.stationId),
-              )}`,
+        for (const routeId of await this.db.getRoutesForStation(stationId)) {
+          if (usedRoutes.has(routeId)) {
+            this.logger.debug(
+              `Skipping route ${routeId} for station ${stationId}: already used`,
             );
+            continue; // already taken
+          }
 
-            const updatedRoutes = new Set(routesSoFar);
-            updatedRoutes.add(routeId);
+          const nextTransfers = transfers + 1;
+          if (nextTransfers > maxTransfers) {
+            this.logger.debug(
+              `Skipping route ${routeId} for station ${stationId}: nextTransfers (${nextTransfers}) > maxTransfers (${maxTransfers})`,
+            );
+            continue;
+          }
 
-            for (const stop of routeStops) {
-              if (stop.stationId === stationId) continue;
-
-              // enqueue *only* if we improve on the best transfer count
-              if (
-                !visitedTransfers.has(stop.stationId) ||
-                visitedTransfers.get(stop.stationId)! > nextTransfers
-              ) {
-                visitedTransfers.set(stop.stationId, nextTransfers);
-                queue.push({
-                  stationId: stop.stationId,
-                  transfers: nextTransfers,
-                  routesSoFar: updatedRoutes,
-                });
-                this.logger.log(
-                  `Enqueued station: ${stop.stationId} with transfers: ${nextTransfers}, routes: [${[
-                    ...updatedRoutes,
-                  ].join(", ")}]`,
-                );
-              }
+          const nextUsedRoutes = new Set(usedRoutes).add(routeId);
+          for (const stop of await this.db.getRouteStops(routeId)) {
+            if (stop.stationId !== stationId) {
+              enqueue(stop.stationId, nextTransfers, nextUsedRoutes);
             }
           }
         }
       }
+      this.logger.log(`BFS completed in ${iterations} iterations.`);
 
-      /* -----------------------------------------------------------------
-       * 5. Build and return result
-       * ----------------------------------------------------------------- */
+      // --- 3. Build result ---------------------------------------------
       const reachableStations: ReachabilityResult["reachableStations"] = [];
 
-      for (const [stationId, transferCount] of visitedTransfers) {
+      for (const [stationId, transferCount] of bestTransfers) {
         if (stationId === originId) continue;
 
-        const station = await this.stationOrm.findOne(stationId);
+        const station = await this.db.getStation(stationId);
         if (!station) {
           this.logger.warn(
-            `Station ${stationId} not found in database but was in reachability results`,
+            `Reachable station ${stationId} not found in DB during result building. This should not happen.`,
           );
-          continue;
+          continue; // should not happen, but guard anyway
         }
 
-        const routeStops = await getStationRouteStops(stationId);
-        const routes: Route[] = [];
-
-        for (const { routeId } of routeStops) {
-          const route = await this.routeOrm.findRouteByIdSimple(routeId);
-          if (route) routes.push(route);
-        }
+        const routes = (
+          await Promise.all(
+            (await this.db.getRoutesForStation(stationId)).map((r) =>
+              this.db.getRoute(r),
+            ),
+          )
+        ).filter(Boolean) as Route[];
 
         reachableStations.push({ station, transferCount, routes });
       }
 
       this.logger.log(
-        `Calculation complete. Reachable stations: ${reachableStations.length}`,
+        `Found ${reachableStations.length} reachable stations for origin ${originId}`,
       );
-
       return resultSuccess({
         origin: originId,
         maxTransfers,
         reachableStations,
       });
-    } catch (error) {
-      this.logger.error(`Error calculating reachable stations: ${error}`);
+    } catch (err) {
+      this.logger.error(
+        `Error in reachability calculation for origin ${originId}`,
+        err,
+      );
       return resultError(
-        new InternalError(`Error calculating reachable stations: ${error}`),
+        new InternalError(`Error calculating reachable stations: ${err}`),
       );
     }
   }

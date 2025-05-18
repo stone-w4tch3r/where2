@@ -70,6 +70,7 @@ export default [
     languageOptions: {
       globals: {
         jest: 'readonly',
+        test: 'readonly',
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
