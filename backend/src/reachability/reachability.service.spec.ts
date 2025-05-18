@@ -44,7 +44,7 @@ function makeRoute({ id, stops }: RouteInput): Route {
     transportType: TransportMode.Suburban,
     routeInfoUrl: null,
     stops, // we keep extra property for convenience (not in prisma model)
-  } as unknown as Route; // Cast because tests don’t need every field strictly.
+  } as unknown as Route; // Cast because tests don't need every field strictly.
 }
 
 // -----------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ function buildModule(fixture: {
           .map((r, i) => ({ ...r, id: i + 1 }));
       },
     ),
-    findRouteByIdSimple: jest.fn(async (routeId: string) => {
+    findBaseRouteById: jest.fn(async (routeId: string) => {
       const def = fixture.routes.find((r) => r.id === routeId);
       return def ? makeRoute(def) : undefined;
     }),
