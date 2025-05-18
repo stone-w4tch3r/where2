@@ -13,7 +13,7 @@ import {
 } from "@nestjs/swagger";
 import { RoutesService } from "./routes.service";
 import { RouteFilterDto } from "./route-filter.dto";
-import { RouteDto } from "./route.dto";
+import { RouteDto } from "../shared/route.dto";
 
 @ApiTags("routes")
 @Controller("routes")

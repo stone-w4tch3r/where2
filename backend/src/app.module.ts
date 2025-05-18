@@ -7,6 +7,7 @@ import { RoutesModule } from "./routes/routes.module";
 import { ReachabilityModule } from "./reachability/reachability.module";
 import { YandexModule } from "./yandex/yandex.module";
 import { DataImporterModule } from "./data-importer/data-importer.module";
+import { GeoRoutesModule } from "./geo-routes/geo-routes.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DataImporterModule } from "./data-importer/data-importer.module";
     ReachabilityModule,
     YandexModule,
     DataImporterModule,
+    GeoRoutesModule,
   ],
 })
 export class AppModule {}

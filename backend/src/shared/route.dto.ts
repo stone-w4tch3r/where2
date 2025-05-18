@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger/dist";
-import { TransportMode } from "../shared/transport-mode.dto";
+import { TransportMode } from "./transport-mode.dto";
 import { RouteWithStops } from "../prisma/models";
-import { StationDto } from "../shared/station.dto";
+import { StationDto } from "./station.dto";
 
 export class RouteDto {
   @ApiProperty()
