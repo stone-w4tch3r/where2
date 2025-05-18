@@ -1,12 +1,25 @@
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { ValidationPipe, Logger } from "@nestjs/common";
+import { ValidationPipe, Logger, LogLevel, LOG_LEVELS } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { AppErrorMappingInterceptor } from "./utils/app-error-mapping.interceptor";
 import { ResultUnwrapInterceptor } from "./utils/result-unwrap.interceptor";
 
+function getLoggerLevel(): LogLevel[] {
+  const logLevel = process.env.LOG_LEVEL;
+  if (!logLevel || !LOG_LEVELS.includes(logLevel as LogLevel)) {
+    return LOG_LEVELS;
+  }
+  const idx = LOG_LEVELS.indexOf(logLevel as LogLevel);
+  return LOG_LEVELS.slice(idx);
+}
+
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: getLoggerLevel(),
+  });
+
+  Logger.log(`Logger level: ${getLoggerLevel().join(", ")}`, "Bootstrap");
 
   // Enable CORS
   app.enableCors();
