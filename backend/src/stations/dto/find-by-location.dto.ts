@@ -13,7 +13,7 @@ export class FindByLocationDto {
   @Type(() => Number)
   longitude!: number;
 
-  @ApiProperty({ required: false, default: 5 })
+  @ApiProperty({ type: Number, required: false, default: 5 })
   @IsOptional()
   @IsNumber()
   @Min(0.1)

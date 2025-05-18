@@ -31,16 +31,19 @@ export class StationOrmService {
     longitude: number,
     radiusKm: number,
   ): Promise<Station[]> {
-    const radiusDegrees = radiusKm / 111.32;
+    const lat = Number(latitude);
+    const lon = Number(longitude);
+    const radius = Number(radiusKm);
+    const radiusDegrees = radius / 111.32;
     return this.prisma.station.findMany({
       where: {
         latitude: {
-          gte: latitude - radiusDegrees,
-          lte: latitude + radiusDegrees,
+          gte: lat - radiusDegrees,
+          lte: lat + radiusDegrees,
         },
         longitude: {
-          gte: longitude - radiusDegrees,
-          lte: longitude + radiusDegrees,
+          gte: lon - radiusDegrees,
+          lte: lon + radiusDegrees,
         },
       },
     });
