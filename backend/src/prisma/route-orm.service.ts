@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
-import { Route, RouteStop } from "./models";
+import { Route, RouteStop, RouteWithStops } from "./models";
 import { TransportMode } from "../shared/transport-mode.dto";
 import { Prisma } from "@prisma/client";
 import { RouteFilterDto } from "../routes/route-filter.dto";
@@ -9,7 +9,7 @@ import { RouteFilterDto } from "../routes/route-filter.dto";
 export class RouteOrmService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findRoutesByStation(stationId: string): Promise<Route[]> {
+  async findRoutesByStation(stationId: string): Promise<RouteWithStops[]> {
     const routeStops = await this.prisma.routeStop.findMany({
       where: { stationId },
       include: {
@@ -26,10 +26,17 @@ export class RouteOrmService {
     return routeStops.map((rs) => ({
       ...rs.route,
       transportMode: rs.route.transportMode as TransportMode,
+      stops: rs.route.stops.map((stop) => ({
+        ...stop,
+        station: {
+          ...stop.station,
+          transportMode: stop.station.transportMode as TransportMode,
+        },
+      })),
     }));
   }
 
-  async findRouteById(id: string): Promise<Route | null> {
+  async findRouteById(id: string): Promise<RouteWithStops | null> {
     const route = await this.prisma.route.findUnique({
       where: { id },
       include: {
@@ -40,11 +47,21 @@ export class RouteOrmService {
       },
     });
     return route
-      ? { ...route, transportMode: route.transportMode as TransportMode }
+      ? {
+          ...route,
+          transportMode: route.transportMode as TransportMode,
+          stops: route.stops.map((stop) => ({
+            ...stop,
+            station: {
+              ...stop.station,
+              transportMode: stop.station.transportMode as TransportMode,
+            },
+          })),
+        }
       : null;
   }
 
-  async findAllRoutes(filter?: RouteFilterDto): Promise<Route[]> {
+  async findAllRoutes(filter?: RouteFilterDto): Promise<RouteWithStops[]> {
     const where: Prisma.RouteWhereInput = {};
     if (filter) {
       if (filter.transportMode) where["transportMode"] = filter.transportMode;
@@ -61,6 +78,13 @@ export class RouteOrmService {
     return routes.map((r) => ({
       ...r,
       transportMode: r.transportMode as TransportMode,
+      stops: r.stops.map((stop) => ({
+        ...stop,
+        station: {
+          ...stop.station,
+          transportMode: stop.station.transportMode as TransportMode,
+        },
+      })),
     }));
   }
 
@@ -79,7 +103,7 @@ export class RouteOrmService {
     });
   }
 
-  async findRouteByIdSimple(id: string): Promise<Route | null> {
+  async findBaseRouteById(id: string): Promise<Route | null> {
     const route = await this.prisma.route.findUnique({ where: { id } });
     return route
       ? { ...route, transportMode: route.transportMode as TransportMode }

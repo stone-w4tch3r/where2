@@ -20,9 +20,19 @@ export type Route = {
   routeInfoUrl: string | null;
 };
 
+// New type for Route with mandatory stops
+export type RouteWithStops = Route & {
+  stops: RouteStopWithStation[];
+};
+
 export type RouteStop = {
   id: number;
   routeId: string;
   stationId: string;
   stopPosition: number;
+};
+
+// New type combining RouteStop and Station
+export type RouteStopWithStation = RouteStop & {
+  station: Station;
 };

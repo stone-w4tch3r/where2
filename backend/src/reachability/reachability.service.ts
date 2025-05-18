@@ -82,7 +82,7 @@ export class ReachabilityData {
   }
 
   async getRoute(routeId: string): Promise<Route | null> {
-    return this.routeOrm.findRouteByIdSimple(routeId);
+    return this.routeOrm.findBaseRouteById(routeId);
   }
 }
 
