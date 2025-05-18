@@ -1,0 +1,354 @@
+openapi: 3.0.0
+paths:
+  /admin/database-maintenance/run:
+    post:
+      operationId: DatabaseMaintenanceController_runMaintenance
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - DatabaseMaintenance
+  /stations:
+    get:
+      operationId: StationsController_findAll
+      parameters:
+        - name: country
+          required: false
+          in: query
+          description: Country to filter by
+          schema:
+            type: string
+        - name: region
+          required: false
+          in: query
+          description: Region to filter by
+          schema:
+            type: string
+        - name: minLat
+          required: false
+          in: query
+          description: Minimum latitude of the rectangle
+          schema:
+            type: number
+        - name: maxLat
+          required: false
+          in: query
+          description: Maximum latitude of the rectangle
+          schema:
+            type: number
+        - name: minLon
+          required: false
+          in: query
+          description: Minimum longitude of the rectangle
+          schema:
+            type: number
+        - name: maxLon
+          required: false
+          in: query
+          description: Maximum longitude of the rectangle
+          schema:
+            type: number
+        - name: transportMode
+          required: false
+          in: query
+          description: Transport mode to filter by
+          schema:
+            type: string
+            enum:
+              - train
+              - suburban
+              - bus
+              - tram
+              - metro
+              - water
+              - helicopter
+              - plane
+              - sea
+      responses:
+        '200':
+          description: Returns all stations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationDto'
+      summary: Get all stations
+      tags: &ref_0
+        - stations
+  /stations/by-radius:
+    get:
+      operationId: StationsController_findByRadius
+      parameters:
+        - name: latitude
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: longitude
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: radius
+          required: false
+          in: query
+          schema:
+            default: 5
+            type: number
+      responses:
+        '200':
+          description: Returns stations within the radius
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationDto'
+      summary: Get stations by radius
+      tags: *ref_0
+  /stations/{id}:
+    get:
+      operationId: StationsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Station ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationDto'
+      summary: Get station by ID
+      tags: *ref_0
+  /stations/by-name:
+    get:
+      operationId: StationsController_findByName
+      parameters:
+        - name: name
+          required: true
+          in: query
+          description: Station name to search for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns stations matching the name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationDto'
+      summary: Find stations by name
+      tags: *ref_0
+  /routes:
+    get:
+      operationId: RoutesController_findAll
+      parameters:
+        - name: transportMode
+          required: false
+          in: query
+          description: Transport mode to filter by
+          schema:
+            type: string
+            enum:
+              - train
+              - suburban
+              - bus
+              - tram
+              - metro
+              - water
+              - helicopter
+              - plane
+              - sea
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteDto'
+      summary: Get all routes
+      tags: &ref_1
+        - routes
+  /routes/{id}:
+    get:
+      operationId: RoutesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Route ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteDto'
+      summary: Get route by ID
+      tags: *ref_1
+  /routes/by-station/{stationId}:
+    get:
+      operationId: RoutesController_findByStation
+      parameters:
+        - name: stationId
+          required: true
+          in: path
+          description: Station ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteDto'
+      summary: Get routes by station ID
+      tags: *ref_1
+  /reachability:
+    get:
+      operationId: ReachabilityController_getReachableStations
+      parameters:
+        - name: stationId
+          required: true
+          in: query
+          description: Origin station ID
+          schema:
+            type: string
+        - name: maxTransfers
+          required: true
+          in: query
+          description: Maximum number of transfers
+          schema:
+            minimum: 0
+            maximum: 3
+            default: 1
+            type: number
+      responses:
+        '200':
+          description: Returns reachable stations from the specified origin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReachabilityResultDto'
+      summary: Get reachable stations from a given station with max transfers
+      tags:
+        - reachability
+  /admin/importer/import-yandex-data:
+    post:
+      operationId: DataImporterController_importYandexData
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - DataImporter
+info:
+  title: Where2 API
+  description: >-
+    API for the Where2 application, go to <a
+    href='/swagger-json'>/swagger-json</a> to view the raw OpenAPI JSON
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    StationDto:
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        transportMode:
+          type: string
+          enum:
+            - train
+            - suburban
+            - bus
+            - tram
+            - metro
+            - water
+            - helicopter
+            - plane
+            - sea
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+      required:
+        - id
+        - fullName
+        - transportMode
+        - latitude
+        - longitude
+        - country
+        - region
+    RouteDto:
+      type: object
+      properties:
+        id:
+          type: string
+        shortTitle:
+          type: string
+        fullTitle:
+          type: string
+        transportMode:
+          type: string
+          enum:
+            - train
+            - suburban
+            - bus
+            - tram
+            - metro
+            - water
+            - helicopter
+            - plane
+            - sea
+        routeInfoUrl:
+          type: string
+          nullable: true
+      required:
+        - id
+        - shortTitle
+        - fullTitle
+        - transportMode
+    ReachabilityResultDto:
+      type: object
+      properties:
+        origin:
+          type: string
+        maxTransfers:
+          type: number
+        reachableStations:
+          type: array
+          items:
+            $ref: '#/components/schemas/StationDto'
+      required:
+        - origin
+        - maxTransfers
+        - reachableStations

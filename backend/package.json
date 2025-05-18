@@ -11,7 +11,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "lint:fix": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "generate:swagger:yaml": "ts-node src/scripts/generate-swagger.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.1",
@@ -27,6 +28,7 @@
     "cors": "^2.8.5",
     "cron": "^4.3.0",
     "cross-spawn": "^7.0.6",
+    "js-yaml": "^4.1.0",
     "p-limit": "3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
@@ -39,6 +41,7 @@
     "@nestjs/testing": "^11.1.1",
     "@types/cors": "^2.8.18",
     "@types/cross-spawn": "^6.0.6",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.15.18",
     "@types/node-cron": "^3.0.11",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
