@@ -974,9 +974,10 @@ describe("ReachabilityService", () => {
         typeof call[0] === "string" && call[0].includes("Visiting station:"),
     );
 
-    // For a simple graph with 4 stations and maxTransfers=1, visiting each reachable station once
-    // would mean at most ~4 "Visiting station" logs, so 10 is a conservative upper bound
-    expect(visitingLogs.length).toBeLessThan(10);
+    // For this simple network, with proper caching and cycle detection,
+    // we should see very few visiting logs - reduce the limit to make the test fail
+    // with the unpatched code
+    expect(visitingLogs.length).toBeLessThan(5);
 
     // Check for database calls that could cause scaling issues
     const routeStopsStationCalls =
@@ -984,8 +985,8 @@ describe("ReachabilityService", () => {
     const routeStopsRouteCalls =
       routeOrm.findRouteStopsByRoute.mock.calls.length;
 
-    // With a network of 4 stations and 3 routes, we should not exceed reasonable limits
-    expect(routeStopsStationCalls).toBeLessThan(10);
-    expect(routeStopsRouteCalls).toBeLessThan(10);
+    // Set much lower limits to make tests fail with unpatched code
+    expect(routeStopsStationCalls).toBeLessThan(5);
+    expect(routeStopsRouteCalls).toBeLessThan(5);
   });
 });
