@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Route, RouteStop } from "./models";
+import { TransportMode } from "../shared/dto/transport-mode.dto";
 
 @Injectable()
 export class RouteOrmService {
@@ -20,11 +21,14 @@ export class RouteOrmService {
         },
       },
     });
-    return routeStops.map((rs) => rs.route);
+    return routeStops.map((rs) => ({
+      ...rs.route,
+      transportMode: rs.route.transportMode as TransportMode,
+    }));
   }
 
   async findRouteById(id: string): Promise<Route | null> {
-    return this.prisma.route.findUnique({
+    const route = await this.prisma.route.findUnique({
       where: { id },
       include: {
         stops: {
@@ -33,10 +37,13 @@ export class RouteOrmService {
         },
       },
     });
+    return route
+      ? { ...route, transportMode: route.transportMode as TransportMode }
+      : null;
   }
 
   async findAllRoutes(): Promise<Route[]> {
-    return this.prisma.route.findMany({
+    const routes = await this.prisma.route.findMany({
       include: {
         stops: {
           include: { station: true },
@@ -44,6 +51,10 @@ export class RouteOrmService {
         },
       },
     });
+    return routes.map((r) => ({
+      ...r,
+      transportMode: r.transportMode as TransportMode,
+    }));
   }
 
   async findRouteStopsByStation(stationId: string): Promise<RouteStop[]> {
@@ -62,7 +73,10 @@ export class RouteOrmService {
   }
 
   async findRouteByIdSimple(id: string): Promise<Route | null> {
-    return this.prisma.route.findUnique({ where: { id } });
+    const route = await this.prisma.route.findUnique({ where: { id } });
+    return route
+      ? { ...route, transportMode: route.transportMode as TransportMode }
+      : null;
   }
 
   async upsertRouteWithStops({
@@ -76,7 +90,7 @@ export class RouteOrmService {
     threadUid: string;
     shortTitle: string;
     fullTitle: string;
-    transportType: string;
+    transportType: TransportMode;
     routeInfoUrl: string | null;
     stopIds: string[];
   }) {
@@ -99,7 +113,7 @@ export class RouteOrmService {
       const newRouteData = {
         shortTitle,
         fullTitle,
-        transportMode: transportType,
+        transportMode: transportType as string,
         routeInfoUrl,
       };
 

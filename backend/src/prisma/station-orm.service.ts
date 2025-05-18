@@ -1,21 +1,52 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Station } from "./models";
+import { AddFilterDto } from "../stations/dto/add-filter.dto";
+import { Prisma } from "@prisma/client";
+import { TransportMode } from "../shared/dto/transport-mode.dto";
 
 @Injectable()
 export class StationOrmService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(id: string): Promise<Station | null> {
-    return this.prisma.station.findUnique({ where: { id } });
+    const s = await this.prisma.station.findUnique({ where: { id } });
+    if (!s) return null;
+    return { ...s, transportMode: s.transportMode as TransportMode };
   }
 
-  async findMany(): Promise<Station[]> {
-    return this.prisma.station.findMany();
+  async findMany(filter?: AddFilterDto): Promise<Station[]> {
+    const where: Prisma.StationWhereInput = {};
+    if (filter) {
+      if (filter.country) where.country = filter.country;
+      if (filter.region) where.region = filter.region;
+      if (filter.transportMode) where.transportMode = filter.transportMode;
+      if (
+        filter.minLat !== undefined ||
+        filter.maxLat !== undefined ||
+        filter.minLon !== undefined ||
+        filter.maxLon !== undefined
+      ) {
+        where.AND = [];
+        if (filter.minLat !== undefined)
+          where.AND.push({ latitude: { gte: filter.minLat } });
+        if (filter.maxLat !== undefined)
+          where.AND.push({ latitude: { lte: filter.maxLat } });
+        if (filter.minLon !== undefined)
+          where.AND.push({ longitude: { gte: filter.minLon } });
+        if (filter.maxLon !== undefined)
+          where.AND.push({ longitude: { lte: filter.maxLon } });
+      }
+    }
+    const stations = await this.prisma.station.findMany({ where });
+    return stations.map((s) => ({
+      ...s,
+      transportMode: s.transportMode as TransportMode,
+    }));
   }
 
   async findByName(name: string): Promise<Station[]> {
-    return this.prisma.station.findMany({
+    const stations = await this.prisma.station.findMany({
       where: {
         OR: [
           { fullName: { contains: name, mode: "insensitive" } },
@@ -24,6 +55,10 @@ export class StationOrmService {
         ],
       },
     });
+    return stations.map((s) => ({
+      ...s,
+      transportMode: s.transportMode as TransportMode,
+    }));
   }
 
   async findByCoordinates(
@@ -35,7 +70,7 @@ export class StationOrmService {
     const lon = Number(longitude);
     const radius = Number(radiusKm);
     const radiusDegrees = radius / 111.32;
-    return this.prisma.station.findMany({
+    const stations = await this.prisma.station.findMany({
       where: {
         latitude: {
           gte: lat - radiusDegrees,
@@ -47,6 +82,10 @@ export class StationOrmService {
         },
       },
     });
+    return stations.map((s) => ({
+      ...s,
+      transportMode: s.transportMode as TransportMode,
+    }));
   }
 
   /**
@@ -106,8 +145,17 @@ export class StationOrmService {
 
     for (const station of stations) {
       const existing = existingMap.get(station.id);
-      const newData = normalize(station);
-      const existingData = existing ? normalize(existing) : null;
+      // Ensure transportMode is a string for DB comparison, but cast to TransportMode for Station type
+      const newData = normalize({
+        ...station,
+        transportMode: station.transportMode as string,
+      });
+      const existingData = existing
+        ? normalize({
+            ...existing,
+            transportMode: existing.transportMode as string,
+          })
+        : null;
       if (!existingData) {
         toCreate.push({ id: station.id, ...newData });
       } else if (JSON.stringify(existingData) !== JSON.stringify(newData)) {
@@ -136,6 +184,12 @@ export class StationOrmService {
     }
 
     // Return all upserted stations
-    return this.prisma.station.findMany({ where: { id: { in: ids } } });
+    const upserted = await this.prisma.station.findMany({
+      where: { id: { in: ids } },
+    });
+    return upserted.map((s) => ({
+      ...s,
+      transportMode: s.transportMode as TransportMode,
+    }));
   }
 }
