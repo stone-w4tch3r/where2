@@ -56,6 +56,24 @@ export class ReachabilityService {
       const originRoutes = originRouteStops.map((rs) => rs.routeId);
       this.logger.log(`Origin routes: ${JSON.stringify(originRoutes)}`);
 
+      // Cache for routes and their stops to avoid repeated DB queries
+      const routeStopsCache = new Map<
+        string,
+        Array<{ stationId: string; stopPosition: number }>
+      >();
+
+      // Fetch route stops for all origin routes at once to reduce DB calls
+      for (const routeId of originRoutes) {
+        const stops = await this.routeOrm.findRouteStopsByRoute(routeId);
+        routeStopsCache.set(
+          routeId,
+          stops.map((stop) => ({
+            stationId: stop.stationId,
+            stopPosition: stop.stopPosition,
+          })),
+        );
+      }
+
       // Initialize visited map: stationId -> Set of unique keys (transfers + routesSoFar)
       const visited = new Map<string, Set<string>>();
       // Helper to create a unique key for visited state
@@ -76,12 +94,14 @@ export class ReachabilityService {
       }> = [];
 
       // Initial state: all routes from origin station, 0 transfers
-      for (const route of originRoutes) {
-        const routeId = route;
-        const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
+      for (const routeId of originRoutes) {
+        // Get stops for this route (using cache)
+        const routeStops = routeStopsCache.get(routeId) || [];
+
         this.logger.log(
           `Route ${routeId} has stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
         );
+
         for (const stop of routeStops) {
           const stopId = stop.stationId;
           if (stopId !== originId) {
@@ -107,6 +127,10 @@ export class ReachabilityService {
       let iterations = 0;
       const MAX_ITERATIONS = 1000;
       const MAX_QUEUE_SIZE = 1000;
+
+      // Set to track stations we've processed to avoid duplicate DB queries
+      const processedStations = new Set<string>();
+
       while (queue.length > 0) {
         iterations++;
         if (iterations > MAX_ITERATIONS) {
@@ -120,51 +144,90 @@ export class ReachabilityService {
             `Queue size unusually large (${queue.length}). Possible data issue or loop.`,
           );
         }
+
         const { stationId, transfers, routesSoFar } = queue.shift()!;
+
         this.logger.log(
           `Visiting station: ${stationId}, transfers: ${transfers}, routesSoFar: [${[...routesSoFar].join(", ")}]`,
         );
+
         if (transfers >= maxTransfers) {
           this.logger.log(
             `Skipping station ${stationId} due to transfer limit (${transfers} >= ${maxTransfers})`,
           );
           continue;
         }
-        const stationRouteStops =
-          await this.routeOrm.findRouteStopsByStation(stationId);
-        const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
-        this.logger.log(
-          `Station ${stationId} is on routes: ${JSON.stringify(stationRoutes)}`,
-        );
-        for (const route of stationRoutes) {
-          const routeId = route;
-          if (routesSoFar.has(routeId)) {
-            this.logger.log(`Already took route ${routeId}, skipping.`);
-            continue;
-          }
-          const updatedRoutes = new Set(routesSoFar);
-          updatedRoutes.add(routeId);
-          const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
+
+        // Only fetch station routes from DB if we haven't processed this station yet
+        if (!processedStations.has(stationId)) {
+          processedStations.add(stationId);
+
+          const stationRouteStops =
+            await this.routeOrm.findRouteStopsByStation(stationId);
+          const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
+
           this.logger.log(
-            `Exploring route ${routeId} from station ${stationId}, stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
+            `Station ${stationId} is on routes: ${JSON.stringify(stationRoutes)}`,
           );
-          for (const stop of routeStops) {
-            const stopId = stop.stationId;
-            if (stopId === stationId) {
+
+          for (const routeId of stationRoutes) {
+            if (routesSoFar.has(routeId)) {
+              this.logger.log(`Already took route ${routeId}, skipping.`);
               continue;
             }
-            const newTransfers = transfers + 1;
-            const key = makeVisitedKey(newTransfers, updatedRoutes);
-            if (!visited.has(stopId)) visited.set(stopId, new Set());
-            if (!visited.get(stopId)!.has(key)) {
-              visited.get(stopId)!.add(key);
+
+            // Skip if adding this route would exceed max transfers
+            if (transfers + 1 > maxTransfers) {
+              continue;
+            }
+
+            const updatedRoutes = new Set(routesSoFar);
+            updatedRoutes.add(routeId);
+
+            // Check if we've already processed this route
+            if (!routeStopsCache.has(routeId)) {
+              const routeStops =
+                await this.routeOrm.findRouteStopsByRoute(routeId);
+              routeStopsCache.set(
+                routeId,
+                routeStops.map((stop) => ({
+                  stationId: stop.stationId,
+                  stopPosition: stop.stopPosition,
+                })),
+              );
+            }
+
+            const routeStops = routeStopsCache.get(routeId) || [];
+
+            this.logger.log(
+              `Exploring route ${routeId} from station ${stationId}, stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
+            );
+
+            for (const stop of routeStops) {
+              const stopId = stop.stationId;
+              if (stopId === stationId) {
+                continue;
+              }
+
+              // Skip stations that would require going back to already-visited stations
+              // with the same route combination (prevents looping)
+              const newKey = makeVisitedKey(transfers + 1, updatedRoutes);
+              if (!visited.has(stopId)) {
+                visited.set(stopId, new Set());
+              } else if (visited.get(stopId)!.has(newKey)) {
+                // We've already planned to visit this station with these exact routes and transfers
+                continue;
+              }
+
+              visited.get(stopId)!.add(newKey);
               queue.push({
                 stationId: stopId,
-                transfers: newTransfers,
+                transfers: transfers + 1,
                 routesSoFar: updatedRoutes,
               });
+
               this.logger.log(
-                `Enqueued station: ${stopId} with transfers: ${newTransfers}, routes: [${[...updatedRoutes].join(", ")}]`,
+                `Enqueued station: ${stopId} with transfers: ${transfers + 1}, routes: [${[...updatedRoutes].join(", ")}]`,
               );
             }
           }
