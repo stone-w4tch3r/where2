@@ -46,20 +46,6 @@ export class StationsController {
     return result.data.map((station) => new StationDto(station));
   }
 
-  @ApiOperation({ summary: "Get station by ID" })
-  @ApiParam({ name: "id", description: "Station ID" })
-  @ApiResponse({
-    status: 200,
-    description: "Returns the station",
-    type: StationDto,
-  })
-  @Get(":id")
-  async findOne(@Param("id") id: string): Promise<StationDto> {
-    const result = await this.stationsService.findOne(id);
-    if (!result.success) throw result.error;
-    return new StationDto(result.data);
-  }
-
   @ApiOperation({ summary: "Find stations by name" })
   @ApiQuery({ name: "name", description: "Station name to search for" })
   @ApiResponse({
@@ -72,5 +58,19 @@ export class StationsController {
     const result = await this.stationsService.findByName(name);
     if (!result.success) throw result.error;
     return result.data.map((station) => new StationDto(station));
+  }
+
+  @ApiOperation({ summary: "Get station by ID" })
+  @ApiParam({ name: "id", description: "Station ID" })
+  @ApiResponse({
+    status: 200,
+    description: "Returns the station",
+    type: StationDto,
+  })
+  @Get(":id")
+  async findOne(@Param("id") id: string): Promise<StationDto> {
+    const result = await this.stationsService.findOne(id);
+    if (!result.success) throw result.error;
+    return new StationDto(result.data);
   }
 }
