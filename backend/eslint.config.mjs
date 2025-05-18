@@ -29,7 +29,24 @@ export default [
       'no-unreachable': 'off',
       '@typescript-eslint/explicit-function-return-type': 'error',
       'no-console': 'error',
-      // You can add more rules as needed
+      // Architecture rules
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@prisma/client',
+              message: 'Import Prisma only in the prisma module!',
+            },
+          ],
+          patterns: [
+            {
+              group: ['@prisma/client'],
+              message: 'Import Prisma only in the prisma module!',
+            },
+          ],
+        },
+      ],
     },
     settings: {},
   },
@@ -40,5 +57,11 @@ export default [
       'build/',
       'coverage/',
     ],
+  },
+  {
+    files: ['src/prisma/**'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
   },
 ]; 
