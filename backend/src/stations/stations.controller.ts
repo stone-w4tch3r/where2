@@ -8,7 +8,7 @@ import {
 } from "@nestjs/swagger";
 import { StationsService } from "./stations.service";
 import { FindByLocationDto } from "./dto/find-by-location.dto";
-import { AddFilterDto } from "./dto/add-filter.dto";
+import { StationFilterDto } from "./dto/station-filter.dto";
 
 @ApiTags("stations")
 @Controller("stations")
@@ -18,7 +18,7 @@ export class StationsController {
   @ApiOperation({ summary: "Get all stations" })
   @ApiResponse({ status: 200, description: "Returns all stations" })
   @Get()
-  async findAll(@Query() filter: AddFilterDto) {
+  async findAll(@Query() filter: StationFilterDto) {
     return this.stationsService.findAll(filter);
   }
 

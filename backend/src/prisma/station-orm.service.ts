@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Station } from "./models";
-import { AddFilterDto } from "../stations/dto/add-filter.dto";
 import { Prisma } from "@prisma/client";
 import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { StationFilterDto } from "../stations/dto/station-filter.dto";
 
 @Injectable()
 export class StationOrmService {
@@ -15,7 +15,7 @@ export class StationOrmService {
     return { ...s, transportMode: s.transportMode as TransportMode };
   }
 
-  async findMany(filter?: AddFilterDto): Promise<Station[]> {
+  async findMany(filter?: StationFilterDto): Promise<Station[]> {
     const where: Prisma.StationWhereInput = {};
     if (filter) {
       if (filter.country) where.country = filter.country;

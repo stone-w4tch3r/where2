@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RoutesService } from "./routes.service";
-import { AppError } from "../utils/errors";
+import { RouteFilterDto } from "./route-filter.dto";
 
 @ApiTags("routes")
 @Controller("routes")
@@ -11,8 +11,8 @@ export class RoutesController {
   @ApiOperation({ summary: "Get all routes" })
   @ApiResponse({ status: 200, description: "Returns all routes" })
   @Get()
-  async findAll() {
-    return this.routesService.findAll();
+  async findAll(@Query() filter: RouteFilterDto) {
+    return this.routesService.findAll(filter);
   }
 
   @ApiOperation({ summary: "Get route by ID" })

@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Route, RouteStop } from "./models";
 import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { Prisma } from "@prisma/client";
+import { RouteFilterDto } from "../routes/route-filter.dto";
 
 @Injectable()
 export class RouteOrmService {
@@ -42,8 +44,13 @@ export class RouteOrmService {
       : null;
   }
 
-  async findAllRoutes(): Promise<Route[]> {
+  async findAllRoutes(filter?: RouteFilterDto): Promise<Route[]> {
+    const where: Prisma.RouteWhereInput = {};
+    if (filter) {
+      if (filter.transportMode) where["transportMode"] = filter.transportMode;
+    }
     const routes = await this.prisma.route.findMany({
+      where,
       include: {
         stops: {
           include: { station: true },

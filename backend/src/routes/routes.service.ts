@@ -3,6 +3,7 @@ import { RouteOrmService } from "../prisma/route-orm.service";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 import { AppError, NotFoundError, InternalError } from "../utils/errors";
 import { Route } from "../prisma/models";
+import { RouteFilterDto } from "./route-filter.dto";
 
 @Injectable()
 export class RoutesService {
@@ -29,9 +30,9 @@ export class RoutesService {
     }
   }
 
-  async findAll(): Promise<Result<Route[], AppError>> {
+  async findAll(filter?: RouteFilterDto): Promise<Result<Route[], AppError>> {
     try {
-      const routes = await this.routeOrm.findAllRoutes();
+      const routes = await this.routeOrm.findAllRoutes(filter);
       return resultSuccess(routes);
     } catch (error) {
       return resultError(new InternalError(`Failed to fetch routes: ${error}`));

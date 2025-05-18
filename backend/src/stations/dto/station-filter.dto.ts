@@ -3,7 +3,7 @@ import { IsOptional, IsString, IsNumber } from "class-validator";
 import { Type } from "class-transformer";
 import { TransportMode } from "../../shared/dto/transport-mode.dto";
 
-export class AddFilterDto {
+export class StationFilterDto {
   @ApiPropertyOptional({ description: "Country to filter by" })
   @IsOptional()
   @IsString()

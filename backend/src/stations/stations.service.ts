@@ -3,7 +3,7 @@ import { StationOrmService } from "../prisma/station-orm.service";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 import { Station } from "@prisma/client";
 import { AppError, NotFoundError, InternalError } from "../utils/errors";
-import { AddFilterDto } from "./dto/add-filter.dto";
+import { StationFilterDto } from "./dto/station-filter.dto";
 
 @Injectable()
 export class StationsService {
@@ -39,7 +39,9 @@ export class StationsService {
     return resultSuccess(data);
   }
 
-  async findAll(filter?: AddFilterDto): Promise<Result<Station[], AppError>> {
+  async findAll(
+    filter?: StationFilterDto,
+  ): Promise<Result<Station[], AppError>> {
     return this.executeWithResult(
       () => this.stationOrm.findMany(filter ?? {}),
       "Failed to fetch stations",
