@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsOptional } from "class-validator";
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 
 export class RouteFilterDto {
   @ApiPropertyOptional({

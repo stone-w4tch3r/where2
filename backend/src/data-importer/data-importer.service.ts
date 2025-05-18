@@ -6,7 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 import { InternalError } from "../utils/errors";
 import { AppError } from "../utils/errors";
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
 import pLimit from "p-limit";

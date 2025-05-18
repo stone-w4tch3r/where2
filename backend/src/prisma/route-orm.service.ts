@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Route, RouteStop } from "./models";
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 import { Prisma } from "@prisma/client";
 import { RouteFilterDto } from "../routes/route-filter.dto";
 

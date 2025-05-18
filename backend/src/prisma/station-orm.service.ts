@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Station } from "./models";
 import { Prisma } from "@prisma/client";
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 import { StationFilterDto } from "../stations/dto/station-filter.dto";
 
 @Injectable()

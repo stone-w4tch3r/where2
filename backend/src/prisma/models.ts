@@ -1,6 +1,6 @@
 // TypeScript representations of the Prisma models for use as return types in ORM services
 
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 
 export type Station = {
   id: string;

@@ -14,7 +14,7 @@ import {
 } from "@nestjs/swagger";
 import { RoutesService } from "./routes.service";
 import { RouteFilterDto } from "./route-filter.dto";
-import { TransportMode } from "../shared/dto/transport-mode.dto";
+import { TransportMode } from "../shared/transport-mode.dto";
 
 export class RouteDto {
   @ApiProperty()

@@ -1,9 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { Result, resultSuccess, resultError } from "../utils/Result";
-import { Station } from "@prisma/client";
 import { AppError, NotFoundError, InternalError } from "../utils/errors";
 import { StationFilterDto } from "./dto/station-filter.dto";
+import { Station } from "../prisma/models";
 
 @Injectable()
 export class StationsService {

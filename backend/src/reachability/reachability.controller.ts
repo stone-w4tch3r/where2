@@ -8,8 +8,6 @@ import {
   ReachabilityQueryDto,
   ReachabilityResultDto,
 } from "./reachability.dto";
-import { Result } from "../utils/Result";
-import { AppError } from "../utils/errors";
 
 @ApiTags("reachability")
 @Controller("reachability")
