@@ -109,7 +109,14 @@ export class StationOrmService {
       longitude: number | null;
       country: string | null;
       region: string | null;
-    }) => ({
+    }): {
+      fullName: string;
+      transportMode: string;
+      latitude: number | null;
+      longitude: number | null;
+      country: string | null;
+      region: string | null;
+    } => ({
       fullName: s.fullName,
       transportMode: s.transportMode,
       latitude: s.latitude,

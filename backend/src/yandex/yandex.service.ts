@@ -48,7 +48,11 @@ export class YandexService {
     this.baseUrl = "https://api.rasp.yandex.net/v3.0";
   }
 
-  private getApiConfig() {
+  private getApiConfig(): {
+    baseUrl: string;
+    apiKey: string;
+    defaultParams: { format: string; lang: string };
+  } {
     return {
       baseUrl: this.baseUrl.endsWith("/") ? this.baseUrl : this.baseUrl + "/",
       apiKey: this.apiKey,

@@ -18,6 +18,7 @@ async function generateSwagger(): Promise<void> {
   // Convert to YAML and write to file
   writeFileSync("swagger.yaml", dump(document));
   await app.close();
+  // eslint-disable-next-line no-console
   console.log("Swagger YAML generated at swagger.yaml");
 }
 

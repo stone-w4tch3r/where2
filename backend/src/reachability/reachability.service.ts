@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
 import { Station, Route } from "../prisma/models";
@@ -20,6 +20,8 @@ export interface ReachabilityResult {
  */
 @Injectable()
 export class ReachabilityService {
+  private readonly logger = new Logger(ReachabilityService.name);
+
   constructor(
     private readonly stationOrm: StationOrmService,
     private readonly routeOrm: RouteOrmService,
@@ -34,10 +36,14 @@ export class ReachabilityService {
     maxTransfers: number,
   ): Promise<Result<ReachabilityResult, AppError>> {
     try {
+      this.logger.log(
+        `Starting calculation from origin: ${originId}, maxTransfers: ${maxTransfers}`,
+      );
       // Get the origin station
       const originStation = await this.stationOrm.findOne(originId);
 
       if (!originStation) {
+        this.logger.warn(`Origin station not found: ${originId}`);
         return resultError(
           new NotFoundError(`Origin station not found: ${originId}`),
         );
@@ -48,6 +54,7 @@ export class ReachabilityService {
         await this.routeOrm.findRouteStopsByStation(originId);
 
       const originRoutes = originRouteStops.map((rs) => rs.routeId);
+      this.logger.log(`Origin routes: ${JSON.stringify(originRoutes)}`);
 
       // Initialize visited stations map with distances
       const visited = new Map<string, number>();
@@ -66,6 +73,9 @@ export class ReachabilityService {
 
         // Get all stops for this route
         const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
+        this.logger.log(
+          `Route ${routeId} has stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
+        );
 
         for (const stop of routeStops) {
           const stopId = stop.stationId;
@@ -76,16 +86,39 @@ export class ReachabilityService {
               routesSoFar: new Set([routeId]),
             });
             visited.set(stopId, 0);
+            this.logger.log(
+              `Enqueued initial station: ${stopId} via route ${routeId}`,
+            );
           }
         }
       }
 
       // BFS to find reachable stations
+      let iterations = 0;
+      const MAX_ITERATIONS = 10000;
       while (queue.length > 0) {
+        iterations++;
+        if (iterations > MAX_ITERATIONS) {
+          this.logger.error(
+            `Exceeded max iterations (${MAX_ITERATIONS}). Possible loop detected. Breaking out.`,
+          );
+          break;
+        }
+        if (queue.length > 10000) {
+          this.logger.warn(
+            `Queue size unusually large (${queue.length}). Possible data issue or loop.`,
+          );
+        }
         const { stationId, transfers, routesSoFar } = queue.shift()!;
+        this.logger.log(
+          `Visiting station: ${stationId}, transfers: ${transfers}, routesSoFar: [${[...routesSoFar].join(", ")}]`,
+        );
 
         // Skip if we've exceeded max transfers
         if (transfers >= maxTransfers) {
+          this.logger.log(
+            `Skipping station ${stationId} due to transfer limit (${transfers} >= ${maxTransfers})`,
+          );
           continue;
         }
 
@@ -94,6 +127,9 @@ export class ReachabilityService {
           await this.routeOrm.findRouteStopsByStation(stationId);
 
         const stationRoutes = stationRouteStops.map((rs) => rs.routeId);
+        this.logger.log(
+          `Station ${stationId} is on routes: ${JSON.stringify(stationRoutes)}`,
+        );
 
         // For each route, add all stops that we haven't visited
         for (const route of stationRoutes) {
@@ -101,6 +137,7 @@ export class ReachabilityService {
 
           // Skip routes we've already taken
           if (routesSoFar.has(routeId)) {
+            this.logger.log(`Already took route ${routeId}, skipping.`);
             continue;
           }
 
@@ -110,6 +147,9 @@ export class ReachabilityService {
 
           // Get all stops for this route
           const routeStops = await this.routeOrm.findRouteStopsByRoute(routeId);
+          this.logger.log(
+            `Exploring route ${routeId} from station ${stationId}, stops: ${JSON.stringify(routeStops.map((s) => s.stationId))}`,
+          );
 
           // For each stop in this route
           for (const stop of routeStops) {
@@ -124,12 +164,24 @@ export class ReachabilityService {
 
             // If we haven't visited this station or we found a shorter path
             if (!visited.has(stopId) || visited.get(stopId)! > newTransfers) {
+              if (visited.has(stopId)) {
+                this.logger.warn(
+                  `Found shorter path to station ${stopId}: previous transfers ${visited.get(stopId)}, new transfers ${newTransfers}`,
+                );
+              }
               visited.set(stopId, newTransfers);
               queue.push({
                 stationId: stopId,
                 transfers: newTransfers,
                 routesSoFar: updatedRoutes,
               });
+              this.logger.log(
+                `Enqueued station: ${stopId} with transfers: ${newTransfers}, routes: [${[...updatedRoutes].join(", ")}]`,
+              );
+            } else {
+              this.logger.log(
+                `Already visited station ${stopId} with equal or fewer transfers (${visited.get(stopId)}), skipping.`,
+              );
             }
           }
         }
@@ -147,7 +199,7 @@ export class ReachabilityService {
         const station = await this.stationOrm.findOne(stationId);
 
         if (!station) {
-          console.warn(
+          this.logger.warn(
             `Station ${stationId} not found in database but was in reachability results`,
           );
           continue;
@@ -174,12 +226,16 @@ export class ReachabilityService {
         });
       }
 
+      this.logger.log(
+        `Calculation complete. Reachable stations: ${reachableStations.length}`,
+      );
       return resultSuccess({
         origin: originId,
         maxTransfers,
         reachableStations,
       });
     } catch (error) {
+      this.logger.error(`Error calculating reachable stations: ${error}`);
       return resultError(
         new InternalError(`Error calculating reachable stations: ${error}`),
       );

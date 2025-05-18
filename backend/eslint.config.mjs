@@ -28,6 +28,7 @@ export default [
       '@typescript-eslint/no-inferrable-types': 'error',
       'no-unreachable': 'off',
       '@typescript-eslint/explicit-function-return-type': 'error',
+      'no-console': 'error',
       // You can add more rules as needed
     },
     settings: {},
