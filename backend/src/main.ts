@@ -28,7 +28,9 @@ async function bootstrap() {
   // Setup Swagger
   const config = new DocumentBuilder()
     .setTitle("Where2 API")
-    .setDescription("API for the Where2 application")
+    .setDescription(
+      "API for the Where2 application, go to <a href='/swagger-json'>/swagger-json</a> to view the raw OpenAPI JSON",
+    )
     .setVersion("1.0")
     .build();
   const document = SwaggerModule.createDocument(app, config);
