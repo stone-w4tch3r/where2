@@ -1,6 +1,4 @@
 import "jest";
-/// <reference types="jest" />
-/* eslint-env jest */
 import { ReachabilityService } from "./reachability.service";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
