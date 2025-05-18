@@ -4,23 +4,27 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from "@nestjs/common";
-import { YandexService } from "../yandex/yandex.service";
-import { StationOrmService } from "../prisma/station-orm.service";
-import { RouteOrmService } from "../prisma/route-orm.service";
-import { ConfigService } from "@nestjs/config";
-import { Result, resultSuccess, resultError } from "../utils/Result";
-import { InternalError } from "../utils/errors";
-import { AppError } from "../utils/errors";
-import { TransportMode } from "../shared/transport-mode.dto";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
 import pLimit from "p-limit";
+import { StationWithRegion, YandexService } from "../yandex/yandex.service";
+import { StationOrmService } from "../prisma/station-orm.service";
+import { RouteOrmService } from "../prisma/route-orm.service";
+import { ConfigService } from "@nestjs/config";
 import {
   StationTransportType,
   ThreadTransportType,
 } from "../yandex/baseSchemas";
+import { TransportMode } from "../shared/transport-mode.dto";
+import { Result, resultError, resultSuccess } from "../utils/Result";
+import { AppError, InternalError } from "../utils/errors";
+import { getErrorMessage } from "../utils/errorHelpers";
 
-const COUNTRIES = ["Россия"];
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
+
+const COUNTRIES = ["Россия"]; // Allowed country list
 const STATION_TRANSPORT_TYPES: StationTransportType[] = [
   "suburban",
   "train",
@@ -31,332 +35,267 @@ const THREAD_TRANSPORT_TYPES: ThreadTransportType[] = ["suburban"];
 const STATION_CONCURRENCY_LIMIT_DEFAULT = 40;
 const THREAD_CONCURRENCY_LIMIT_DEFAULT = 80;
 
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
 @Injectable()
 export class DataImporterService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DataImporterService.name);
   private readonly isImportEnabled: boolean;
-  private readonly importCronSchedule: string | undefined;
+  private readonly importCronSchedule?: string;
   private readonly stationConcurrencyLimit: number;
   private readonly threadConcurrencyLimit: number;
+
+  /**
+   * Tracks whether NestJS is shutting down so that long-running tasks
+   * can attempt a graceful early exit.
+   */
   private isShuttingDown = false;
+  private isCancelled = false;
 
   constructor(
-    private readonly yandexService: YandexService,
+    private readonly yandex: YandexService,
     private readonly stationOrm: StationOrmService,
     private readonly routeOrm: RouteOrmService,
-    private readonly configService: ConfigService,
-    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly cfg: ConfigService,
+    private readonly scheduler: SchedulerRegistry,
   ) {
+    // -----------------------------------------------------------------------
+    // Configuration
+    // -----------------------------------------------------------------------
     this.isImportEnabled =
-      this.configService.get<string>("DATA_IMPORT_ENABLED") === "true";
+      this.cfg.get<string>("DATA_IMPORT_ENABLED") === "true";
     this.importCronSchedule =
-      this.configService.get<string>("DATA_IMPORT_CRON") || undefined;
+      this.cfg.get<string>("DATA_IMPORT_CRON") ?? undefined;
 
-    // Initialize concurrency limits from config, with defaults
-    const stationConcurrencyEnv = this.configService.get<string>(
+    this.stationConcurrencyLimit = this.getNumericCfg(
       "DATA_IMPORT_STATION_CONCURRENCY",
+      STATION_CONCURRENCY_LIMIT_DEFAULT,
     );
-    this.stationConcurrencyLimit =
-      stationConcurrencyEnv !== undefined && stationConcurrencyEnv !== null
-        ? Number(stationConcurrencyEnv)
-        : STATION_CONCURRENCY_LIMIT_DEFAULT;
-    const threadConcurrencyEnv = this.configService.get<string>(
+    this.threadConcurrencyLimit = this.getNumericCfg(
       "DATA_IMPORT_THREAD_CONCURRENCY",
+      THREAD_CONCURRENCY_LIMIT_DEFAULT,
     );
-    this.threadConcurrencyLimit =
-      threadConcurrencyEnv !== undefined && threadConcurrencyEnv !== null
-        ? Number(threadConcurrencyEnv)
-        : THREAD_CONCURRENCY_LIMIT_DEFAULT;
 
+    // -----------------------------------------------------------------------
+    // Logging startup state
+    // -----------------------------------------------------------------------
     if (this.isImportEnabled) {
       this.logger.log(
-        `Data import is enabled with schedule: ${this.importCronSchedule || "not specified"}`,
+        `Data import enabled (cron: ${this.importCronSchedule ?? "manual"})`,
       );
     } else {
-      this.logger.log("Automatic data import is disabled");
+      this.logger.log("Automatic data import disabled");
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Nest lifecycle hooks
+  // ---------------------------------------------------------------------------
+
   async onModuleInit(): Promise<void> {
-    if (this.isImportEnabled && this.importCronSchedule) {
-      // Create a cron job with the schedule from the environment variable
-      const job = new CronJob(this.importCronSchedule, () => {
-        this.handleDailyDataImport();
-      });
+    if (!this.isImportEnabled || !this.importCronSchedule) return;
 
-      // Register the cron job with a name
-      this.schedulerRegistry.addCronJob("data-import", job);
+    const job = new CronJob(this.importCronSchedule, () =>
+      this.handleDailyImport().catch((err) =>
+        this.logger.error("Unhandled import error", err),
+      ),
+    );
 
-      // Start the job
-      job.start();
-      this.logger.log(
-        `Scheduled data import with cron: ${this.importCronSchedule}`,
-      );
-    }
+    this.scheduler.addCronJob("data-import", job);
+    job.start();
+
+    this.logger.log(
+      `Scheduled data import via cron (${this.importCronSchedule})`,
+    );
   }
 
   async onModuleDestroy(): Promise<void> {
-    this.logger.log("DataImporterService is shutting down.");
+    this.logger.log("Shutting down DataImporterService");
     this.isShuttingDown = true;
 
-    if (this.importCronSchedule) {
-      try {
-        const job = this.schedulerRegistry.getCronJob("data-import");
-        if (job) {
-          job.stop();
-          this.logger.log("Data import cron job stopped.");
-        }
-      } catch (error) {
-        this.logger.warn("Could not stop data import cron job.", error);
-      }
+    try {
+      this.scheduler.getCronJob("data-import")?.stop();
+      this.logger.log("Cron job stopped");
+    } catch (err) {
+      this.logger.warn("Failed to stop cron job or cron job not found");
     }
   }
 
-  async handleDailyDataImport(): Promise<void> {
-    try {
-      this.logger.log("Running daily data import");
-      const result = await this.importAllData();
+  // ---------------------------------------------------------------------------
+  // Public API
+  // ---------------------------------------------------------------------------
 
-      if (result.success) {
-        this.logger.log(`Data import completed successfully: ${result.data}`);
-      } else {
-        this.logger.error(`Data import failed: ${result.error}`);
-      }
-    } catch (error) {
-      this.logger.error("Error during data import", error);
+  /**
+   * Manual trigger (or cron callback).
+   */
+  async handleDailyImport(): Promise<void> {
+    const res = await this.importAllData();
+    if (res.success) {
+      this.logger.log(res.data);
+    } else {
+      this.logger.error(res.error);
     }
   }
 
   /**
-   * Import all stations in a region and their routes
+   * High-level orchestration.  Catch-all for converting thrown errors into
+   * typed Result objects.
    */
   async importAllData(): Promise<Result<string, AppError>> {
-    this.logger.log("Starting data import...");
-    this.logger.debug(
-      `Concurrency limits: station=${this.stationConcurrencyLimit}, thread=${this.threadConcurrencyLimit}`,
+    this.logger.log(
+      `--- Import started (station=${this.stationConcurrencyLimit}; thread=${this.threadConcurrencyLimit}) ---`,
     );
 
-    let operationCancelled = false; // Flag for this specific import run
-
-    // Step 1: Get all stations
-    const stationsResponseResult = await this.yandexService.getStationsList();
-    if (!stationsResponseResult.success) {
-      this.logger.error(
-        "Error fetching stations list:",
-        stationsResponseResult.error,
-      );
-      return resultError(
-        new InternalError(
-          `Error fetching stations list: ${stationsResponseResult.error}`,
-        ),
-      );
-    }
-    const stationsResponse = stationsResponseResult.data;
-
-    const filteredByTypeStations = stationsResponse.stations.filter((station) =>
-      STATION_TRANSPORT_TYPES.includes(station.transport_type),
-    );
-
-    this.logger.debug(`Found ${filteredByTypeStations.length} stations total`);
-
-    // Step 2: Save stations to database
-    this.logger.debug("Saving stations to database...");
     try {
-      const stations = filteredByTypeStations.map((station) => ({
-        id: station.codes.yandex_code,
-        fullName: station.title,
-        transportMode: this.mapTransportType(station.transport_type),
-        latitude: station.latitude === "" ? null : station.latitude,
-        longitude: station.longitude === "" ? null : station.longitude,
-        country: station.country,
-        region: station.region,
-      }));
-      await this.stationOrm.upsertStations(stations);
-    } catch (error) {
-      this.logger.error(
-        "Critical error during initial station upsert. Aborting import.",
-        error,
+      // 1. Fetch + persist stations ------------------------------------------------
+      const stations = await this.fetchAndPersistStations();
+
+      // 2. Import routes (threads) --------------------------------------------------
+      const routeCount = await this.importRoutes(stations);
+
+      return resultSuccess(
+        `Successfully imported ${stations.length} stations and ${routeCount} routes`,
       );
-      const message = error instanceof Error ? error.message : String(error);
-      return resultError(
-        new InternalError(
-          `Critical error during initial station upsert: ${message}`,
-        ),
+    } catch (err) {
+      this.isCancelled = true;
+      const appErr =
+        err instanceof AppError ? err : new InternalError(getErrorMessage(err));
+      this.logger.error("IMPORT CANCELLED: " + appErr);
+      return resultError(appErr);
+    } finally {
+      this.logger.log("Import finished (cancelled=" + this.isCancelled + ")");
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 1: Stations
+  // ---------------------------------------------------------------------------
+
+  private async fetchAndPersistStations(): Promise<StationWithRegion[]> {
+    const stationsRes = await this.yandex.getStationsList();
+    if (!stationsRes.success) {
+      throw new InternalError(
+        `Unable to fetch station list: ${stationsRes.error}`,
       );
     }
-    this.logger.debug("All stations saved to database");
 
-    const filteredStations = stationsResponse.stations.filter(
-      (station) =>
-        COUNTRIES.includes(station.country) &&
-        STATION_TRANSPORT_TYPES.includes(station.transport_type),
+    const stations = stationsRes.data.stations.filter((s) =>
+      STATION_TRANSPORT_TYPES.includes(s.transport_type),
     );
 
-    this.logger.debug(
-      `Found ${filteredStations.length} stations in ${COUNTRIES.join(", ")}`,
+    // Persist (upsert)
+    await this.stationOrm.upsertStations(
+      stations.map((s) => ({
+        id: s.codes.yandex_code,
+        fullName: s.title,
+        transportMode: this.mapTransportType(s.transport_type),
+        latitude: s.latitude || null,
+        longitude: s.longitude || null,
+        country: s.country,
+        region: s.region,
+      })),
     );
 
+    // Filter by allowed countries for the next step
+    return stations.filter((s) => COUNTRIES.includes(s.country));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 2: Routes / Threads
+  // ---------------------------------------------------------------------------
+
+  private async importRoutes(stations: StationWithRegion[]): Promise<number> {
     const importedThreads = new Set<string>();
     let routeCount = 0;
+    let stationsProcessed = 0; // Counter for processed stations
+    const totalStations = stations.length; // Total number of stations
 
     const stationLimit = pLimit(this.stationConcurrencyLimit);
     const threadLimit = pLimit(this.threadConcurrencyLimit);
 
-    try {
-      await Promise.all(
-        filteredStations.map((yandexStation, idx) =>
-          stationLimit(async () => {
-            if (this.isShuttingDown || operationCancelled) {
-              this.logger.verbose(
-                `Station import task for ${yandexStation.codes.yandex_code} cancelled (shutdown: ${this.isShuttingDown}, operationCancelled: ${operationCancelled}).`,
-              );
-              return;
-            }
+    await Promise.all(
+      stations.map((station) =>
+        stationLimit(async () => {
+          if (this.isShuttingDown || this.isCancelled) return;
 
-            const progress = ((idx + 1) / filteredStations.length) * 100;
-            this.logger.debug(
-              `Importing station ${idx + 1}/${filteredStations.length} (${progress.toFixed(2)}%) - ${yandexStation.title}`,
-            );
-            const stationId = yandexStation.codes.yandex_code;
+          stationsProcessed++;
+          const progressPercent =
+            totalStations > 0
+              ? ((stationsProcessed / totalStations) * 100).toFixed(2)
+              : "0.00";
+          this.logger.debug(
+            `Processing station ${stationsProcessed}/${totalStations} (${progressPercent}%) - ${station.codes.yandex_code} - ${station.title}`,
+          );
 
-            try {
-              const scheduleResult =
-                await this.yandexService.getStationSchedule({
-                  station: stationId,
+          // Fetch schedule ------------------------------------------------------
+          const scheduleRes = await this.yandex.getStationSchedule({
+            station: station.codes.yandex_code,
+          });
+          if (this.isShuttingDown || this.isCancelled) return;
+          if (!scheduleRes.success) {
+            this.logger.verbose(
+              `Schedule fetch failed for station ${station.codes.yandex_code}: ${scheduleRes.error}`,
+            ); // This happens often
+            return;
+          }
+
+          const threads = scheduleRes.data.schedule.filter((t) =>
+            THREAD_TRANSPORT_TYPES.includes(t.thread.transport_type),
+          );
+
+          await Promise.all(
+            threads.map((item) =>
+              threadLimit(async () => {
+                if (this.isShuttingDown || this.isCancelled) return;
+
+                const t = item.thread;
+                if (importedThreads.has(t.uid)) return;
+                importedThreads.add(t.uid);
+
+                // Fetch full thread info -------------------------------------
+                const threadRes = await this.yandex.getThreadStations({
+                  uid: t.uid,
                 });
+                if (this.isShuttingDown || this.isCancelled) return;
+                if (!threadRes.success) {
+                  this.logger.verbose(
+                    `Thread fetch failed for station ${station.codes.yandex_code}, thread ${t.uid}: ${threadRes.error}`,
+                  ); // This happens often
+                  return;
+                }
 
-              if (this.isShuttingDown || operationCancelled) {
-                // Re-check after await
-                this.logger.verbose(
-                  `Station import task for ${stationId} cancelled post-schedule fetch.`,
-                );
-                return;
-              }
-
-              if (!scheduleResult.success) {
-                this.logger.verbose(
-                  `Failed to fetch schedule for station ${stationId}: ${scheduleResult.error}. Skipping this station's threads.`,
-                );
-                // Quite popular error
-                // Skip this station's threads, but don't cancel entire batch for this.
-                return;
-              }
-              const threads = scheduleResult.data.schedule.filter((thread) =>
-                THREAD_TRANSPORT_TYPES.includes(thread.thread.transport_type),
-              );
-
-              await Promise.all(
-                threads.map((item) =>
-                  threadLimit(async () => {
-                    if (this.isShuttingDown || operationCancelled) {
-                      this.logger.verbose(
-                        `Thread import task for ${item.thread.uid} cancelled (shutdown: ${this.isShuttingDown}, operationCancelled: ${operationCancelled}).`,
-                      );
-                      return;
-                    }
-                    const thread = item.thread;
-                    const threadUid = thread.uid;
-                    if (importedThreads.has(threadUid)) return;
-
-                    try {
-                      importedThreads.add(threadUid); // Add earlier to avoid race conditions if this task gets cancelled mid-way
-
-                      const threadResult =
-                        await this.yandexService.getThreadStations({
-                          uid: threadUid,
-                        });
-
-                      if (this.isShuttingDown || operationCancelled) {
-                        // Re-check after await
-                        this.logger.verbose(
-                          `Thread import task for ${threadUid} cancelled post-thread fetch.`,
-                        );
-                        importedThreads.delete(threadUid); // Rollback if cancelled before DB op
-                        return;
-                      }
-
-                      if (!threadResult.success) {
-                        this.logger.error(
-                          `Failed to fetch thread details for ${threadUid}: ${threadResult.error}. Skipping this thread.`,
-                        );
-                        importedThreads.delete(threadUid); // Rollback
-                        return; // Skip this thread, but don't cancel entire batch for this specific error
-                      }
-                      const stopIds = threadResult.data.stops.map(
-                        (stop) => stop.station.code,
-                      );
-
-                      await this.routeOrm.upsertRouteWithStops({
-                        threadUid,
-                        shortTitle: thread.number,
-                        fullTitle: thread.title,
-                        transportType: this.mapTransportType(
-                          thread.transport_type,
-                        ),
-                        routeInfoUrl: thread.thread_method_link || null,
-                        stopIds,
-                      });
-                      routeCount++;
-                    } catch (error) {
-                      this.logger.error(
-                        `CRITICAL ERROR processing thread ${threadUid} for station ${stationId}. Setting cancellation flag. Error: ${error}`,
-                      );
-                      operationCancelled = true;
-                      importedThreads.delete(threadUid); // Attempt to rollback from set
-                      throw error; // Crucial: re-throw to reject threadLimit and propagate
-                    }
-                  }),
-                ),
-              );
-            } catch (error) {
-              // This catches errors from station-specific processing, including propagated thread errors
-              // If not already cancelled, this error is the one triggering cancellation for other stations.
-              if (!operationCancelled) {
-                this.logger.error(
-                  `CRITICAL ERROR processing station ${stationId}. Setting cancellation flag. Error: ${error}`,
-                );
-                operationCancelled = true;
-              }
-              throw error; // Crucial: re-throw to reject stationLimit and propagate to main Promise.all
-            }
-          }),
-        ),
-      );
-    } catch (error) {
-      // This catches the first CRITICAL error that caused a stationLimit promise to reject
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.error(
-        `Data import process HALTED due to a critical error: ${message}. Some operations might have been cancelled.`,
-        error,
-      );
-      return resultError(
-        new InternalError(`Import process failed and was halted: ${message}`),
-      );
-    }
-
-    if (this.isShuttingDown || operationCancelled) {
-      this.logger.warn(
-        `Import process was interrupted or cancelled. Imported ${routeCount} routes from ${importedThreads.size} threads before interruption.`,
-      );
-      return resultError(
-        new InternalError(
-          "Import process interrupted or cancelled before full completion.",
-        ),
-      );
-    }
-
-    this.logger.log(
-      `Imported ${routeCount} routes from ${importedThreads.size} threads`,
+                // Persist route ----------------------------------------------
+                await this.routeOrm.upsertRouteWithStops({
+                  threadUid: t.uid,
+                  shortTitle: t.number,
+                  fullTitle: t.title,
+                  transportType: this.mapTransportType(t.transport_type),
+                  routeInfoUrl: t.thread_method_link ?? null,
+                  stopIds: threadRes.data.stops.map((s) => s.station.code),
+                });
+                routeCount += 1;
+              }),
+            ),
+          );
+        }),
+      ),
     );
 
-    return resultSuccess(
-      `Successfully imported ${filteredStations.length} stations and ${routeCount} routes`,
-    );
+    return routeCount;
   }
 
-  /**
-   * Maps Yandex transport_type to our TransportMode enum
-   */
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  private getNumericCfg(key: string, def: number): number {
+    const val = this.cfg.get<string>(key);
+    const parsed = Number(val);
+    return Number.isFinite(parsed) ? parsed : def;
+  }
+
   private mapTransportType(transportType: string): TransportMode {
     switch (transportType) {
       case "train":

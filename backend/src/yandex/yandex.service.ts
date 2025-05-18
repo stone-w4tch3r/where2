@@ -28,7 +28,7 @@ import {
 } from "./endpoints/betweenStationsSchedule";
 
 // Define a type for transformed station data that includes region/country
-type StationWithRegion = StationListItemContract & {
+export type StationWithRegion = StationListItemContract & {
   region: string;
   country: string;
 };

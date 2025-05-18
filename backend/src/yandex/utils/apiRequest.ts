@@ -38,13 +38,13 @@ export async function makeApiRequest<TParams, TResponse>(
   };
 
   // Construct full URL for logging (including query parameters)
-  const fullUrl = constructFullUrl(url, requestParams);
-  logger.verbose(`Making request to: ${fullUrl}`);
+  // const fullUrl = constructFullUrl(url, requestParams);
+  // logger.verbose(`Making request to: ${fullUrl}`);
 
   try {
     const response = await axios.get(url, { params: requestParams });
 
-    logger.verbose(`Response status: ${response.status}`);
+    // logger.verbose(`Response status: ${response.status}`);
 
     try {
       const parsedData = responseSchema.parse(response.data);
