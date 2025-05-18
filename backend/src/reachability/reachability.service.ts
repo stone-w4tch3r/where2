@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
-import { Station, Route } from "@prisma/client";
+import { Station, Route } from "../prisma/models";
 import { NotFoundError, InternalError, AppError } from "../utils/errors";
 import { Result, resultSuccess, resultError } from "../utils/Result";
 

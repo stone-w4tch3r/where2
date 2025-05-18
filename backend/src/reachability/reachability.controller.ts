@@ -4,7 +4,10 @@ import {
   ReachabilityService,
   ReachabilityResult,
 } from "./reachability.service";
-import { ReachabilityQueryDto } from "./dto/reachability-query.dto";
+import {
+  ReachabilityQueryDto,
+  ReachabilityResultDto,
+} from "./reachability.dto";
 import { Result } from "../utils/Result";
 import { AppError } from "../utils/errors";
 
@@ -19,15 +22,17 @@ export class ReachabilityController {
   @ApiResponse({
     status: 200,
     description: "Returns reachable stations from the specified origin",
-    type: Object,
+    type: ReachabilityResultDto,
   })
   @Get()
   async getReachableStations(
     @Query() query: ReachabilityQueryDto,
-  ): Promise<Result<ReachabilityResult, AppError>> {
-    return this.reachabilityService.calculateReachableStations(
+  ): Promise<ReachabilityResultDto> {
+    const result = await this.reachabilityService.calculateReachableStations(
       query.stationId,
       query.maxTransfers,
     );
+    if (!result.success) throw result.error;
+    return new ReachabilityResultDto(result.data);
   }
 }
