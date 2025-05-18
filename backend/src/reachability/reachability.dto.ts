@@ -39,6 +39,9 @@ export class ReachabilityResultDto {
   @ApiProperty()
   maxTransfers: number;
 
+  @ApiProperty()
+  totalCount: number;
+
   @ApiProperty({ type: [StationDto] })
   reachableStations: StationDto[];
 
@@ -53,6 +56,7 @@ export class ReachabilityResultDto {
   }) {
     this.origin = data.origin;
     this.maxTransfers = data.maxTransfers;
+    this.totalCount = data.reachableStations.length;
     this.reachableStations = data.reachableStations.map(
       (rs) => new StationDto(rs.station),
     );

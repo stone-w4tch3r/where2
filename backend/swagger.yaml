@@ -108,25 +108,6 @@ paths:
                   $ref: '#/components/schemas/StationDto'
       summary: Get stations by radius
       tags: *ref_0
-  /stations/{id}:
-    get:
-      operationId: StationsController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Station ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns the station
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StationDto'
-      summary: Get station by ID
-      tags: *ref_0
   /stations/by-name:
     get:
       operationId: StationsController_findByName
@@ -147,6 +128,25 @@ paths:
                 items:
                   $ref: '#/components/schemas/StationDto'
       summary: Find stations by name
+      tags: *ref_0
+  /stations/{id}:
+    get:
+      operationId: StationsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Station ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationDto'
+      summary: Get station by ID
       tags: *ref_0
   /routes:
     get:
@@ -260,9 +260,7 @@ paths:
         - DataImporter
 info:
   title: Where2 API
-  description: >-
-    API for the Where2 application, go to <a
-    href='/swagger-json'>/swagger-json</a> to view the raw OpenAPI JSON
+  description: API for the Where2 application
   version: '1.0'
   contact: {}
 tags: []
@@ -344,6 +342,8 @@ components:
           type: string
         maxTransfers:
           type: number
+        totalCount:
+          type: number
         reachableStations:
           type: array
           items:
@@ -351,4 +351,5 @@ components:
       required:
         - origin
         - maxTransfers
+        - totalCount
         - reachableStations
