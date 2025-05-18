@@ -2,7 +2,8 @@ import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ValidationPipe, Logger } from "@nestjs/common";
 import { AppModule } from "./app.module";
-import { ResultInterceptor } from "./utils/result.interceptor";
+import { AppErrorMappingInterceptor } from "./utils/app-error-mapping.interceptor";
+import { ResultUnwrapInterceptor } from "./utils/result-unwrap.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +20,10 @@ async function bootstrap() {
   );
 
   // Use Result interceptor globally
-  app.useGlobalInterceptors(new ResultInterceptor());
+  app.useGlobalInterceptors(
+    new ResultUnwrapInterceptor(),
+    new AppErrorMappingInterceptor(),
+  );
 
   // Setup Swagger
   const config = new DocumentBuilder()
