@@ -57,7 +57,7 @@ export class StationOrmService {
     }));
   }
 
-  async findByCoordinates(
+  async findByRadius(
     latitude: number,
     longitude: number,
     radiusKm: number,

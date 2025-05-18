@@ -22,14 +22,14 @@ export class StationsController {
     return this.stationsService.findAll(filter);
   }
 
-  @ApiOperation({ summary: "Get stations by location" })
+  @ApiOperation({ summary: "Get stations by radius" })
   @ApiResponse({
     status: 200,
-    description: "Returns stations near the location",
+    description: "Returns stations within the radius",
   })
-  @Get("by-location")
-  async findByLocation(@Query() query: FindByLocationDto) {
-    return this.stationsService.findByCoordinates(
+  @Get("by-radius")
+  async findByRadius(@Query() query: FindByLocationDto) {
+    return this.stationsService.findByRadius(
       query.latitude,
       query.longitude,
       query.radius,
@@ -50,7 +50,7 @@ export class StationsController {
     status: 200,
     description: "Returns stations matching the name",
   })
-  @Get("search/name")
+  @Get("by-name")
   async findByName(@Query("name") name: string) {
     return this.stationsService.findByName(name);
   }

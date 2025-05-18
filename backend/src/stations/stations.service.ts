@@ -59,13 +59,13 @@ export class StationsService {
     }, `Failed to find stations by name: ${name}`);
   }
 
-  async findByCoordinates(
+  async findByRadius(
     latitude: number,
     longitude: number,
     radiusKm: number,
   ): Promise<Result<Station[], AppError>> {
     return this.executeWithResult(async () => {
-      return this.stationOrm.findByCoordinates(latitude, longitude, radiusKm);
+      return this.stationOrm.findByRadius(latitude, longitude, radiusKm);
     }, "Failed to find stations by coordinates");
   }
 }
