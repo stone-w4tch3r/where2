@@ -258,6 +258,90 @@ paths:
           description: ''
       tags:
         - DataImporter
+  /geo-routes/by-radius:
+    get:
+      operationId: GeoRoutesController_getByRadius
+      parameters:
+        - name: latitude
+          required: true
+          in: query
+          description: Latitude of the center point
+          schema:
+            example: 56.83
+            type: number
+        - name: longitude
+          required: true
+          in: query
+          description: Longitude of the center point
+          schema:
+            example: 60.6
+            type: number
+        - name: radius
+          required: true
+          in: query
+          description: Radius in kilometers
+          schema:
+            example: 5
+            type: number
+      responses:
+        '200':
+          description: Successfully retrieved routes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteDto'
+        '400':
+          description: Invalid input parameters.
+      summary: Get routes by radius from a central point
+      tags: &ref_2
+        - geo-routes
+  /geo-routes/by-coordinate-box:
+    get:
+      operationId: GeoRoutesController_getByCoordinateBox
+      parameters:
+        - name: minLatitude
+          required: true
+          in: query
+          description: Minimum latitude of the bounding box
+          schema:
+            example: 40.7
+            type: number
+        - name: minLongitude
+          required: true
+          in: query
+          description: Minimum longitude of the bounding box
+          schema:
+            example: -74
+            type: number
+        - name: maxLatitude
+          required: true
+          in: query
+          description: Maximum latitude of the bounding box
+          schema:
+            example: 40.72
+            type: number
+        - name: maxLongitude
+          required: true
+          in: query
+          description: Maximum longitude of the bounding box
+          schema:
+            example: -73.98
+            type: number
+      responses:
+        '200':
+          description: Successfully retrieved routes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteDto'
+        '400':
+          description: Invalid input parameters.
+      summary: Get routes within a specified coordinate bounding box
+      tags: *ref_2
 info:
   title: Where2 API
   description: API for the Where2 application
@@ -330,11 +414,16 @@ components:
         routeInfoUrl:
           type: string
           nullable: true
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/StationDto'
       required:
         - id
         - shortTitle
         - fullTitle
         - transportMode
+        - stops
     ReachabilityResultDto:
       type: object
       properties:
