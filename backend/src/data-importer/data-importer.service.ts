@@ -10,19 +10,22 @@ import { TransportMode } from "../shared/transport-mode.dto";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
 import pLimit from "p-limit";
+import { exec } from "child_process";
 
-const REGION = "Свердловская область";
+const COUNTRIES = ["Россия"];
 const STATION_TRANSPORT_TYPES = ["suburban", "train"];
 const THREAD_TRANSPORT_TYPES = ["suburban"];
 
-const STATION_CONCURRENCY_LIMIT = 10;
-const THREAD_CONCURRENCY_LIMIT = 20;
+const STATION_CONCURRENCY_LIMIT_DEFAULT = 40;
+const THREAD_CONCURRENCY_LIMIT_DEFAULT = 80;
 
 @Injectable()
 export class DataImporterService implements OnModuleInit {
   private readonly logger = new Logger(DataImporterService.name);
   private readonly isImportEnabled: boolean;
   private readonly importCronSchedule: string | undefined;
+  private readonly stationConcurrencyLimit: number;
+  private readonly threadConcurrencyLimit: number;
 
   constructor(
     private readonly yandexService: YandexService,
@@ -35,6 +38,22 @@ export class DataImporterService implements OnModuleInit {
       this.configService.get<string>("DATA_IMPORT_ENABLED") === "true";
     this.importCronSchedule =
       this.configService.get<string>("DATA_IMPORT_CRON") || undefined;
+
+    // Initialize concurrency limits from config, with defaults
+    const stationConcurrencyEnv = this.configService.get<string>(
+      "DATA_IMPORT_STATION_CONCURRENCY",
+    );
+    this.stationConcurrencyLimit =
+      stationConcurrencyEnv !== undefined && stationConcurrencyEnv !== null
+        ? Number(stationConcurrencyEnv)
+        : STATION_CONCURRENCY_LIMIT_DEFAULT;
+    const threadConcurrencyEnv = this.configService.get<string>(
+      "DATA_IMPORT_THREAD_CONCURRENCY",
+    );
+    this.threadConcurrencyLimit =
+      threadConcurrencyEnv !== undefined && threadConcurrencyEnv !== null
+        ? Number(threadConcurrencyEnv)
+        : THREAD_CONCURRENCY_LIMIT_DEFAULT;
 
     if (this.isImportEnabled) {
       this.logger.log(
@@ -83,6 +102,9 @@ export class DataImporterService implements OnModuleInit {
    */
   async importAllData(): Promise<Result<string, AppError>> {
     this.logger.log("Starting data import...");
+    this.logger.log(
+      `Concurrency limits: station=${this.stationConcurrencyLimit}, thread=${this.threadConcurrencyLimit}`,
+    );
     // Step 1: Get all stations
     const stationsResponseResult = await this.yandexService.getStationsList();
     if (!stationsResponseResult.success) {
@@ -119,20 +141,20 @@ export class DataImporterService implements OnModuleInit {
     // Filter stations
     const filteredStations = stationsResponse.stations.filter(
       (station) =>
-        station.region === REGION &&
+        COUNTRIES.includes(station.country) &&
         STATION_TRANSPORT_TYPES.includes(station.transport_type),
     );
 
     this.logger.log(
-      `Found ${filteredStations.length} stations in ${REGION} region`,
+      `Found ${filteredStations.length} stations in ${COUNTRIES.join(", ")}`,
     );
 
     // Step 3: For each station, get threads in parallel (with concurrency limit)
     const importedThreads = new Set<string>();
     let routeCount = 0;
 
-    const stationLimit = pLimit(STATION_CONCURRENCY_LIMIT);
-    const threadLimit = pLimit(THREAD_CONCURRENCY_LIMIT);
+    const stationLimit = pLimit(this.stationConcurrencyLimit);
+    const threadLimit = pLimit(this.threadConcurrencyLimit);
 
     await Promise.all(
       filteredStations.map((yandexStation, idx) =>
