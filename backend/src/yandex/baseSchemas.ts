@@ -27,7 +27,7 @@ export const stationSchema = z.object({
       "wharf",
       "river_port",
       "marine_station",
-      ""
+      "",
     ])
     .describe("Type of station"),
   station_type_name: z
@@ -298,6 +298,12 @@ export const countrySchema = z
   })
   .describe("If a country has no codes.yandex_code, it is not valid");
 
+export type StationTransportType = z.infer<
+  typeof stationListItemSchema
+>["transport_type"];
+export type ThreadTransportType = z.infer<
+  typeof threadSchema
+>["transport_type"];
 export type StationContract = z.infer<typeof stationSchema>;
 export type CarrierCodesContract = z.infer<typeof carrierCodesSchema>;
 export type CarrierContract = z.infer<typeof carrierSchema>;

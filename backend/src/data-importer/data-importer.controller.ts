@@ -13,7 +13,8 @@ export class DataImporterController {
     DataImporterController.logger.log(
       "Requested Yandex data import via admin endpoint",
     );
-    await this.dataImporterService.importAllData();
+    const result = await this.dataImporterService.importAllData();
+    if (!result.success) throw result.error;
     return { message: "Yandex data import completed" };
   }
 }
