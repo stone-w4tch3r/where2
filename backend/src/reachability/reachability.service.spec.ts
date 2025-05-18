@@ -1,4 +1,7 @@
-import { ReachabilityService } from "./reachability.service";
+import {
+  ReachabilityResult,
+  ReachabilityService,
+} from "./reachability.service";
 import { StationOrmService } from "../prisma/station-orm.service";
 import { RouteOrmService } from "../prisma/route-orm.service";
 import { NotFoundError, InternalError } from "../utils/errors";
@@ -988,5 +991,151 @@ describe("ReachabilityService", () => {
     // Set much lower limits to make tests fail with unpatched code
     expect(routeStopsStationCalls).toBeLessThan(5);
     expect(routeStopsRouteCalls).toBeLessThan(5);
+  });
+
+  it("should finish without hitting the MAX_ITERATIONS guard", async () => {
+    /**
+     *  Star-shaped graph:
+     *      O  ― R0 ―►  A
+     *      O  ― R1 ―►  A
+     *      ...
+     *      O  ― RN ―►  A             (N  >  service.MAX_ITERATIONS)
+     *
+     *  The bug re-visits A once for every distinct route, so the loop
+     *  easily blows past the iteration cap although there are only two
+     *  physical stations.  When the algorithm is fixed (it should notice
+     *  that re-visiting the *same* station adds no new information) the
+     *  whole calculation completes in just a handful of iterations and
+     *  the error is never logged.
+     */
+
+    const ROUTE_COUNT = service.MAX_ITERATIONS + 50; // safely over the cap
+    const ORIGIN_ID = "O";
+    const TARGET_ID = "A";
+
+    /* ---------- Test data ------------------------------------------------ */
+
+    const stations: Station[] = [
+      {
+        id: ORIGIN_ID,
+        fullName: "Origin",
+        transportMode: TransportMode.Train,
+        latitude: 0,
+        longitude: 0,
+        country: null,
+        region: null,
+      },
+      {
+        id: TARGET_ID,
+        fullName: "Target",
+        transportMode: TransportMode.Train,
+        latitude: 1,
+        longitude: 0,
+        country: null,
+        region: null,
+      },
+    ];
+
+    const routes: Route[] = [];
+    const routeStopsByStation: Record<
+      string,
+      Array<{
+        routeId: string;
+        stationId: string;
+        id: number;
+        stopPosition: number;
+      }>
+    > = {
+      [ORIGIN_ID]: [],
+      [TARGET_ID]: [],
+    };
+    const routeStopsByRoute: Record<
+      string,
+      Array<{
+        routeId: string;
+        stationId: string;
+        id: number;
+        stopPosition: number;
+      }>
+    > = {};
+
+    let stopId = 1;
+    for (let i = 0; i < ROUTE_COUNT; ++i) {
+      const routeId = `R_${i}`;
+      routes.push({
+        id: routeId,
+        shortTitle: routeId,
+        fullTitle: `Route ${i}`,
+        transportMode: TransportMode.Train,
+        routeInfoUrl: null,
+      });
+
+      // Origin stop
+      routeStopsByStation[ORIGIN_ID].push({
+        routeId,
+        stationId: ORIGIN_ID,
+        id: stopId++,
+        stopPosition: 0,
+      });
+
+      // Target stop
+      routeStopsByStation[TARGET_ID].push({
+        routeId,
+        stationId: TARGET_ID,
+        id: stopId++,
+        stopPosition: 1,
+      });
+
+      routeStopsByRoute[routeId] = [
+        {
+          routeId,
+          stationId: ORIGIN_ID,
+          id: stopId++,
+          stopPosition: 0,
+        },
+        {
+          routeId,
+          stationId: TARGET_ID,
+          id: stopId++,
+          stopPosition: 1,
+        },
+      ];
+    }
+
+    /* ---------- Mock implementations ------------------------------------ */
+
+    stationOrm.findOne.mockImplementation(async (id: string) => {
+      return stations.find((s) => s.id === id) ?? null;
+    });
+
+    routeOrm.findRouteStopsByStation.mockImplementation(
+      async (stationId: string) => routeStopsByStation[stationId] ?? [],
+    );
+
+    routeOrm.findRouteStopsByRoute.mockImplementation(
+      async (routeId: string) => routeStopsByRoute[routeId] ?? [],
+    );
+
+    routeOrm.findRouteByIdSimple.mockImplementation(
+      async (routeId: string) => routes.find((r) => r.id === routeId) ?? null,
+    );
+
+    /* ---------- The actual assertion ------------------------------------ */
+
+    const loggerErrorSpy = jest.spyOn(service["logger"], "error");
+
+    const result = await service.calculateReachableStations(ORIGIN_ID, 1);
+
+    // In the *correct* implementation the guard is never triggered.
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
+
+    // A sanity-check that the service still returns something meaningful.
+    expect(result.success).toBe(true);
+    expect(
+      (result as { success: true; data: ReachabilityResult }).data
+        .reachableStations.length,
+    ).toBe(1); // only 'A'
+
+    loggerErrorSpy.mockRestore();
   });
 });
