@@ -108,7 +108,7 @@ export class DataImporterService implements OnModuleInit {
       fullName: station.title,
       popularName: null, // TODO REMOVE THIS PROPERTY LATER
       shortName: null, // TODO REMOVE THIS PROPERTY LATER
-      transportMode: station.transport_type,
+      transportMode: this.mapTransportType(station.transport_type),
       latitude: station.latitude === "" ? null : station.latitude,
       longitude: station.longitude === "" ? null : station.longitude,
       country: station.country,
@@ -118,7 +118,7 @@ export class DataImporterService implements OnModuleInit {
 
     this.logger.log("All stations saved to database");
 
-    // Filter stations for REGION
+    // Filter stations
     const filteredStations = stationsResponse.stations.filter(
       (station) =>
         station.region === REGION &&
@@ -153,10 +153,8 @@ export class DataImporterService implements OnModuleInit {
             );
             return;
           }
-          const threads = scheduleResult.data.schedule.filter(
-            (thread) =>
-              THREAD_TRANSPORT_TYPES.includes(thread.thread.transport_type) &&
-              thread.thread.transport_type !== "plane",
+          const threads = scheduleResult.data.schedule.filter((thread) =>
+            THREAD_TRANSPORT_TYPES.includes(thread.thread.transport_type),
           );
 
           await Promise.all(
@@ -231,6 +229,8 @@ export class DataImporterService implements OnModuleInit {
         return TransportMode.Helicopter;
       case "plane":
         return TransportMode.Plane;
+      case "sea":
+        return TransportMode.Sea;
       default:
         throw new InternalError(`Unknown transport type: ${transportType}`);
     }

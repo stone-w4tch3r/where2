@@ -7,4 +7,5 @@ export enum TransportMode {
   Water = "water",
   Helicopter = "helicopter",
   Plane = "plane",
+  Sea = "sea",
 }
