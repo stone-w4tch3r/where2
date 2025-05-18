@@ -14,8 +14,6 @@ datasource db {
 model Station {
   id           String       @id
   fullName     String
-  popularName  String?
-  shortName    String?
   transportMode String
   latitude     Float?
   longitude    Float?

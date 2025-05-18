@@ -75,12 +75,12 @@ flowchart LR
       %% Fetch full thread info per UID
       TUIDs --> ThreadCall[call ThreadStations API<br/>for each UID]
       ThreadCall --> B1[parse ThreadStationsResponse]
-      B1 --> B2[map to Domain Route & stops\n(map thread_method_link to routeInfoUrl)]
+      B1 --> B2[map to Domain Route & stops]
     end
 
     subgraph Persistence
       A2 --> P1[persist Station ➔ STATIONS]
-      B2 --> P3[persist Route ➔ ROUTES\n(include routeInfoUrl)]
+      B2 --> P3[persist Route ➔ ROUTES]
       B2 --> P4[persist RouteStops ➔ ROUTE_STOPS]
     end
 
@@ -99,8 +99,6 @@ erDiagram
     STATIONS {
       station_id         VARCHAR PK
       full_name             VARCHAR
-      popular_name          VARCHAR
-      short_name            VARCHAR
       transport_mode        VARCHAR
       latitude              DECIMAL
       longitude             DECIMAL

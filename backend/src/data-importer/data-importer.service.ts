@@ -106,8 +106,6 @@ export class DataImporterService implements OnModuleInit {
     const stations = stationsResponse.stations.map((station) => ({
       id: station.codes.yandex_code,
       fullName: station.title,
-      popularName: null, // TODO REMOVE THIS PROPERTY LATER
-      shortName: null, // TODO REMOVE THIS PROPERTY LATER
       transportMode: this.mapTransportType(station.transport_type),
       latitude: station.latitude === "" ? null : station.latitude,
       longitude: station.longitude === "" ? null : station.longitude,

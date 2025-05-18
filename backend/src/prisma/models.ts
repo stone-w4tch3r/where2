@@ -5,8 +5,6 @@ import { TransportMode } from "../shared/dto/transport-mode.dto";
 export type Station = {
   id: string;
   fullName: string;
-  popularName: string | null;
-  shortName: string | null;
   transportMode: TransportMode;
   latitude: number | null;
   longitude: number | null;

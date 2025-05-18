@@ -48,11 +48,7 @@ export class StationOrmService {
   async findByName(name: string): Promise<Station[]> {
     const stations = await this.prisma.station.findMany({
       where: {
-        OR: [
-          { fullName: { contains: name, mode: "insensitive" } },
-          { popularName: { contains: name, mode: "insensitive" } },
-          { shortName: { contains: name, mode: "insensitive" } },
-        ],
+        fullName: { contains: name, mode: "insensitive" },
       },
     });
     return stations.map((s) => ({
