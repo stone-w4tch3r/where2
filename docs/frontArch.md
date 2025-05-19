@@ -30,7 +30,7 @@ This document defines **all code‑level entities, responsibilities, contracts, 
 ```
 /src
   main.tsx                // React root, QueryClient, Store provider, i18n
-  App.tsx                 // <Router> with a single route => <MapPage/>
+  App.tsx                 
   /pages
     MapPage.tsx
   /components             // Presentational & container components
