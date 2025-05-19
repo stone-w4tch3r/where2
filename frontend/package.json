@@ -14,13 +14,14 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.76.1",
+    "@turf/turf": "^7.2.0",
     "@types/leaflet": "^1.9.17",
     "antd": "^5.25.1",
+    "axios": "^1.9.0",
     "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.56.4",
-    "turf": "^3.0.14",
     "zod": "^3.24.4",
     "zustand": "^5.0.4"
   },
@@ -28,6 +29,7 @@
     "@eslint/js": "^9.27.0",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.19",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.4.1",

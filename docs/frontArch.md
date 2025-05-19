@@ -22,6 +22,7 @@ This document defines **all code‑level entities, responsibilities, contracts, 
 | Lint/format             | ESLint (airbnb‑ts) + Prettier       |
 | Tests                   | Vitest + React Testing Library      |
 | Static type checks      | tsc (strict: true)                  |
+| Package manager         | pnpm                                |
 
 ---
 
@@ -74,7 +75,6 @@ This document defines **all code‑level entities, responsibilities, contracts, 
     reachability.ts
   /config
     env.ts                // runtime‑safe env access via import.meta.env
-  /tests                  // *.test.ts(x)
 ```
 
 **FOLLOW THIS STRUCTURE**

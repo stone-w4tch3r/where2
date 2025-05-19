@@ -1,42 +1,18 @@
 import { z } from "zod";
 
-export interface StationDto {
-  id: string;
-  fullName: string;
-  transportMode:
-    | "train"
-    | "suburban"
-    | "bus"
-    | "tram"
-    | "metro"
-    | "water"
-    | "helicopter"
-    | "plane"
-    | "sea";
-  latitude: number | null;
-  longitude: number | null;
-  country: string | null;
-  region: string | null;
-}
+export const ClientTransportModeSchema = z.enum(["train", "suburban"]);
+export type ClientTransportMode = z.infer<typeof ClientTransportModeSchema>;
 
 export const StationSchema = z.object({
   id: z.string(),
   fullName: z.string(),
-  transportMode: z.enum([
-    "train",
-    "suburban",
-    "bus",
-    "tram",
-    "metro",
-    "water",
-    "helicopter",
-    "plane",
-    "sea",
-  ]),
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
+  transportMode: ClientTransportModeSchema,
+  latitude: z.number(),
+  longitude: z.number(),
   country: z.string().nullable(),
   region: z.string().nullable(),
 });
+
+export type StationDto = z.infer<typeof StationSchema>;
 
 export const StationArraySchema = z.array(StationSchema);
