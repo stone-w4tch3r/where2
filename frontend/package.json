@@ -9,7 +9,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",
-    "test": "vitest",
+    "test": "vitest run",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

@@ -1,19 +1,42 @@
 import { z } from "zod";
-import { StationDto, StationSchema } from "@/types/station"; // Assuming StationDto might be part of RouteDto
+import { StationSchema, StationDto } from "./station";
 
 // Placeholder - adjust according to actual backend DTO
 export interface RouteDto {
   id: string;
-  name: string;
-  stations: StationDto[]; // Example: a route has multiple stations
-  // Add other relevant fields
+  shortTitle: string;
+  fullTitle: string;
+  transportMode:
+    | "train"
+    | "suburban"
+    | "bus"
+    | "tram"
+    | "metro"
+    | "water"
+    | "helicopter"
+    | "plane"
+    | "sea";
+  routeInfoUrl: string | null;
+  stops: StationDto[];
 }
 
 export const RouteSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  stations: z.array(StationSchema), // Example
-  // Add other relevant Zod validations
+  shortTitle: z.string(),
+  fullTitle: z.string(),
+  transportMode: z.enum([
+    "train",
+    "suburban",
+    "bus",
+    "tram",
+    "metro",
+    "water",
+    "helicopter",
+    "plane",
+    "sea",
+  ]),
+  routeInfoUrl: z.string().nullable(),
+  stops: z.array(StationSchema),
 });
 
 export const RouteArraySchema = z.array(RouteSchema);
