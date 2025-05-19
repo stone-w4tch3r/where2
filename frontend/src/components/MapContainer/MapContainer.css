@@ -1,0 +1,13 @@
+/* frontend/src/components/MapContainer/MapContainer.css */
+.map-container-dimensions {
+  height: 100vh; /* Default to full viewport height */
+  width: 100%;
+  background-color: #f0f0f0; /* Light grey background as a visual cue before map tiles load */
+}
+
+/* Leaflet dynamically adds this class to its container. 
+   Ensure it also takes up the full space of its parent if not already handled by Leaflet's own CSS. */
+.leaflet-container {
+    height: 100%;
+    width: 100%;
+} 

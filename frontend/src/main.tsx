@@ -1,30 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import App from "./App"; // We'll create this next
-import { StoreProvider } from "./store";
+import App from "./App";
+import { StoreProvider } from "./store/StoreProvider";
+import "./index.css";
 
-// Create a client
 const queryClient = new QueryClient();
 
-// It's common to create a context for the Zustand store if you need to provide it explicitly.
-// However, Zustand is often used directly via its hook (`useStore`).
-// For this task, the user story mentions a <StoreProvider>.
-// A simple way to achieve this if not built into your Zustand setup is to create a context.
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Failed to find the root element. Check your index.html.");
+}
 
-// Let's assume for now the direct hook usage is sufficient as per typical Zustand,
-// unless a specific <StoreProvider> component is required by the user's setup.
-// If a <StoreProvider> is strictly needed, we'd define it in store/index.ts or here.
-
-// For now, let's proceed without a custom StoreProvider wrapper, as Zustand hooks typically don't require one.
-// If this is incorrect, we can adjust.
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <StoreProvider>
-        <App />
-      </StoreProvider>
+    <StoreProvider>
+    <App />
+    </StoreProvider>
     </QueryClientProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

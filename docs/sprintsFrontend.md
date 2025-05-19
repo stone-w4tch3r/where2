@@ -206,6 +206,7 @@ Each exports slice creator returning default state + actions per spec.
 1. Implement bounds → query param conversion inside hook.
 2. On success, push stations into `dataSlice`.
 3. Render `L.Marker` for each station; open basic popup with station name.
+4. Set 2 seconds delay to avoid constant refetch
 
 ### Deliverable
 
