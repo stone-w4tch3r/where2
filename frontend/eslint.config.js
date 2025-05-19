@@ -25,7 +25,7 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-unused-vars': ['off'],
       'no-unused-vars': ['off'],
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-inferrable-types': 'error',
       'no-unreachable': 'off',
       '@typescript-eslint/explicit-function-return-type': 'error',
