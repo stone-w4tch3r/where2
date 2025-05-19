@@ -82,6 +82,13 @@ describe("DataImporterService", () => {
   let service: DataImporterService;
   let module: TestingModule;
 
+  // Add this afterEach hook to close the module
+  afterEach(async () => {
+    if (module) {
+      await module.close();
+    }
+  });
+
   // ---------------------------------------------------------------------------
   // Test Data Helpers
   // ---------------------------------------------------------------------------
