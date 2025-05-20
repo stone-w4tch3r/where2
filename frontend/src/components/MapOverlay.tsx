@@ -43,8 +43,8 @@ const OverlayContainer = styled.div<{
   zIndex: number;
 }>`
   position: absolute;
-  ${({ position }) => positionStyles[position]}
-  z-index: ${({ zIndex }) => zIndex};
+  ${({ position }): string => positionStyles[position]}
+  z-index: ${({ zIndex }): number => zIndex};
   pointer-events: auto;
 `;
 

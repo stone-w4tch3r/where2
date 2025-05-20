@@ -8,7 +8,7 @@ import { StationsOverlay } from "./components/StationsOverlay/StationsOverlay";
 import "leaflet/dist/leaflet.css";
 
 // Inject required Leaflet CSS if not already present
-const injectLeafletCSS = () => {
+const injectLeafletCSS = (): void => {
   if (!document.querySelector('link[href*="leaflet.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -29,7 +29,7 @@ class MapOverlayManager {
     this.initialize();
   }
 
-  private async initialize() {
+  private async initialize(): Promise<void> {
     // Get state from storage
     chrome.storage.local.get(["overlayEnabled"], (result) => {
       this.overlayEnabled = result.overlayEnabled !== false; // Default to true
@@ -48,7 +48,7 @@ class MapOverlayManager {
     });
   }
 
-  private detectMaps() {
+  private detectMaps(): void {
     // Clear previous overlay containers
     this.cleanupOverlays();
 
@@ -69,7 +69,7 @@ class MapOverlayManager {
     }
   }
 
-  private createOverlays() {
+  private createOverlays(): void {
     this.detectedMaps.forEach((map, index) => {
       if (map.type === "leaflet") {
         this.createLeafletOverlay(map, index);
@@ -80,7 +80,7 @@ class MapOverlayManager {
     });
   }
 
-  private createLeafletOverlay(map: DetectedMap, index: number) {
+  private createLeafletOverlay(map: DetectedMap, index: number): void {
     // Create a container for our overlay
     const overlayContainer = document.createElement("div");
     overlayContainer.className = "where2-overlay-container";
@@ -115,7 +115,13 @@ class MapOverlayManager {
     );
   }
 
-  private createBoundsFromElement(element: HTMLElement) {
+  private createBoundsFromElement(element: HTMLElement): {
+    getSouth: () => number;
+    getNorth: () => number;
+    getWest: () => number;
+    getEast: () => number;
+    contains: () => boolean;
+  } {
     // Get the element's dimensions
     const { width, height } = element.getBoundingClientRect();
 
@@ -135,7 +141,7 @@ class MapOverlayManager {
     };
   }
 
-  private cleanupOverlays() {
+  private cleanupOverlays(): void {
     // Unmount React components
     Object.values(this.overlayRoots).forEach((root) => {
       root.unmount();
@@ -153,7 +159,7 @@ class MapOverlayManager {
     this.overlayRoots = {};
   }
 
-  private setupListeners() {
+  private setupListeners(): void {
     // Listen for messages from popup
     chrome.runtime.onMessage.addListener((message) => {
       if (message.type === "ENABLE_OVERLAY") {
@@ -166,7 +172,7 @@ class MapOverlayManager {
     });
   }
 
-  private observeDOM() {
+  private observeDOM(): void {
     // Create a MutationObserver to watch for DOM changes
     const observer = new MutationObserver((mutations) => {
       let shouldRedetect = false;

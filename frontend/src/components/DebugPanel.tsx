@@ -1,5 +1,5 @@
 import React from "react";
-import { useMapContext } from "./MapProvider";
+import { useMapContext } from "@/contexts/MapContext";
 import { Card, Descriptions, Tag } from "antd";
 
 export const DebugPanel: React.FC = () => {

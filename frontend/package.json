@@ -7,10 +7,10 @@
     "dev": "vite",
     "dev:extension:firefox": "web-ext run --source-dir=dist --firefox",
     "dev:extension:firefox:watch": "concurrently \"WATCH=true vite build --watch\" \"web-ext run --source-dir=dist --firefox --watch-files=dist/**/*\"",
+    "preview": "vite preview",
     "build": "vite build",
     "release:firefox": "pnpm run build && web-ext build --source-dir dist --artifacts-dir dist --overwrite-dest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",
     "test": "vitest run",
     "preinstall": "npx only-allow pnpm"

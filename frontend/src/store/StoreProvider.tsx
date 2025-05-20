@@ -12,9 +12,9 @@ type AppStoreApi = StoreApi<AppStore>;
 
 const createFullStore = (): AppStoreApi =>
   create<AppStore>((set, get, api) => ({
-    ...createUiSlice(set, get, api as any),
-    ...createDataSlice(set, get, api as any),
-    ...createMapSlice(set, get, api as any),
+    ...createUiSlice(set),
+    ...createDataSlice(set),
+    ...createMapSlice(set),
   }));
 
 const StoreContext = createContext<AppStoreApi | undefined>(undefined);

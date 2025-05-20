@@ -1,12 +1,13 @@
 import React from "react";
-import { MapProvider, useMapContext } from "@/components/MapProvider";
+import { MapProvider } from "@/components/MapProvider";
+import { useMapContext } from "@/contexts/MapContext";
 import { DebugPanel } from "@/components/DebugPanel";
 import { Avatar, Card, Skeleton, Spin } from "antd";
 import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 import { env } from "@/config/vite-env";
 import { MapContainer, AttributionControl } from "react-leaflet";
 import styled from "@emotion/styled";
-import TileLayerProvider from "@/components/LeafletMap/components/TileLayerProvider";
+import TileLayerProvider from "@/components/leaflet/TileLayerProvider";
 import { MapOverlay } from "@/components/MapOverlay";
 
 const StyledMapContainer = styled(MapContainer)`

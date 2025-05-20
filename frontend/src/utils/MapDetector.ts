@@ -1,9 +1,9 @@
-// Utility to detect maps on webpages
+import type { Map as LeafletMap } from "leaflet";
 
 export interface DetectedMap {
   element: HTMLElement;
   type: "leaflet" | "google" | "other";
-  instance?: any;
+  instance?: LeafletMap | null | undefined;
 }
 
 export class MapDetector {
@@ -40,11 +40,19 @@ export class MapDetector {
       if (container instanceof HTMLElement) {
         // Get the Leaflet instance if possible
         // In Leaflet, the instance is often stored in the element's _leaflet_id
-        let mapInstance = null;
-        if (window.L && container._leaflet_id && window.L.map) {
+        let mapInstance: LeafletMap | null = null;
+
+        if (window.L && container._leaflet_id && window.L.Map) {
           // Try to get the map instance using _leaflet_id
-          const maps = Object.values(window.L.map._mapInstances || {});
-          mapInstance = maps.find((map) => map._container === container);
+          // @ts-expect-error _mapInstances is not part of the official type definition
+          const maps = Object.values(window.L.map?._mapInstances || {});
+          mapInstance =
+            (maps.find((map) => {
+              if (window.L && map instanceof window.L.Map) {
+                return map.getContainer() === container;
+              }
+              return false;
+            }) as LeafletMap | undefined) || null;
         }
 
         this.detectedMaps.push({
@@ -83,11 +91,7 @@ export class MapDetector {
 // Add type definitions to the global Window interface
 declare global {
   interface Window {
-    L?: {
-      map: {
-        _mapInstances?: Record<string, any>;
-      } & Function;
-    };
+    L?: typeof import("leaflet");
   }
 
   interface HTMLElement {

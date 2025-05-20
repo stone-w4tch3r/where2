@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Update UI based on state
-  function updateUI(overlayEnabled: boolean, mapFound: boolean) {
+  function updateUI(overlayEnabled: boolean, mapFound: boolean): void {
     if (mapFound) {
       statusElement.textContent = "Maps found on page";
       statusElement.style.backgroundColor = "#e6f4ea";
