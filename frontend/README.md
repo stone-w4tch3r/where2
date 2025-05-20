@@ -1,54 +1,100 @@
-# React + TypeScript + Vite
+# Where2 Map Overlay Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web browser extension that finds maps on webpages and overlays station information on them.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Automatically detects Leaflet and Google Maps instances on web pages
+- Overlays station information on detected maps
+- Toggle overlay visibility from the extension popup
+- Works on any website with map elements
 
-## Expanding the ESLint configuration
+## Development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- [Node.js](https://nodejs.org/) (v16 or later)
+- [pnpm](https://pnpm.io/) package manager
+
+### Setup
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/yourusername/where2.git
+   cd where2/frontend
+   ```
+
+2. Install dependencies:
+
+   ```
+   pnpm install
+   ```
+
+3. Build the extension:
+   ```
+   pnpm build:extension
+   ```
+
+### Running with Firefox
+
+To run the extension in Firefox Developer Edition during development:
+
+1. Install web-ext if you haven't already:
+
+   ```
+   pnpm add -D web-ext
+   ```
+
+2. Build the extension:
+
+   ```
+   pnpm build:extension
+   ```
+
+3. Run with Firefox Developer Edition:
+   ```
+   pnpm dev:extension:firefox
+   ```
+
+Alternatively, you can load the extension temporarily in Firefox:
+
+1. Open Firefox
+2. Navigate to `about:debugging`
+3. Click "This Firefox"
+4. Click "Load Temporary Add-on"
+5. Select the `manifest.json` file in the `dist` folder
+
+### Running with Chrome
+
+1. Build the extension:
+
+   ```
+   pnpm build:extension
+   ```
+
+2. Open Chrome
+3. Navigate to `chrome://extensions`
+4. Enable "Developer mode"
+5. Click "Load unpacked"
+6. Select the `dist` folder
+
+## Building for Production
+
+```
+pnpm build:extension
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The built extension will be in the `dist` folder, ready to be packaged and distributed.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Structure
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- `manifest.json` - Extension manifest file
+- `popup.html` - Extension popup UI
+- `src/`
+  - `background.ts` - Extension background script
+  - `content.tsx` - Content script injected into webpages
+  - `popup.ts` - Popup script
+  - `utils/MapDetector.ts` - Utility to detect maps on webpages
+  - Other components and utilities from the Where2 application
+- `public/` - Static assets
