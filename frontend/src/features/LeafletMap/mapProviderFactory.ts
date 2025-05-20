@@ -1,5 +1,5 @@
+import { env } from "@/config/vite-env";
 import L from "leaflet";
-import { env } from "../config/env";
 
 interface MapProviderConfig {
   tileLayerUrl: string;
@@ -14,14 +14,9 @@ const providers: Record<string, MapProviderConfig> = {
         '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   },
-  // Future providers like Yandex, Google can be added here
-  // yandex:
-  //   tileLayerUrl: '...',
-  //   options: { ... }
-  // },
 };
 
-export const getMapProviderConfig = (
+const getMapProviderConfig = (
   providerKey: string = env.VITE_MAP_PROVIDER,
 ): MapProviderConfig | undefined => {
   return providers[providerKey];

@@ -9,3 +9,6 @@ export const ScheduleSchema = z.object({
 });
 
 export const ScheduleArraySchema = z.array(ScheduleSchema);
+
+export type ScheduleDto = z.infer<typeof ScheduleSchema>;
+export type ScheduleArrayDto = z.infer<typeof ScheduleArraySchema>;

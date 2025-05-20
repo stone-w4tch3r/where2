@@ -20,17 +20,21 @@ export const StationQuerySchema = z.object({
 export type StationQuery = z.infer<typeof StationQuerySchema>;
 
 export const useStationsQuery = (
-  params?: StationQuery,
-): UseQueryResult<StationDto[], Error> =>
-  useQuery<unknown[], Error, StationDto[]>({
+  params: StationQuery,
+): UseQueryResult<StationDto[], Error> => {
+  return useQuery<unknown[], Error, StationDto[]>({
     queryKey: ["stations", params],
     queryFn: async () => {
       const response = await axiosClient.get<unknown[]>("/stations", {
         params,
-      }); // Get raw data
-      return response.data; // Return raw data for select to parse
+      });
+      return response.data;
     },
-    select: (data: unknown[]) => StationArraySchema.parse(data),
+    select: (data: unknown[]) => {
+      const parsed = StationArraySchema.parse(data);
+      return parsed;
+    },
     staleTime: 10 * 60 * 1000, // 10 min
     gcTime: 30 * 60 * 1000, // 30 min, formerly cacheTime in v4
   });
+};

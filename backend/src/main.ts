@@ -22,7 +22,7 @@ async function bootstrap(): Promise<void> {
   Logger.log(`Logger level: ${getLoggerLevel().join(", ")}`, "Bootstrap");
 
   // Enable CORS
-  app.enableCors();
+  // app.enableCors();
 
   // Setup validation
   app.useGlobalPipes(

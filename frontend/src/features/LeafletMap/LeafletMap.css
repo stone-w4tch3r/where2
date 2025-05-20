@@ -1,8 +1,8 @@
-/* frontend/src/components/MapContainer/MapContainer.css */
 .map-container-dimensions {
   height: 100vh; /* Default to full viewport height */
   width: 100%;
   background-color: #f0f0f0; /* Light grey background as a visual cue before map tiles load */
+  position: relative; /* For positioning overlays */
 }
 
 /* Leaflet dynamically adds this class to its container. 
