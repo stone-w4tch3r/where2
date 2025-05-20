@@ -17,19 +17,16 @@ interface ExtendedL {
   yandex: (type: string, options?: YandexLayerProps) => L.TileLayer;
 }
 
-type MapTileLayer = React.ReactNode;
+type MapTileLayer = React.JSX.Element;
 
 type ReturnType = {
   TileLayer: MapTileLayer | null;
   error: string | null;
   isLoading: boolean;
-};
-
-type Props = {
   refreshMaps: () => void;
 };
 
-export const useTileLayer: (props: Props) => ReturnType = ({ refreshMaps }) => {
+export const useTileLayer: () => ReturnType = () => {
   const [selectedMapType, setSelectedMapType] = useState<MapType | null>(null);
   const [tileLayerError, setTileLayerError] = useState<string | null>(null);
   const {
@@ -103,7 +100,7 @@ const loadGoogleLayerFromLeafletWrapper =
     }
   };
 
-const createGoogleLayer = (mapType: string): MapTileLayer => {
+const createGoogleLayer = (mapType: string): MapTileLayer | null => {
   let GoogleLayer: GoogleLayerComponent | null = null;
 
   void loadGoogleLayerFromLeafletWrapper().then((x) => {
@@ -130,7 +127,7 @@ const createOsmLayer = (): MapTileLayer => (
   />
 );
 
-const createYandexLayer = (mapType: string): MapTileLayer => {
+const createYandexLayer = (mapType: string): MapTileLayer | null => {
   const extendedL = L as unknown as ExtendedL;
   if (typeof extendedL.yandex !== "function") return null;
 

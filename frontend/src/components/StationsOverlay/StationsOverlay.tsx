@@ -1,8 +1,8 @@
 import React from "react";
 import { useStations } from "@/components/StationsOverlay/useStations";
 import { CircleMarker, Tooltip, LayerGroup } from "react-leaflet";
-import { LatLngBounds, Map } from "leaflet";
-import { AbsolutePositionedItem } from "@/components/MapOverlay";
+import { LatLngBounds } from "leaflet";
+import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
 import { Spin, Skeleton, Typography } from "antd";
 
 type StationsOverlayProps = {

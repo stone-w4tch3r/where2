@@ -5,9 +5,10 @@ import { DebugPanel } from "@/components/DebugPanel";
 import { Avatar, Card, Skeleton, Spin } from "antd";
 import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 import { env } from "@/config/vite-env";
-import { MapContainer, AttributionControl } from "react-leaflet";
+import { MapContainer, AttributionControl, TileLayer } from "react-leaflet";
 import styled from "@emotion/styled";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
+import { useTileLayer } from "@/utils/useTileLayer";
 
 const StyledMapContainer = styled(MapContainer)`
   height: 100vh;
@@ -19,10 +20,27 @@ export const MapBuilder: React.FC = () => {
   const center: [number, number] = [56.838, 60.5975]; // Default: Yekaterinburg
   const zoom = 12;
 
+  // const { TileLayer, error, isLoading, refreshMaps } = useTileLayer();
+
+  // if (isLoading || !TileLayer) {
+  //   return (
+  //     <AbsolutePositionedItem position="center">
+  //       <Spin tip="Detecting and loading map..." />
+  //     </AbsolutePositionedItem>
+  //   );
+  // }
+
   return (
     <StyledMapContainer center={center} zoom={zoom} attributionControl={false}>
       <MapStateProvider>
         <AttributionControl position="bottomright" />
+        {/* <TileLayerElement /> */}
+
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
         <StationsOverlayWithLoader />
 
         {env.VITE_DEBUG_MODE && (
