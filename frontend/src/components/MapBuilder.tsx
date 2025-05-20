@@ -9,6 +9,8 @@ import { MapContainer, AttributionControl, TileLayer } from "react-leaflet";
 import styled from "@emotion/styled";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
 import { useTileLayer } from "@/utils/useTileLayer";
+import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
+import { YandexLayer } from "./YandexLayer";
 
 const StyledMapContainer = styled(MapContainer)`
   height: 100vh;
@@ -36,10 +38,13 @@ export const MapBuilder: React.FC = () => {
         <AttributionControl position="bottomright" />
         {/* <TileLayerElement /> */}
 
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        {/* <ReactLeafletGoogleLayer
+          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+          // @ts-expect-error: type is not assignable to the expected type
+          type="roadmap"
+        /> */}
+
+        <YandexLayer />
 
         <StationsOverlayWithLoader />
 
