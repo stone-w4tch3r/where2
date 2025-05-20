@@ -10,7 +10,7 @@ import { LatLngBounds } from "leaflet";
 
 // Types
 export interface MapContextType {
-  map: any | null; // Using any type to avoid importing L
+  map: L.Map | null;
   isMapInitialized: boolean;
   bounds: LatLngBounds | null;
 }

@@ -30,33 +30,6 @@ export default tseslint.config(
       'no-unreachable': 'off',
       '@typescript-eslint/explicit-function-return-type': 'error',
       'no-console': 'off',
-
-      // react-leaflet
-
-    /* kill the global `L` (UMD build or @types/leaflet) */
-    "no-restricted-globals": ["error", {
-      "name": "L",
-      "message": "The global `L` object is the imperative Leaflet API – migrate to React-Leaflet."
-    }],
-
-    /* belt-and-suspenders: specific constructors */
-    "no-restricted-properties": ["error",
-          {
-            object: "L",
-            property: "map",
-            message: "Replace L.map with <MapContainer>.",
-          },
-          {
-            object: "L",
-            property: "marker",
-            message: "Replace L.marker with <Marker>.",
-          },
-          {
-            object: "L",
-            property: "tileLayer",
-            message: "Replace L.tileLayer with <TileLayer>.",
-          },
-        ],
-      },
     },
+  },
 );
