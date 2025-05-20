@@ -2,7 +2,7 @@ import React from "react";
 import { useStations } from "@/components/StationsOverlay/useStations";
 import { CircleMarker, Tooltip, LayerGroup } from "react-leaflet";
 import { LatLngBounds, Map } from "leaflet";
-import { MapOverlay } from "@/components/MapOverlay";
+import { AbsolutePositionedItem } from "@/components/MapOverlay";
 import { Spin, Skeleton, Typography } from "antd";
 
 type StationsOverlayProps = {
@@ -14,21 +14,21 @@ export const StationsOverlay: React.FC<StationsOverlayProps> = ({ bounds }) => {
 
   if (isLoading) {
     return (
-      <MapOverlay position="center">
+      <AbsolutePositionedItem position="center">
         <Spin tip="Loading stations...">
           <Skeleton.Node active />
         </Spin>
-      </MapOverlay>
+      </AbsolutePositionedItem>
     );
   }
 
   if (isError) {
     return (
-      <MapOverlay position="center">
+      <AbsolutePositionedItem position="center">
         <Typography.Text type="danger">
           Error loading stations: {error?.message}
         </Typography.Text>
-      </MapOverlay>
+      </AbsolutePositionedItem>
     );
   }
 

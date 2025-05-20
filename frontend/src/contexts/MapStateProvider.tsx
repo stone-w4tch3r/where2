@@ -7,11 +7,7 @@ import React, {
 } from "react";
 import { useMap } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
-import {
-  MapContext,
-  MapContextType,
-  useMapContext,
-} from "../contexts/MapContext";
+import { MapStateContext } from "./MapStateContext";
 
 // React-Leaflet provider component
 const ReactLeafletProvider: React.FC<{
@@ -38,13 +34,9 @@ const ReactLeafletProvider: React.FC<{
 
 interface MapProviderProps {
   children: ReactNode;
-  isReactLeafletContext?: boolean;
 }
 
-export const MapProvider: React.FC<MapProviderProps> = ({
-  children,
-  isReactLeafletContext = false,
-}) => {
+export const MapStateProvider: React.FC<MapProviderProps> = ({ children }) => {
   const [map, setMap] = useState<L.Map | null>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
@@ -59,14 +51,10 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   };
 
   return (
-    <MapContext.Provider value={{ map, isMapInitialized, bounds }}>
-      {isReactLeafletContext ? (
-        <ReactLeafletProvider onMapInitialized={handleMapInitialized}>
-          {children}
-        </ReactLeafletProvider>
-      ) : (
-        children
-      )}
-    </MapContext.Provider>
+    <MapStateContext.Provider value={{ map, isMapInitialized, bounds }}>
+      <ReactLeafletProvider onMapInitialized={handleMapInitialized}>
+        {children}
+      </ReactLeafletProvider>
+    </MapStateContext.Provider>
   );
 };

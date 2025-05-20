@@ -1,9 +1,9 @@
 import React from "react";
-import { useMapContext } from "@/contexts/MapContext";
+import { useMapStateContext } from "@/contexts/MapStateContext";
 import { Card, Descriptions, Tag } from "antd";
 
 export const DebugPanel: React.FC = () => {
-  const { map, isMapInitialized, bounds: leafletBounds } = useMapContext();
+  const { map, isMapInitialized, bounds: leafletBounds } = useMapStateContext();
 
   const info = {
     zoom: map && map.getZoom()?.toFixed(2),

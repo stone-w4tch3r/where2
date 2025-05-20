@@ -14,19 +14,19 @@ export interface YandexMapInstance {
   };
 }
 
-// Yandex Maps API
 export interface YandexMapsAPI {
   Map: new (
     element: string | HTMLElement,
     state: Record<string, unknown>,
     options?: Record<string, unknown>,
   ) => YandexMapInstance;
-  // Add other ymaps API elements if needed
 }
+
+export type MapType = "leaflet" | "google" | "yandex" | "other";
 
 export interface DetectedMap {
   element: HTMLElement;
-  type: "leaflet" | "google" | "yandex" | "other";
+  type: MapType;
   instance?:
     | LeafletMap
     | google.maps.Map

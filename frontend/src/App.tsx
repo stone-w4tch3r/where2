@@ -1,8 +1,20 @@
 import React from "react";
-import MapPage from "@/pages/MapPage";
+import { MapBuilder } from "@/components/MapBuilder";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StoreProvider } from "./store/StoreProvider";
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-  return <MapPage />;
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <StoreProvider>
+          <MapBuilder />
+        </StoreProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
 };
 
 export default App;

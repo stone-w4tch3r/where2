@@ -1,16 +1,16 @@
 import React, { ReactNode } from "react";
 import styled from "@emotion/styled";
 
-type OverlayPosition =
+type Position =
   | "top-left"
   | "top-right"
   | "bottom-left"
   | "bottom-right"
   | "center";
 
-interface MapOverlayProps {
+interface AbsolutePositionedItemProps {
   children: ReactNode;
-  position: OverlayPosition;
+  position: Position;
   zIndex?: number;
 }
 
@@ -38,8 +38,8 @@ const positionStyles = {
   `,
 };
 
-const OverlayContainer = styled.div<{
-  position: OverlayPosition;
+const AbsolutePositionedItemContainer = styled.div<{
+  position: Position;
   zIndex: number;
 }>`
   position: absolute;
@@ -48,14 +48,14 @@ const OverlayContainer = styled.div<{
   pointer-events: auto;
 `;
 
-export const MapOverlay: React.FC<MapOverlayProps> = ({
+export const AbsolutePositionedItem: React.FC<AbsolutePositionedItemProps> = ({
   children,
   position,
   zIndex = 1000,
 }) => {
   return (
-    <OverlayContainer position={position} zIndex={zIndex}>
+    <AbsolutePositionedItemContainer position={position} zIndex={zIndex}>
       {children}
-    </OverlayContainer>
+    </AbsolutePositionedItemContainer>
   );
 };

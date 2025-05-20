@@ -1,14 +1,13 @@
 import React from "react";
-import { MapProvider } from "@/components/MapProvider";
-import { useMapContext } from "@/contexts/MapContext";
+import { MapStateProvider } from "@/contexts/MapStateProvider";
+import { useMapStateContext } from "@/contexts/MapStateContext";
 import { DebugPanel } from "@/components/DebugPanel";
 import { Avatar, Card, Skeleton, Spin } from "antd";
 import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 import { env } from "@/config/vite-env";
 import { MapContainer, AttributionControl } from "react-leaflet";
 import styled from "@emotion/styled";
-import TileLayerProvider from "@/components/leaflet/TileLayerProvider";
-import { MapOverlay } from "@/components/MapOverlay";
+import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
 
 const StyledMapContainer = styled(MapContainer)`
   height: 100vh;
@@ -16,64 +15,67 @@ const StyledMapContainer = styled(MapContainer)`
   background-color: #f0f0f0;
 `;
 
-const MapPage: React.FC = () => {
+export const MapBuilder: React.FC = () => {
   const center: [number, number] = [56.838, 60.5975]; // Default: Yekaterinburg
   const zoom = 12;
 
   return (
     <StyledMapContainer center={center} zoom={zoom} attributionControl={false}>
-      <MapProvider isReactLeafletContext={true}>
-        <TileLayerProvider />
+      <MapStateProvider>
         <AttributionControl position="bottomright" />
         <StationsOverlayWithLoader />
 
         {env.VITE_DEBUG_MODE && (
-          <MapOverlay position="bottom-left">
+          <AbsolutePositionedItem position="bottom-left">
             <DebugPanel />
-          </MapOverlay>
+          </AbsolutePositionedItem>
         )}
 
-        <MapOverlay position="top-right">
-          <Card title="Powered by">
-            <Card.Meta
-              avatar={
-                <Avatar src="https://avatars.githubusercontent.com/u/103541904?v=4" />
-              }
-              title="Extension credits"
-              description="Extension credits"
-            />
-          </Card>
-        </MapOverlay>
-      </MapProvider>
+        <AbsolutePositionedItem position="top-right">
+          <PoweredBy />
+        </AbsolutePositionedItem>
+      </MapStateProvider>
     </StyledMapContainer>
   );
 };
 
 // Stations overlay with loading state
 const StationsOverlayWithLoader: React.FC = () => {
-  const { bounds, isMapInitialized } = useMapContext();
+  const { bounds, isMapInitialized } = useMapStateContext();
 
   if (!isMapInitialized) {
     return (
-      <MapOverlay position="center">
+      <AbsolutePositionedItem position="center">
         <Spin tip="Loading map...">
           <Skeleton.Node active />
         </Spin>
-      </MapOverlay>
+      </AbsolutePositionedItem>
     );
   }
 
   if (!bounds) {
     return (
-      <MapOverlay position="center">
+      <AbsolutePositionedItem position="center">
         <Spin tip="Loading map bounds...">
           <Skeleton.Node active />
         </Spin>
-      </MapOverlay>
+      </AbsolutePositionedItem>
     );
   }
 
   return <StationsOverlay bounds={bounds} />;
 };
 
-export default MapPage;
+const PoweredBy: React.FC = () => {
+  return (
+    <Card title="Powered by">
+      <Card.Meta
+        avatar={
+          <Avatar src="https://avatars.githubusercontent.com/u/103541904?v=4" />
+        }
+        title="Extension credits"
+        description="Extension credits"
+      />
+    </Card>
+  );
+};
