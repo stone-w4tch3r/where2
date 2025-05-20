@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import L from "leaflet";
+import { useEffect } from "react";
+import { LatLngBounds } from "leaflet";
 import { useStationsQuery } from "@/api/stations";
 import { useStore } from "@/store";
 import { StationDto } from "@/types/station";
@@ -10,7 +10,7 @@ import { StationDto } from "@/types/station";
  * @returns Object with stations data and loading/error states
  */
 export const useStations = (
-  bounds: L.LatLngBounds,
+  bounds: LatLngBounds,
 ): {
   stations: StationDto[];
   isLoading: boolean;

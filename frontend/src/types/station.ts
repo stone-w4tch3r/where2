@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ClientTransportModeSchema = z.enum(["train", "suburban"]);
+export const ClientTransportModeSchema = z.enum(["train", "suburban", "plane"]);
 export type ClientTransportMode = z.infer<typeof ClientTransportModeSchema>;
 
 export const StationSchema = z.object({
