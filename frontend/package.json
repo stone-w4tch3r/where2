@@ -24,10 +24,12 @@
     "antd": "^5.25.2",
     "axios": "^1.9.0",
     "leaflet": "^1.9.4",
+    "leaflet-plugins": "^3.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.4",
     "react-leaflet": "^5.0.0",
+    "react-leaflet-google-layer": "^4.0.0",
     "zod": "^3.25.7",
     "zustand": "^5.0.4"
   },

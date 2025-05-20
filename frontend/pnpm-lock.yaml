@@ -32,6 +32,9 @@ importers:
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
+      leaflet-plugins:
+        specifier: ^3.4.0
+        version: 3.4.0
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -44,6 +47,9 @@ importers:
       react-leaflet:
         specifier: ^5.0.0
         version: 5.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-leaflet-google-layer:
+        specifier: ^4.0.0
+        version: 4.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react-leaflet@5.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       zod:
         specifier: ^3.25.7
         version: 3.25.7
@@ -536,6 +542,9 @@ packages:
   '@fregante/relaxed-json@2.0.0':
     resolution: {integrity: sha512-PyUXQWB42s4jBli435TDiYuVsadwRHnMc27YaLouINktvTWsL3FcKrRMGawTayFk46X+n5bE23RjUTWQwrukWw==}
     engines: {node: '>= 0.10.0'}
+
+  '@googlemaps/js-api-loader@1.16.8':
+    resolution: {integrity: sha512-CROqqwfKotdO6EBjZO/gQGVTbeDps5V7Mt9+8+5Q+jTg5CRMi3Ii/L9PmV3USROrt2uWxtGzJHORmByxyo9pSQ==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1207,6 +1216,9 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+
+  '@types/leaflet.gridlayer.googlemutant@0.4.9':
+    resolution: {integrity: sha512-u/5Avs1KKkeABRDixGbGp2ldFs67+fYIATpkvvFgN+LQPNfq7dFd5adkksshiQBfYJ4SaQg1VJgN2dNirIC0aQ==}
 
   '@types/leaflet@1.9.18':
     resolution: {integrity: sha512-ht2vsoPjezor5Pmzi5hdsA7F++v5UGq9OlUduWHmMZiuQGIpJ2WS5+Gg9HaAA79gNh1AIPtCqhzejcIZ3lPzXQ==}
@@ -2686,6 +2698,12 @@ packages:
     resolution: {integrity: sha512-7W0vV3rqv5tokqkBAFV1LbR7HPOWzXQDpDgEuib/aJ1jsZZx6x3c2mBI+TJhJzOhkGeaLbCKEHXEXLfirtG2JA==}
     engines: {node: '>=18'}
 
+  leaflet-plugins@3.4.0:
+    resolution: {integrity: sha512-CjsQKaW545tNY4JVm4v3WhbFcUa2QzWQQzEysQ0eY/ThYYMqIL5DnQNgcHCvAFZtEwlj7MlTtI7BFuKiNuqyJA==}
+
+  leaflet.gridlayer.googlemutant@0.15.0:
+    resolution: {integrity: sha512-kA5jCOBhCPigyue6YpZMhXMVYA1hM2pDIaJ6u0wSSiSZ2TQ4kZfKuhwkIexcadJfs0BP4FyhZIDZC7hmTlvjOA==}
+
   leaflet@1.9.4:
     resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
 
@@ -3334,6 +3352,14 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-leaflet-google-layer@4.0.0:
+    resolution: {integrity: sha512-qZNH9ZzvZRk+9OAMbkrazjpqAtfrdCA1zk11n0ls/dKyD84zhqTaPzrDVHnqzCk5Khdg0ZhGMcSjWpn0KhBnDg==}
+    peerDependencies:
+      leaflet: '>=1.5.0'
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      react-leaflet: '>=3.0.0'
 
   react-leaflet@5.0.0:
     resolution: {integrity: sha512-CWbTpr5vcHw5bt9i4zSlPEVQdTVcML390TjeDG0cK59z1ylexpqC6M1PJFjV8jD7CF+ACBFsLIDs6DRMoLEofw==}
@@ -4504,6 +4530,8 @@ snapshots:
   '@fluent/syntax@0.19.0': {}
 
   '@fregante/relaxed-json@2.0.0': {}
+
+  '@googlemaps/js-api-loader@1.16.8': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -5914,6 +5942,10 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
+
+  '@types/leaflet.gridlayer.googlemutant@0.4.9':
+    dependencies:
+      '@types/leaflet': 1.9.18
 
   '@types/leaflet@1.9.18':
     dependencies:
@@ -7713,6 +7745,10 @@ snapshots:
     dependencies:
       package-json: 10.0.1
 
+  leaflet-plugins@3.4.0: {}
+
+  leaflet.gridlayer.googlemutant@0.15.0: {}
+
   leaflet@1.9.4: {}
 
   levn@0.4.1:
@@ -8458,6 +8494,17 @@ snapshots:
   react-is@17.0.2: {}
 
   react-is@18.3.1: {}
+
+  react-leaflet-google-layer@4.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react-leaflet@5.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@googlemaps/js-api-loader': 1.16.8
+      '@types/leaflet': 1.9.18
+      '@types/leaflet.gridlayer.googlemutant': 0.4.9
+      leaflet: 1.9.4
+      leaflet.gridlayer.googlemutant: 0.15.0
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-leaflet: 5.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   react-leaflet@5.0.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
