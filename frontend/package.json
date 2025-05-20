@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:extension:firefox": "web-ext run --source-dir=dist --firefox",
+    "dev:extension:firefox:watch": "concurrently \"WATCH=true vite build --watch\" \"web-ext run --source-dir=dist --firefox --watch-files=dist/**/*\"",
     "build": "vite build",
     "release:firefox": "pnpm run build && web-ext build --source-dir dist --artifacts-dir dist --overwrite-dest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",
     "test": "vitest run",
-    "preinstall": "npx only-allow pnpm",
-    "dev:extension:firefox": "web-ext run --source-dir=dist --firefox",
-    "dev:extension:firefox:watch": "concurrently \"WATCH=true vite build --watch\" \"web-ext run --source-dir=dist --firefox --watch-files=dist/**/*\""
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

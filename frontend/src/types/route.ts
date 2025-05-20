@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  StationSchema,
-  ClientTransportModeSchema,
-} from "@/types/station";
+import { StationSchema, ClientTransportModeSchema } from "@/types/station";
 
 export const RouteSchema = z.object({
   id: z.string(),
