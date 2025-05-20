@@ -1,9 +1,9 @@
 import React from "react";
-import LeafletMap from "@/features/LeafletMap/LeafletMap";
-import { DebugPanel } from "@/features/DebugPanel";
-import { useLeafletMap } from "@/features/LeafletMap/useLeafletMap";
+import LeafletMap from "@/components/LeafletMap/LeafletMap";
+import { DebugPanel } from "@/components/DebugPanel";
+import { useLeafletMap } from "@/components/LeafletMap/useLeafletMap";
 import { Skeleton, Spin } from "antd";
-import { StationsOverlay } from "@/features/StationsOverlay/StationsOverlay";
+import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 
 const MapPage: React.FC = () => {
   const { map, bounds, isMapInitialized } = useLeafletMap();
