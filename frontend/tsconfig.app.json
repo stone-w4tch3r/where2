@@ -16,7 +16,8 @@
     ],
     "types": [
       "vitest/globals",
-      "@types/node"
+      "@types/node",
+      "google.maps"
     ],
     "module": "ESNext",
     "skipLibCheck": true,

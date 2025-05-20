@@ -1,14 +1,36 @@
 import type { Map as LeafletMap } from "leaflet";
-/// <reference types="@types/google.maps" />
 
-// We are having trouble getting the TS compiler to recognize google.maps types.
-// Using 'any' as a temporary measure for google.maps.Map.
-// Ensure '@types/google.maps' is installed and try restarting the TS server/Vite dev server.
+// Placeholder for Yandex Map instance type
+interface YandexMapInstance {
+  getCenter: () => number[];
+  setCenter: (
+    center: number[],
+    zoom?: number,
+    options?: Record<string, unknown>,
+  ) => void;
+  getZoom: () => number;
+  // Add other common Yandex Map methods/properties if known
+}
+
+// Placeholder for Yandex Maps API (ymaps global)
+interface YandexMapsAPI {
+  Map: new (
+    element: string | HTMLElement,
+    state: Record<string, unknown>, // e.g., { center: [number, number], zoom: number }
+    options?: Record<string, unknown>,
+  ) => YandexMapInstance;
+  // Add other ymaps API elements if needed
+}
 
 export interface DetectedMap {
   element: HTMLElement;
   type: "leaflet" | "google" | "yandex" | "other";
-  instance?: LeafletMap | any | unknown | null | undefined; 
+  instance?:
+    | LeafletMap
+    | google.maps.Map
+    | YandexMapInstance
+    | null
+    | undefined;
 }
 
 export class MapDetector {
@@ -82,19 +104,25 @@ export class MapDetector {
         const hasGoogleMapsElements = !!container.querySelector(".gm-style");
 
         if (hasGoogleMapsElements) {
-          let mapInstance: any | null = null; // Using any for google.maps.Map temporarily
+          let mapInstance: google.maps.Map | null = null;
           // Attempt to find the Google Maps instance
           for (const key in container) {
             if (key.startsWith("__googleMaps$")) {
-              const internalInstance = (container as any)[key];
-              // Check if internalInstance and its map property exist and seem like a map instance
+              const internalInstanceRaw: unknown = (
+                container as unknown as Record<string, unknown>
+              )[key];
+              // Check if internalInstanceRaw and its map property exist and seem like a map instance
               if (
-                internalInstance &&
-                typeof internalInstance === "object" &&
-                internalInstance.map &&
-                typeof internalInstance.map.getCenter === "function"
+                internalInstanceRaw &&
+                typeof internalInstanceRaw === "object" &&
+                "map" in internalInstanceRaw &&
+                internalInstanceRaw.map != null &&
+                typeof internalInstanceRaw.map === "object" &&
+                "getCenter" in internalInstanceRaw.map &&
+                typeof (internalInstanceRaw.map as { getCenter?: () => void })
+                  .getCenter === "function"
               ) {
-                mapInstance = internalInstance.map;
+                mapInstance = internalInstanceRaw.map as google.maps.Map;
                 break;
               }
             }
@@ -118,7 +146,7 @@ export class MapDetector {
 
     yandexContainers.forEach((container) => {
       if (container instanceof HTMLElement) {
-        const mapInstance: unknown = null;
+        const mapInstance: YandexMapInstance | null = null;
 
         this.detectedMaps.push({
           element: container,
@@ -133,8 +161,8 @@ export class MapDetector {
 declare global {
   interface Window {
     L?: typeof import("leaflet");
-    google?: any; // Using any for google global temporarily
-    ymaps?: any;
+    google?: typeof google;
+    ymaps?: YandexMapsAPI;
   }
 
   interface HTMLElement {
