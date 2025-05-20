@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:extension": "vite build",
+    "release:firefox": "pnpm run build && web-ext build --source-dir dist --artifacts-dir dist --overwrite-dest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",

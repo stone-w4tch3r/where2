@@ -13,23 +13,18 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content.tsx"]
+      "js": ["content.js"]
     }
   ],
   "background": {
-    "scripts": ["src/background.ts"]
-  },
-  "icons": {
-    "16": "public/icon-16.png",
-    "48": "public/icon-48.png",
-    "128": "public/icon-128.png"
+    "scripts": ["background.js"]
   },
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "public/icon-16.png",
-      "48": "public/icon-48.png",
-      "128": "public/icon-128.png"
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "where2-map-overlay@example.com"
     }
   }
 }

@@ -13,6 +13,10 @@ export default defineConfig({
           src: "manifest.json",
           dest: ".",
         },
+        {
+          src: "popup.html",
+          dest: ".",
+        },
       ],
     }),
   ],
@@ -49,11 +53,5 @@ export default defineConfig({
             exclude: "node_modules/**",
           }
         : null,
-  },
-  server: {
-    port: 5173,
-    hmr: {
-      port: 5173,
-    },
   },
 });
