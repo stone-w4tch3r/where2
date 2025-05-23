@@ -12,7 +12,7 @@ export interface MapDetectionResult {
 /**
  * React hook wrapper for map detection
  */
-export const useMapDetection = (): MapDetectionResult => {
+export const useDetectMaps = (): MapDetectionResult => {
   const [maps, setMaps] = useState<DetectedMap[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);

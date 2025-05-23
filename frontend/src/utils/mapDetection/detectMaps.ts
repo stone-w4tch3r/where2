@@ -1,40 +1,13 @@
-import type { Map as LeafletMap, LatLngBounds } from "leaflet";
+import type { Map as LeafletMap } from "leaflet";
+import type { Map as YandexMap } from "yandex-maps";
+import type ymaps from "yandex-maps";
 
-export interface DetectedMap {
-  element: HTMLElement;
-  type: MapType;
-  instance?:
-    | LeafletMap
-    | google.maps.Map
-    | YandexMapInstance
-    | null
-    | undefined;
-  bounds?: LatLngBounds | null;
-}
+export type DetectedMap =
+  | { element: HTMLElement; type: "leaflet"; instance: LeafletMap }
+  | { element: HTMLElement; type: "google"; instance: google.maps.Map }
+  | { element: HTMLElement; type: "yandex"; instance: YandexMap };
 
-export interface YandexMapInstance {
-  getCenter: () => { lat: number; lng: number } | [number, number];
-  setCenter: (
-    center: number[],
-    zoom?: number,
-    options?: Record<string, unknown>,
-  ) => void;
-  getZoom: () => number;
-  getBounds: () => {
-    getLowerLeft: () => [number, number];
-    getUpperRight: () => [number, number];
-  };
-}
-
-export interface YandexMapsAPI {
-  Map: new (
-    element: string | HTMLElement,
-    state: Record<string, unknown>,
-    options?: Record<string, unknown>,
-  ) => YandexMapInstance;
-}
-
-export type MapType = "leaflet" | "google" | "yandex" | "other";
+export type MapType = DetectedMap["type"];
 
 export const detectMaps = (): DetectedMap[] => {
   const detectedMaps = [
@@ -50,10 +23,9 @@ const detectLeafletMaps = (): DetectedMap | null => {
   // Find all elements with the leaflet-container class
   const leafletContainers = document.querySelectorAll(".leaflet-container");
 
-  leafletContainers.forEach((container) => {
+  for (const container of leafletContainers) {
     if (container instanceof HTMLElement) {
       let mapInstance: LeafletMap | null = null;
-      let bounds: LatLngBounds | null = null;
 
       // Try to find the Leaflet instance
       if (window.L) {
@@ -69,27 +41,17 @@ const detectLeafletMaps = (): DetectedMap | null => {
               return false;
             }) as LeafletMap | undefined) || null;
         }
-
-        // If we found a map instance, get its bounds
-        if (mapInstance) {
-          try {
-            bounds = mapInstance.getBounds();
-          } catch (e) {
-            console.warn("Could not get bounds from Leaflet map:", e);
-          }
-        }
       }
 
-      if (mapInstance && bounds) {
+      if (mapInstance) {
         return {
           element: container,
           type: "leaflet",
           instance: mapInstance,
-          bounds,
         };
       }
     }
-  });
+  }
 
   return null;
 };
@@ -99,16 +61,15 @@ const detectGoogleMaps = (): DetectedMap | null => {
     'div[class*="map"], div[id*="map"], .gm-style',
   );
 
-  possibleMapContainers.forEach((container) => {
+  for (const container of possibleMapContainers) {
     if (container instanceof HTMLElement) {
       // Google Maps has a specific style class
       const hasGoogleMapsElements = !!container.querySelector(".gm-style");
 
       if (hasGoogleMapsElements) {
         let mapInstance: google.maps.Map | null = null;
-        let bounds: LatLngBounds | null = null;
 
-        // Method 1: Look for Google Maps instance in internal props
+        // Look for Google Maps instance in internal props
         for (const key in container) {
           if (
             key.startsWith("__googleMaps$") ||
@@ -132,23 +93,6 @@ const detectGoogleMaps = (): DetectedMap | null => {
               ) {
                 mapInstance = internalInstanceRaw.map as google.maps.Map;
 
-                // Create Leaflet-compatible bounds from Google bounds
-                if (mapInstance && window.L) {
-                  try {
-                    const googleBounds = mapInstance.getBounds();
-                    if (googleBounds) {
-                      const ne = googleBounds.getNorthEast();
-                      const sw = googleBounds.getSouthWest();
-                      bounds = window.L.latLngBounds(
-                        window.L.latLng(sw.lat(), sw.lng()),
-                        window.L.latLng(ne.lat(), ne.lng()),
-                      );
-                    }
-                  } catch (e) {
-                    console.warn("Could not get bounds from Google map:", e);
-                  }
-                }
-
                 break;
               }
             } catch (e) {
@@ -157,17 +101,16 @@ const detectGoogleMaps = (): DetectedMap | null => {
           }
         }
 
-        if (mapInstance && bounds) {
+        if (mapInstance) {
           return {
             element: container,
             type: "google",
             instance: mapInstance,
-            bounds,
           };
         }
       }
     }
-  });
+  }
 
   return null;
 };
@@ -178,10 +121,9 @@ const detectYandexMaps = (): DetectedMap | null => {
     '[class*="ymaps"], [id*="yandexMap"], [class*="yandex-map"]',
   );
 
-  yandexContainers.forEach((container) => {
+  for (const container of yandexContainers) {
     if (container instanceof HTMLElement) {
-      let mapInstance: YandexMapInstance | null = null;
-      let bounds: LatLngBounds | null = null;
+      let mapInstance: YandexMap | null = null;
 
       // Try to find the Yandex Maps instance
       if (window.ymaps) {
@@ -190,10 +132,7 @@ const detectYandexMaps = (): DetectedMap | null => {
           if (key.startsWith("__yandexMap$") || key.includes("ymaps")) {
             try {
               const possibleInstance = (
-                container as unknown as Record<
-                  string,
-                  YandexMapInstance | unknown
-                >
+                container as unknown as Record<string, YandexMap | unknown>
               )[key];
               if (
                 possibleInstance &&
@@ -203,23 +142,7 @@ const detectYandexMaps = (): DetectedMap | null => {
                 "getZoom" in possibleInstance &&
                 typeof possibleInstance.getZoom === "function"
               ) {
-                mapInstance = possibleInstance as YandexMapInstance;
-
-                // Create Leaflet-compatible bounds from Yandex bounds
-                if (mapInstance && window.L && mapInstance.getBounds) {
-                  try {
-                    const yandexBounds = mapInstance.getBounds();
-                    const lowerLeft = yandexBounds.getLowerLeft();
-                    const upperRight = yandexBounds.getUpperRight();
-
-                    bounds = window.L.latLngBounds(
-                      window.L.latLng(lowerLeft[0], lowerLeft[1]),
-                      window.L.latLng(upperRight[0], upperRight[1]),
-                    );
-                  } catch (e) {
-                    console.warn("Could not get bounds from Yandex map:", e);
-                  }
-                }
+                mapInstance = possibleInstance as YandexMap;
 
                 break;
               }
@@ -230,16 +153,15 @@ const detectYandexMaps = (): DetectedMap | null => {
         }
       }
 
-      if (mapInstance && bounds) {
+      if (mapInstance) {
         return {
           element: container,
           type: "yandex",
           instance: mapInstance,
-          bounds,
         };
       }
     }
-  });
+  }
 
   return null;
 };
@@ -248,7 +170,7 @@ declare global {
   interface Window {
     L?: typeof import("leaflet");
     google?: typeof google;
-    ymaps?: YandexMapsAPI;
+    ymaps?: typeof ymaps;
   }
 
   interface HTMLElement {

@@ -4,7 +4,7 @@ import { createLayerComponent } from "@react-leaflet/core";
 import L from "leaflet";
 import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
 import "leaflet-plugins/layer/tile/Yandex";
-import { useMapDetection } from "./mapDetection/useMapDetection";
+import { useDetectMaps } from "./mapDetection/useDetectMaps";
 import { MapType } from "./mapDetection/detectMaps";
 import { errorToString } from "./errorHelpers";
 
@@ -35,7 +35,7 @@ export const useCreateMapProvider: () => ReturnType = () => {
     isLoading,
     error: mapDetectionError,
     refreshMaps: refreshMapsDetection,
-  } = useMapDetection();
+  } = useDetectMaps();
 
   useEffect(() => {
     if (maps.length === 0) {

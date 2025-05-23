@@ -15,5 +15,5 @@ export const errorToString = (error: unknown): string => {
       error.stack ? `\n${error.stack}` : ""
     }`;
   }
-  return String(error);
+  return "Unknown error: [" + String(error) + "]";
 };
