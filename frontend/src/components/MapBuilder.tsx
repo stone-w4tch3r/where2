@@ -5,41 +5,30 @@ import { DebugPanel } from "@/components/DebugPanel";
 import { Avatar, Card, Skeleton, Spin } from "antd";
 import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 import { env } from "@/config/vite-env";
-import { MapContainer, AttributionControl, TileLayer } from "react-leaflet";
-import styled from "@emotion/styled";
+import { AttributionControl } from "react-leaflet";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
-import { useCreateMapProvider } from "@/utils/useCreateMapProvider";
+import { ThirdPartyMapConnector } from "./ThirdPartyMapConnector";
 
-const StyledMapContainer = styled(MapContainer)`
-  height: 100vh;
-  width: 100%;
-  background-color: #f0f0f0;
-`;
+// const StyledMapContainer = styled(MapContainer)`
+//   height: 100vh;
+//   width: 100%;
+//   background-color: #f0f0f0;
+// `;
 
 export const MapBuilder: React.FC = () => {
   const center: [number, number] = [56.838, 60.5975]; // Default: Yekaterinburg
   const zoom = 12;
 
-
-  // const { TileLayer, error, isLoading, refreshMaps } = useCreateMapProvider();
-
-  // if (isLoading || !TileLayer) {
-  //   return (
-  //     <AbsolutePositionedItem position="center">
-  //       <Spin tip="Detecting and loading map...">
-  //         <Skeleton.Node active />
-  //       </Spin>
-  //     </AbsolutePositionedItem>
-  //   );
-  // }
-
   return (
-    <StyledMapContainer center={center} zoom={zoom} attributionControl={false}>
+    <ThirdPartyMapConnector
+      center={center}
+      zoom={zoom}
+      attributionControl={false}
+    >
       <MapStateProvider>
         <AttributionControl position="bottomright" />
-        {/* <TileLayerElement /> */}
 
-        <StationsOverlayWithLoader />
+        <MapBoundsDetector />
 
         {env.VITE_DEBUG_MODE && (
           <AbsolutePositionedItem position="bottom-left">
@@ -51,12 +40,11 @@ export const MapBuilder: React.FC = () => {
           <PoweredBy />
         </AbsolutePositionedItem>
       </MapStateProvider>
-    </StyledMapContainer>
+    </ThirdPartyMapConnector>
   );
 };
 
-// Stations overlay with loading state
-const StationsOverlayWithLoader: React.FC = () => {
+const MapBoundsDetector: React.FC = () => {
   const { bounds, isMapInitialized } = useMapStateContext();
 
   if (!isMapInitialized) {
