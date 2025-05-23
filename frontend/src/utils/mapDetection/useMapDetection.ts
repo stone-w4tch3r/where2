@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { detectMaps } from "./detectMaps";
-import type { DetectedMap } from "./types";
+import type { DetectedMap } from "./detectMaps";
 
 export interface MapDetectionResult {
   maps: DetectedMap[];
@@ -9,6 +9,9 @@ export interface MapDetectionResult {
   refreshMaps: () => void;
 }
 
+/**
+ * React hook wrapper for map detection
+ */
 export const useMapDetection = (): MapDetectionResult => {
   const [maps, setMaps] = useState<DetectedMap[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -21,7 +24,11 @@ export const useMapDetection = (): MapDetectionResult => {
       setMaps(detectedMaps);
       setIsLoading(false);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to detect maps"));
+      setError(
+        err instanceof Error
+          ? new Error("Failed to detect maps: " + err.toString())
+          : new Error("Failed to detect maps: unknown error"),
+      );
       setIsLoading(false);
     }
   };

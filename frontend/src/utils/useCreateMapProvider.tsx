@@ -5,7 +5,8 @@ import L from "leaflet";
 import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
 import "leaflet-plugins/layer/tile/Yandex";
 import { useMapDetection } from "./mapDetection/useMapDetection";
-import { MapType } from "@/utils/mapDetection/types";
+import { MapType } from "./mapDetection/detectMaps";
+import { errorToString } from "./errorHelpers";
 
 interface YandexLayerProps extends Omit<L.TileLayerOptions, "type"> {
   type?: string;
@@ -26,7 +27,7 @@ type ReturnType = {
   refreshMaps: () => void;
 };
 
-export const useTileLayer: () => ReturnType = () => {
+export const useCreateMapProvider: () => ReturnType = () => {
   const [selectedMapType, setSelectedMapType] = useState<MapType | null>(null);
   const [tileLayerError, setTileLayerError] = useState<string | null>(null);
   const {
@@ -67,7 +68,7 @@ export const useTileLayer: () => ReturnType = () => {
   const selectedMapTileLayer = useMemo((): MapTileLayer | null => {
     switch (selectedMapType) {
       case "leaflet":
-        return createOsmLayer();
+        return createLeafletProvider();
       case "google":
         return createGoogleLayer("roadmap");
       case "yandex":
@@ -81,8 +82,10 @@ export const useTileLayer: () => ReturnType = () => {
   return {
     TileLayer: selectedMapTileLayer,
     error: mapDetectionError
-      ? (mapDetectionError?.message ?? "Unknown error while detecting map type")
-      : tileLayerError,
+      ? "Error while detecting map type: " + errorToString(mapDetectionError)
+      : tileLayerError
+        ? "Error while creating map provider: " + tileLayerError
+        : null,
     isLoading,
     refreshMaps: refreshMapsDetection,
   };
@@ -120,12 +123,10 @@ const createGoogleLayer = (mapType: string): MapTileLayer | null => {
 };
 
 // Helper functions to create layers
-const createOsmLayer = (): MapTileLayer => (
-  <TileLayer
-    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-  />
-);
+const createLeafletProvider = (): MapTileLayer | null => {
+  // return <MapProvider></MapProvider>;
+  return null;
+};
 
 const createYandexLayer = (mapType: string): MapTileLayer | null => {
   const extendedL = L as unknown as ExtendedL;

@@ -9,29 +9,6 @@ import { useMap } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
 import { MapStateContext } from "./MapStateContext";
 
-// React-Leaflet provider component
-const ReactLeafletProvider: React.FC<{
-  children: ReactNode;
-  onMapInitialized: (map: L.Map, bounds: LatLngBounds) => void;
-}> = ({ children, onMapInitialized }) => {
-  // Get the map instance from React Leaflet context
-  const map = useMap();
-
-  useEffect(() => {
-    if (map) {
-      // Set up event listeners
-      map.on("moveend", () => {
-        onMapInitialized(map, map.getBounds());
-      });
-
-      // Initial notification
-      onMapInitialized(map, map.getBounds());
-    }
-  }, [map, onMapInitialized]);
-
-  return <>{children}</>;
-};
-
 interface MapProviderProps {
   children: ReactNode;
 }
@@ -41,7 +18,7 @@ export const MapStateProvider: React.FC<MapProviderProps> = ({ children }) => {
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
 
-  const handleMapInitialized = (
+  const handleMapUpdate = (
     mapInstance: L.Map,
     boundsInstance: LatLngBounds,
   ): void => {
@@ -50,11 +27,29 @@ export const MapStateProvider: React.FC<MapProviderProps> = ({ children }) => {
     setIsMapInitialized(true);
   };
 
+  useConnectToLeafletMap(handleMapUpdate);
+
   return (
     <MapStateContext.Provider value={{ map, isMapInitialized, bounds }}>
-      <ReactLeafletProvider onMapInitialized={handleMapInitialized}>
-        {children}
-      </ReactLeafletProvider>
+      {children}
     </MapStateContext.Provider>
   );
+};
+
+const useConnectToLeafletMap = (
+  onMapUpdate: (map: L.Map, bounds: LatLngBounds) => void,
+): void => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (map) {
+      // Set up event listeners
+      map.on("moveend", () => {
+        onMapUpdate(map, map.getBounds());
+      });
+
+      // Initial notification
+      onMapUpdate(map, map.getBounds());
+    }
+  }, [map, onMapUpdate]);
 };

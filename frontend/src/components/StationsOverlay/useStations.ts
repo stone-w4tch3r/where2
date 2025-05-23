@@ -14,7 +14,6 @@ export const useStations = (
 ): {
   stations: StationDto[];
   isLoading: boolean;
-  isError: boolean;
   error: Error | null;
 } => {
   const setStations = useStore((state) => state.setStations);
@@ -26,14 +25,7 @@ export const useStations = (
     maxLon: bounds.getEast(),
   };
 
-  const { data, isLoading, isError, error } = useStationsQuery(params);
-
-  // Debug logging for API response
-  useEffect(() => {
-    if (isError) {
-      console.error("Error fetching stations:", error);
-    }
-  }, [data, isError, error]);
+  const { data, isLoading, error } = useStationsQuery(params);
 
   // Update store when data changes
   useEffect(() => {
@@ -45,7 +37,6 @@ export const useStations = (
   return {
     stations: data || ([] as StationDto[]),
     isLoading: isLoading && !!params, // Only show loading when actually fetching
-    isError,
-    error,
+    error: error,
   };
 };

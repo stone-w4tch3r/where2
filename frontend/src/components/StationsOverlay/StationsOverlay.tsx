@@ -4,13 +4,14 @@ import { CircleMarker, Tooltip, LayerGroup } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
 import { Spin, Skeleton, Typography } from "antd";
+import { errorToString } from "@/utils/errorHelpers";
 
 type StationsOverlayProps = {
   bounds: LatLngBounds;
 };
 
 export const StationsOverlay: React.FC<StationsOverlayProps> = ({ bounds }) => {
-  const { stations, isLoading, isError, error } = useStations(bounds);
+  const { stations, isLoading, error } = useStations(bounds);
 
   if (isLoading) {
     return (
@@ -22,11 +23,11 @@ export const StationsOverlay: React.FC<StationsOverlayProps> = ({ bounds }) => {
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <AbsolutePositionedItem position="center">
         <Typography.Text type="danger">
-          Error loading stations: {error?.message}
+          Error loading stations: {errorToString(error)}
         </Typography.Text>
       </AbsolutePositionedItem>
     );

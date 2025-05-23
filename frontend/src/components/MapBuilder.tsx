@@ -8,9 +8,7 @@ import { env } from "@/config/vite-env";
 import { MapContainer, AttributionControl, TileLayer } from "react-leaflet";
 import styled from "@emotion/styled";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
-import { useTileLayer } from "@/utils/useTileLayer";
-import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
-import { YandexLayer } from "./YandexLayer";
+import { useCreateMapProvider } from "@/utils/useCreateMapProvider";
 
 const StyledMapContainer = styled(MapContainer)`
   height: 100vh;
@@ -22,12 +20,15 @@ export const MapBuilder: React.FC = () => {
   const center: [number, number] = [56.838, 60.5975]; // Default: Yekaterinburg
   const zoom = 12;
 
-  // const { TileLayer, error, isLoading, refreshMaps } = useTileLayer();
+
+  // const { TileLayer, error, isLoading, refreshMaps } = useCreateMapProvider();
 
   // if (isLoading || !TileLayer) {
   //   return (
   //     <AbsolutePositionedItem position="center">
-  //       <Spin tip="Detecting and loading map..." />
+  //       <Spin tip="Detecting and loading map...">
+  //         <Skeleton.Node active />
+  //       </Spin>
   //     </AbsolutePositionedItem>
   //   );
   // }
@@ -37,14 +38,6 @@ export const MapBuilder: React.FC = () => {
       <MapStateProvider>
         <AttributionControl position="bottomright" />
         {/* <TileLayerElement /> */}
-
-        {/* <ReactLeafletGoogleLayer
-          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          // @ts-expect-error: type is not assignable to the expected type
-          type="roadmap"
-        /> */}
-
-        <YandexLayer />
 
         <StationsOverlayWithLoader />
 
