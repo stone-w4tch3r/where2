@@ -8,39 +8,37 @@ import { env } from "@/config/vite-env";
 import { AttributionControl } from "react-leaflet";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
 import { ThirdPartyMapConnector } from "./ThirdPartyMapConnector";
+import { DevMap } from "./DevMap";
+import styled from "@emotion/styled";
 
-// const StyledMapContainer = styled(MapContainer)`
-//   height: 100vh;
-//   width: 100%;
-//   background-color: #f0f0f0;
-// `;
+const StyledDevMap = styled(DevMap)`
+  height: 100vh;
+  width: 100%;
+  background-color: #f0f0f0;
+`;
 
 export const MapBuilder: React.FC = () => {
-  const center: [number, number] = [56.838, 60.5975]; // Default: Yekaterinburg
-  const zoom = 12;
-
   return (
-    <ThirdPartyMapConnector
-      center={center}
-      zoom={zoom}
-      attributionControl={false}
-    >
-      <MapStateProvider>
-        <AttributionControl position="bottomright" />
-
-        <MapBoundsDetector />
-
-        {env.VITE_DEBUG_MODE && (
+    <>
+      {env.VITE_DEBUG_MODE && (
+        <StyledDevMap style={{ height: "80vh", width: "80%" }} />
+      )}
+      <ThirdPartyMapConnector attributionControl={false}>
+        fuuu
+        {/* <MapStateProvider> */}
+        {/* <AttributionControl position="bottomright" /> */}
+        {/* <MapBoundsDetector /> */}
+        {/* {env.VITE_DEBUG_MODE && (
           <AbsolutePositionedItem position="bottom-left">
             <DebugPanel />
           </AbsolutePositionedItem>
-        )}
-
-        <AbsolutePositionedItem position="top-right">
+        )} */}
+        {/* <AbsolutePositionedItem position="top-right">
           <PoweredBy />
-        </AbsolutePositionedItem>
-      </MapStateProvider>
-    </ThirdPartyMapConnector>
+        </AbsolutePositionedItem> */}
+        {/* </MapStateProvider> */}
+      </ThirdPartyMapConnector>
+    </>
   );
 };
 

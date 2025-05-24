@@ -8,11 +8,11 @@ const queryClient = new QueryClient();
 const App: React.FC = () => {
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <StoreProvider>
-          <MapBuilder />
-        </StoreProvider>
-      </QueryClientProvider>
+      {/* <QueryClientProvider client={queryClient}> */}
+      {/* <StoreProvider> */}
+      <MapBuilder />
+      {/* </StoreProvider> */}
+      {/* </QueryClientProvider> */}
     </React.StrictMode>
   );
 };

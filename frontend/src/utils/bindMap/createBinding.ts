@@ -6,7 +6,7 @@ export type Binding = {
   unbind: () => void;
 };
 
-export const makeBinding = (
+export const createBinding = (
   m: DetectedMap,
   targetMap: L.Map,
   onError: (error: Error | null) => void,
