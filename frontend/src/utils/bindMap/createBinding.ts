@@ -2,45 +2,34 @@ import { Map as YandexMap } from "yandex-maps";
 import { DetectedMap } from "../detectMaps/detectMaps";
 
 export type Binding = {
-  bind: () => void;
-  unbind: () => void;
+  bind: (onError: (error: Error | null) => void) => void;
+  unbind: (onError: (error: Error | null) => void) => void;
 };
 
 export const createBinding = (
   m: DetectedMap,
   targetMap: L.Map,
-  onError: (error: Error | null) => void,
-): Binding => {
-  const dummyBinding: Binding = {
-    bind: () => {},
-    unbind: () => {},
-  };
-
+): Binding | Error => {
   switch (m.type) {
     case "google":
       return {
-        ...createGoogleBinding(m.instance, targetMap, onError),
+        ...createGoogleBinding(m.instance, targetMap),
       };
     case "yandex":
       return {
-        ...createYandexBinding(m.instance, targetMap, onError),
+        ...createYandexBinding(m.instance, targetMap),
       };
     case "leaflet":
       return {
-        ...createLeafletBinding(m.instance, targetMap, onError),
+        ...createLeafletBinding(m.instance, targetMap),
       };
     default:
-      onError(new Error("Unknown map type detected"));
-      return dummyBinding;
+      return new Error("Unknown map type detected");
   }
 };
 
-const createYandexBinding = (
-  ymap: YandexMap,
-  lmap: L.Map,
-  onError: (error: Error | null) => void,
-): Binding => {
-  const sync = (): void => {
+const createYandexBinding = (ymap: YandexMap, lmap: L.Map): Binding => {
+  const sync = (onError: (error: Error | null) => void): void => {
     try {
       const c = ymap.getCenter();
       lmap.setView([c[0], c[1]], ymap.getZoom(), { animate: true });
@@ -51,19 +40,19 @@ const createYandexBinding = (
   };
 
   return {
-    bind: (): void => {
+    bind: (onError): void => {
       try {
-        sync(); // once at start
-        ymap.events.add(["actionend", "boundschange"], sync);
+        sync(onError); // once at start
+        ymap.events.add(["actionend", "boundschange"], () => sync(onError));
         onError(null);
       } catch (error) {
         onError(new Error("Failed to bind Yandex map to Leaflet"));
       }
     },
 
-    unbind: (): void => {
+    unbind: (onError): void => {
       try {
-        ymap.events.remove(["actionend", "boundschange"], sync);
+        ymap.events.remove(["actionend", "boundschange"], () => sync(onError));
         onError(null);
       } catch (error) {
         onError(new Error("Failed to unbind Yandex map from Leaflet"));
@@ -72,15 +61,11 @@ const createYandexBinding = (
   };
 };
 
-const createGoogleBinding = (
-  gmap: google.maps.Map,
-  lmap: L.Map,
-  onError: (error: Error | null) => void,
-): Binding => {
+const createGoogleBinding = (gmap: google.maps.Map, lmap: L.Map): Binding => {
   let listener: google.maps.MapsEventListener | null = null;
   let isBound = false;
 
-  const sync = (): void => {
+  const sync = (onError: (error: Error | null) => void): void => {
     try {
       const c = gmap.getCenter();
       if (!c) throw new Error("Google map has no center");
@@ -92,18 +77,18 @@ const createGoogleBinding = (
   };
 
   return {
-    bind(): void {
+    bind(onError): void {
       try {
         if (isBound) return;
-        sync();
-        listener = gmap.addListener("idle", sync);
+        sync(onError);
+        listener = gmap.addListener("idle", () => sync(onError));
         isBound = true;
         onError(null);
       } catch {
         onError(new Error("Failed to bind Google -> Leaflet"));
       }
     },
-    unbind(): void {
+    unbind(onError): void {
       try {
         if (!isBound) return;
         if (listener) {
@@ -119,14 +104,10 @@ const createGoogleBinding = (
   };
 };
 
-const createLeafletBinding = (
-  sourceMap: L.Map,
-  targetMap: L.Map,
-  onError: (error: Error | null) => void,
-): Binding => {
+const createLeafletBinding = (sourceMap: L.Map, targetMap: L.Map): Binding => {
   let isBound = false;
 
-  const sync = (): void => {
+  const sync = (onError: (error: Error | null) => void): void => {
     try {
       const center = sourceMap.getCenter();
       const zoom = sourceMap.getZoom();
@@ -138,11 +119,11 @@ const createLeafletBinding = (
   };
 
   return {
-    bind(): void {
+    bind(onError): void {
       try {
         if (isBound) return;
-        sync();
-        sourceMap.on("moveend zoomend", sync);
+        sync(onError);
+        sourceMap.on("moveend zoomend", () => sync(onError));
         isBound = true;
         onError(null);
       } catch {
@@ -150,10 +131,10 @@ const createLeafletBinding = (
       }
     },
 
-    unbind(): void {
+    unbind(onError): void {
       try {
         if (!isBound) return;
-        sourceMap.off("moveend zoomend", sync);
+        sourceMap.off("moveend zoomend", () => sync(onError));
         isBound = false;
         onError(null);
       } catch {
