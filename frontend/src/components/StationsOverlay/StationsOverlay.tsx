@@ -2,9 +2,9 @@ import React from "react";
 import { useStations } from "@/components/StationsOverlay/useStations";
 import { CircleMarker, Tooltip, LayerGroup } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
-import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
-import { Spin, Skeleton, Typography } from "antd";
 import { errorToString } from "@/utils/errorHelpers";
+import { AbsolutePositionedSpinner } from "../AbsolutePositionedSpinner";
+import { AbsolutePositionedErrorText } from "@/api/AbsolutePositionedErrorText";
 
 type StationsOverlayProps = {
   bounds: LatLngBounds;
@@ -14,22 +14,14 @@ export const StationsOverlay: React.FC<StationsOverlayProps> = ({ bounds }) => {
   const { stations, isLoading, error } = useStations(bounds);
 
   if (isLoading) {
-    return (
-      <AbsolutePositionedItem position="center">
-        <Spin tip="Loading stations...">
-          <Skeleton.Node active />
-        </Spin>
-      </AbsolutePositionedItem>
-    );
+    return <AbsolutePositionedSpinner tip="Loading stations..." />;
   }
 
   if (error) {
     return (
-      <AbsolutePositionedItem position="center">
-        <Typography.Text type="danger">
-          Error loading stations: {errorToString(error)}
-        </Typography.Text>
-      </AbsolutePositionedItem>
+      <AbsolutePositionedErrorText
+        message={`Error loading stations: ${errorToString(error)}`}
+      />
     );
   }
 

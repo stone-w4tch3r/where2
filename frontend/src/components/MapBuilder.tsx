@@ -7,9 +7,10 @@ import { StationsOverlay } from "@/components/StationsOverlay/StationsOverlay";
 import { env } from "@/config/vite-env";
 import { AttributionControl } from "react-leaflet";
 import { AbsolutePositionedItem } from "@/components/AbsolutePositionedItem";
-import { ThirdPartyMapConnector } from "./ThirdPartyMapConnector";
+import { ThirdPartyMapConnection } from "./ThirdPartyMapConnection";
 import { DevMap } from "./DevMap";
 import styled from "@emotion/styled";
+import { AbsolutePositionedSpinner } from "./AbsolutePositionedSpinner";
 
 const StyledDevMap = styled(DevMap)`
   height: 100vh;
@@ -23,7 +24,7 @@ export const MapBuilder: React.FC = () => {
       {env.VITE_DEBUG_MODE && (
         <StyledDevMap style={{ height: "80vh", width: "80%" }} />
       )}
-      <ThirdPartyMapConnector attributionControl={false}>
+      <ThirdPartyMapConnection attributionControl={false}>
         fuuu
         {/* <MapStateProvider> */}
         {/* <AttributionControl position="bottomright" /> */}
@@ -37,7 +38,7 @@ export const MapBuilder: React.FC = () => {
           <PoweredBy />
         </AbsolutePositionedItem> */}
         {/* </MapStateProvider> */}
-      </ThirdPartyMapConnector>
+      </ThirdPartyMapConnection>
     </>
   );
 };
@@ -46,23 +47,11 @@ const MapBoundsDetector: React.FC = () => {
   const { bounds, isMapInitialized } = useMapStateContext();
 
   if (!isMapInitialized) {
-    return (
-      <AbsolutePositionedItem position="center">
-        <Spin tip="Loading map...">
-          <Skeleton.Node active />
-        </Spin>
-      </AbsolutePositionedItem>
-    );
+    return <AbsolutePositionedSpinner tip="Loading map..." />;
   }
 
   if (!bounds) {
-    return (
-      <AbsolutePositionedItem position="center">
-        <Spin tip="Loading map bounds...">
-          <Skeleton.Node active />
-        </Spin>
-      </AbsolutePositionedItem>
-    );
+    return <AbsolutePositionedSpinner tip="Loading map bounds..." />;
   }
 
   return <StationsOverlay bounds={bounds} />;
