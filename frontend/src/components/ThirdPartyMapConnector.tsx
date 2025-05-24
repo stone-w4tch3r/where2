@@ -1,141 +1,34 @@
-import { useDetectMaps } from "@/utils/detectMaps/useDetectMaps";
-import { bindMap } from "@/utils/bindMap/useBindMap";
 import { LeafletContext, createLeafletContext } from "@react-leaflet/core";
 import { Map as LeafletMap, MapOptions } from "leaflet";
-import React, {
-  JSX,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { AbsolutePositionedItem } from "./AbsolutePositionedItem";
-import { Skeleton, Spin, Typography } from "antd";
-import { DetectedMap } from "@/utils/detectMaps/detectMaps";
+import React, { JSX, useLayoutEffect, useRef, useState } from "react";
 import L from "leaflet";
 
 export interface ThirdPartyMapConnectorProps extends MapOptions {
   children: React.ReactNode;
 }
 
+/**
+ * This component is used to connect a third-party map to the React Leaflet context.
+ * It binds React Leaflet map to track map state and bounds.
+ * New React Leaflet map is created as a transparent control-less overlay on top of the third-party map.
+ */
 export const ThirdPartyMapConnector = ({
   children,
   ...opts
 }: ThirdPartyMapConnectorProps): JSX.Element | null => {
   const [ctx, setCtx] = useState<ReturnType<typeof createLeafletContext>>();
-  const [leafletMap, setLeafletMap] = useState<LeafletMap | null>(null);
-  const [mapElement, setMapElement] = useState<HTMLElement | null>(null);
-  const [bindingError, setBindingError] = useState<string | null>(null);
-  const [mapDetectionError, setMapDetectionError] = useState<string | null>(
-    null,
-  );
 
-  // const {
-  //   maps: detectedMaps,
-  //   isLoading: isLoadingMaps,
-  //   error: detectionErrorRaw,
-  // } = useDetectMaps();
-
-  // const filteredMap = useMapFilter({
-  //   maps: detectedMaps,
-  //   onError: (filterError) =>
-  //     setMapDetectionError(filterError?.message || null),
-  // });
-
-  // useEffect(() => {
-  //   console.log("setting map element");
-  //   setMapElement(filteredMap.element);
-  // }, [filteredMap]);
-
-  // const {
-  //   bindMap,
-  //   unbindMap,
-  //   error: mapBindingHookError,
-  // } = useBindMap(filteredMap, leafletMap);
-
-  // useEffect(() => {
-  //   if (detectionErrorRaw) {
-  //     setMapDetectionError(
-  //       `Map detection failed: ${detectionErrorRaw.message}`,
-  //     );
-  //   }
-  // }, [detectionErrorRaw]);
-
-  // useEffect(() => {
-  //   if (filteredMap) {
-  //     setMapElement(filteredMap.element);
-  //     setMapDetectionError(null);
-  //   } else if (!isLoadingMaps && detectedMaps.length === 0) {
-  //     setMapDetectionError("No maps detected on the page.");
-  //   } else if (!isLoadingMaps && detectedMaps.length > 1) {
-  //     setMapDetectionError(
-  //       "Multiple maps detected on the page. Please ensure only one map is present.",
-  //     );
-  //   }
-  // }, [filteredMap, isLoadingMaps, detectedMaps]);
-
-  // useEffect(() => {
-  //   if (mapBindingHookError) {
-  //     setBindingError(`Map binding failed: ${mapBindingHookError.message}`);
-  //   }
-  // }, [mapBindingHookError]);
-
-  // useEffect((): (() => void) => {
-  //   if (mapElement && !leafletMap && !mapDetectionError) {
-  //     const lMap = new LeafletMap(mapElement, { ...opts });
-  //     setCtx(createLeafletContext(lMap));
-  //     setLeafletMap(lMap);
-  //     return (): void => {
-  //       lMap.remove();
-  //       setLeafletMap(null);
-  //       setCtx(undefined);
-  //     };
-  //   }
-  //   return (): void => {};
-  // }, [mapElement, opts, mapDetectionError, leafletMap]);
-
-  // useEffect((): (() => void) => {
-  //   if (leafletMap && filteredMap && !bindingError && !mapDetectionError) {
-  //     bindMap();
-  //     return (): void => {
-  //       unbindMap();
-  //     };
-  //   }
-  //   return (): void => {};
-  // }, [
-  //   leafletMap,
-  //   filteredMap,
-  //   bindMap,
-  //   unbindMap,
-  //   bindingError,
-  //   mapDetectionError,
-  // ]);
-
-  // if (isLoadingMaps) {
-  //   return (
-  //     <AbsolutePositionedItem position="center">
-  //       <Spin tip="Detecting maps..." size="large">
-  //         <Skeleton.Node active />
-  //       </Spin>
-  //     </AbsolutePositionedItem>
-  //   );
-  // }
-
-  // if (mapDetectionError) {
+  // TODO
 
   return (
-    <div>
-      hello
+    <LeafletContext.Provider value={ctx}>
       <OverlayLeafletMap />
-    </div>
+      {children}
+    </LeafletContext.Provider>
   );
-
-  // return (
-  //   <LeafletContext.Provider value={ctx}>{children}</LeafletContext.Provider>
-  // );
 };
 
+// TODO rewrite to hook
 export const OverlayLeafletMap = (): JSX.Element | null => {
   const mapRef = useRef<L.Map | null>(null);
   const overlayElRef = useRef<HTMLDivElement | null>(null);
